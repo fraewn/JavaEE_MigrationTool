@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>thesis.hbrs</groupId>
+	<artifactId>migrationtool</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<modules>
+		<module>migrationtool-core</module>
+		<module>migrationtool-loader</module>
+		<module>migrationtool-model</module>
+		<module>migrationtool-interpreter</module>
+		<module>migrationtool-deploy-commander</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+
+		<finalName>${project.name}</finalName>
+
+		<!-- Library versions -->
+		<log4j-version>1.2.17</log4j-version>
+		<args4j-version>2.33</args4j-version>
+		<freemaker-version>2.3.31</freemaker-version>
+		<javaparser-version>3.20.2</javaparser-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${log4j-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>args4j</groupId>
+				<artifactId>args4j</artifactId>
+				<version>${args4j-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.freemarker</groupId>
+				<artifactId>freemarker</artifactId>
+				<version>${freemaker-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.javaparser</groupId>
+				<artifactId>javaparser-symbol-solver-core</artifactId>
+				<version>${javaparser-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<finalName>${finalName}</finalName>
+	</build>
+</project>
