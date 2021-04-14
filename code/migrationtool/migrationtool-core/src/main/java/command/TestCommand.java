@@ -14,9 +14,14 @@ public class TestCommand extends AbstractCommand {
 	}
 
 	@Override
-	protected SortedMap<Class<? extends CommandStep>, String> defineSteps() {
-		SortedMap<Class<? extends CommandStep>, String> steps = new TreeMap<>();
-		steps.put(LoaderService.class, "one");
+	protected SortedMap<String, Class<? extends CommandStep>> defineSteps() {
+		SortedMap<String, Class<? extends CommandStep>> steps = new TreeMap<>();
+		steps.put("One", LoaderService.class);
 		return steps;
+	}
+
+	@Override
+	protected void setCommandLineArguments(String[] args) {
+
 	}
 }

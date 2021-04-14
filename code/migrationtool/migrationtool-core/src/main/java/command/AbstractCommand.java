@@ -25,31 +25,39 @@ public abstract class AbstractCommand {
 
 	public abstract String getName();
 
-	protected abstract SortedMap<Class<? extends CommandStep>, String> defineSteps();
+	protected abstract SortedMap<String, Class<? extends CommandStep>> defineSteps();
+
+	protected abstract void setCommandLineArguments(String[] args);
 
 	private void loadSteps() {
-		SortedMap<Class<? extends CommandStep>, String> list = defineSteps();
-		for (Map.Entry<Class<? extends CommandStep>, String> step : list.entrySet()) {
+		SortedMap<String, Class<? extends CommandStep>> list = defineSteps();
+		for (Map.Entry<String, Class<? extends CommandStep>> step : list.entrySet()) {
 			if (step == null) {
 				throw new MigrationToolInitException("No Implementation declared");
 			}
-			boolean foundImpl = false;
-			ServiceLoader.load(step.getKey()).forEach(plugin -> {
-				if (step.getValue().equals(SERVICE_EXTENSION_PACKAGE + "." + plugin.getClass().getSimpleName())) {
+			int foundImpl = this.steps.size();
+			ServiceLoader.load(step.getValue()).forEach(plugin -> {
+				System.out.println(plugin);
+
+				String path = SERVICE_EXTENSION_PACKAGE + "." + step.getKey();
+				System.out.println(path);
+				System.out.println(plugin.getClass().getName());
+				if (path.equals(plugin.getClass().getName())) {
 					this.steps.add(plugin);
 				}
 			});
-			if (!foundImpl) {
+			if (foundImpl == this.steps.size()) {
 				throw new MigrationToolInitException("No Implementation found");
 			}
 		}
 	}
 
-	public void run() {
+	public void run(String[] args) {
 		LOG.info("Execute command " + getName());
 		LOG.info("Initialize...");
 		beforeInitialization();
 		loadSteps();
+		setCommandLineArguments(args);
 		afterInitialization();
 		LOG.info("Defined ExecutionOrder");
 		for (CommandStep commandStep : this.steps) {

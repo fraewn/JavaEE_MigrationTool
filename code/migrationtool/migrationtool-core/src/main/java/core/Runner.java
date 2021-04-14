@@ -9,26 +9,26 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import command.AbstractCommand;
+
 public class Runner {
 
 	private static final Logger LOG = Logger.getLogger(Runner.class);
 
-	@Option(name = "-command", usage = "boolean value for checking the custom handler")
+	@Option(name = "-command", required = true, usage = "value for defining the executed method")
 	private String command;
 
 	// receives other command line parameters than options
 	@Argument
 	private List<String> arguments = new ArrayList<>();
 
+	private AbstractCommand runnableCommand;
+
 	public void run(String[] args) {
 		CmdLineParser parser = new CmdLineParser(this);
 		try {
 			// parse the arguments.
 			parser.parseArgument(args);
-			// after parsing arguments, you should check if enough arguments are given.
-			if (this.arguments.isEmpty()) {
-				throw new CmdLineException(parser, "No argument is given");
-			}
 		} catch (CmdLineException e) {
 			// this will report an error message.
 			LOG.error(e.getMessage());
@@ -36,8 +36,11 @@ public class Runner {
 			// print the list of available options
 			parser.printUsage(System.err);
 		}
-
-		// TODO load correct command
-
+		this.runnableCommand = CommandLoader.get(this.command);
+		if (this.runnableCommand == null) {
+			LOG.error("Command not found: " + this.command);
+		} else {
+			this.runnableCommand.run(this.arguments.toArray(new String[0]));
+		}
 	}
 }
