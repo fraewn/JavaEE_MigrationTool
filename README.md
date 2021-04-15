@@ -2,4 +2,4 @@
 
 ## Description
 
-java -cp migrationtool.jar;migrationtool-loader.jar core.Main -command=TestCommand
+java -cp migrationtool.jar;migrationtool-mock.jar core.Main -command=TestCommand .path=Hello
