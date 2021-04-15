@@ -12,6 +12,7 @@
 		<module>migrationtool-model</module>
 		<module>migrationtool-interpreter</module>
 		<module>migrationtool-deploy-commander</module>
+		<module>migrationtool-mock</module>
 	</modules>
 
 	<properties>

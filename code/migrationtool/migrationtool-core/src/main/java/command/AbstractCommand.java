@@ -3,21 +3,24 @@ package command;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.SortedMap;
 
 import org.apache.log4j.Logger;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 
 import api.CommandStep;
+import utils.CommanLineSplitter;
 import utils.MigrationToolInitException;
+import utils.PluginManager;
 
 public abstract class AbstractCommand {
 
 	private static final Logger LOG = Logger.getLogger(AbstractCommand.class);
 
-	private static final String SERVICE_EXTENSION_PACKAGE = "service.extension";
-
 	private List<CommandStep> steps;
+
+	private String[] arguments;
 
 	public AbstractCommand() {
 		this.steps = new ArrayList<>();
@@ -27,8 +30,6 @@ public abstract class AbstractCommand {
 
 	protected abstract SortedMap<String, Class<? extends CommandStep>> defineSteps();
 
-	protected abstract void setCommandLineArguments(String[] args);
-
 	private void loadSteps() {
 		SortedMap<String, Class<? extends CommandStep>> list = defineSteps();
 		for (Map.Entry<String, Class<? extends CommandStep>> step : list.entrySet()) {
@@ -36,16 +37,10 @@ public abstract class AbstractCommand {
 				throw new MigrationToolInitException("No Implementation declared");
 			}
 			int foundImpl = this.steps.size();
-			ServiceLoader.load(step.getValue()).forEach(plugin -> {
-				System.out.println(plugin);
-
-				String path = SERVICE_EXTENSION_PACKAGE + "." + step.getKey();
-				System.out.println(path);
-				System.out.println(plugin.getClass().getName());
-				if (path.equals(plugin.getClass().getName())) {
-					this.steps.add(plugin);
-				}
-			});
+			CommandStep tmp = PluginManager.findPluginService(step.getValue(), step.getKey());
+			if (tmp != null) {
+				this.steps.add(tmp);
+			}
 			if (foundImpl == this.steps.size()) {
 				throw new MigrationToolInitException("No Implementation found");
 			}
@@ -56,8 +51,8 @@ public abstract class AbstractCommand {
 		LOG.info("Execute command " + getName());
 		LOG.info("Initialize...");
 		beforeInitialization();
-		loadSteps();
 		setCommandLineArguments(args);
+		loadSteps();
 		afterInitialization();
 		LOG.info("Defined ExecutionOrder");
 		for (CommandStep commandStep : this.steps) {
@@ -65,6 +60,7 @@ public abstract class AbstractCommand {
 		}
 		LOG.info("Execute...");
 		for (CommandStep commandStep : this.steps) {
+			commandStep.setCommandLineArguments(this.arguments);
 			commandStep.execute();
 		}
 		afterExecution();
@@ -81,5 +77,20 @@ public abstract class AbstractCommand {
 
 	protected void afterExecution() {
 		// Overwrite
+	}
+
+	protected void setCommandLineArguments(String[] args) {
+		CmdLineParser parser = new CmdLineParser(this);
+		try {
+			// parse the arguments.
+			parser.parseArgument(CommanLineSplitter.definedArgs(args, parser));
+		} catch (CmdLineException e) {
+			// this will report an error message.
+			LOG.error(e.getMessage());
+			LOG.error("java SampleMain [options...] arguments...");
+			// print the list of available options
+			parser.printUsage(System.err);
+		}
+		this.arguments = CommanLineSplitter.undefinedArgs(args, parser);
 	}
 }
