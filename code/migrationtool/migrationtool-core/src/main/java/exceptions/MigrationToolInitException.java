@@ -1,4 +1,4 @@
-package utils;
+package exceptions;
 
 public class MigrationToolInitException extends RuntimeException {
 

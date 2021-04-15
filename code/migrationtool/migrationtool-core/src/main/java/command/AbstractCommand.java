@@ -1,38 +1,61 @@
 package command;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 
 import org.apache.log4j.Logger;
-import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import api.CommandStep;
-import utils.CommanLineSplitter;
-import utils.MigrationToolInitException;
+import exceptions.MigrationToolInitException;
+import utils.CommandLineParser;
+import utils.CommandLineSplitter;
 import utils.PluginManager;
 
+/**
+ * Abstract class of all possible command. Defines a basic structure of the
+ * processing
+ */
 public abstract class AbstractCommand {
-
+	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(AbstractCommand.class);
 
+	/** List of the operations */
 	private List<CommandStep> steps;
 
+	/** Map of the defined operations */
+	private Map<String, Class<? extends CommandStep>> definedSteps;
+
+	/** Temp var, save unknown arguments */
 	private String[] arguments;
 
 	public AbstractCommand() {
 		this.steps = new ArrayList<>();
+		this.definedSteps = new LinkedHashMap<>();
 	}
 
+	/**
+	 * Define the name of the command
+	 *
+	 * @return command name
+	 */
 	public abstract String getName();
 
-	protected abstract SortedMap<String, Class<? extends CommandStep>> defineSteps();
+	/**
+	 * Define the order of possible services for this command
+	 *
+	 * @param definedSteps sorted list
+	 */
+	protected abstract void defineSteps(Map<String, Class<? extends CommandStep>> definedSteps);
 
+	/*
+	 * Load with the help of the PluginManager all defined services
+	 */
 	private void loadSteps() {
-		SortedMap<String, Class<? extends CommandStep>> list = defineSteps();
-		for (Map.Entry<String, Class<? extends CommandStep>> step : list.entrySet()) {
+		defineSteps(this.definedSteps);
+		for (Map.Entry<String, Class<? extends CommandStep>> step : this.definedSteps.entrySet()) {
 			if (step == null) {
 				throw new MigrationToolInitException("No Implementation declared");
 			}
@@ -47,6 +70,11 @@ public abstract class AbstractCommand {
 		}
 	}
 
+	/**
+	 * Execute the command
+	 *
+	 * @param args command arguments
+	 */
 	public void run(String[] args) {
 		LOG.info("Execute command " + getName());
 		LOG.info("Initialize...");
@@ -60,6 +88,7 @@ public abstract class AbstractCommand {
 		}
 		LOG.info("Execute...");
 		for (CommandStep commandStep : this.steps) {
+			// set arguments of service
 			commandStep.setCommandLineArguments(this.arguments);
 			commandStep.execute();
 		}
@@ -67,30 +96,34 @@ public abstract class AbstractCommand {
 		LOG.info("Done...");
 	}
 
+	/**
+	 * Process before Initialization
+	 */
 	protected void beforeInitialization() {
 		// Overwrite
 	}
 
+	/**
+	 * Process after Initialization
+	 */
 	protected void afterInitialization() {
 		// Overwrite
 	}
 
+	/**
+	 * Process after Execution
+	 */
 	protected void afterExecution() {
 		// Overwrite
 	}
 
+	/**
+	 * Set all defined arguments to the command. Fill list of unknown arguments
+	 *
+	 * @param args command arguments
+	 */
 	protected void setCommandLineArguments(String[] args) {
-		CmdLineParser parser = new CmdLineParser(this);
-		try {
-			// parse the arguments.
-			parser.parseArgument(CommanLineSplitter.definedArgs(args, parser));
-		} catch (CmdLineException e) {
-			// this will report an error message.
-			LOG.error(e.getMessage());
-			LOG.error("java SampleMain [options...] arguments...");
-			// print the list of available options
-			parser.printUsage(System.err);
-		}
-		this.arguments = CommanLineSplitter.undefinedArgs(args, parser);
+		CmdLineParser parser = CommandLineParser.parse(args, this);
+		this.arguments = CommandLineSplitter.undefinedArgs(args, parser);
 	}
 }

@@ -1,5 +1,8 @@
-package utils;
+package exceptions;
 
+/**
+ * Exception, thrown when there is a runtime error
+ */
 public class MigrationToolRuntimeException extends RuntimeException {
 
 	/**

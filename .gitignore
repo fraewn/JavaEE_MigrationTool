@@ -41,6 +41,11 @@ local.properties
 .loadpath
 .factorypath
 
+##############################
+## IntelliJ
+##############################
+*.iml
+
 # User-specific stuff:
 .idea/workspace.xml
 .idea/tasks.xml
@@ -55,10 +60,6 @@ local.properties
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
 .idea/uiDesigner.xml
-
-# Gradle:
-.idea/gradle.xml
-.idea/libraries
 
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
@@ -94,19 +95,3 @@ Icon
 
 # Thumbnails
 ._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk

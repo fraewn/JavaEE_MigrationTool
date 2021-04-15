@@ -1,12 +1,18 @@
 package service.extension;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
-import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+
 import api.LoaderService;
-import utils.CommanLineSplitter;
+import core.LoadSourceFiles;
+import exceptions.MigrationToolInitException;
+import utils.CommandLineParser;
+import utils.CommandLineSplitter;
 
 public class DefaultLoader implements LoaderService {
 
@@ -15,24 +21,21 @@ public class DefaultLoader implements LoaderService {
 	@Option(name = "-path", usage = "value for defining the location of the class files")
 	private String path;
 
+	private List<ClassOrInterfaceDeclaration> allClasses;
+
 	@Override
 	public void setCommandLineArguments(String[] args) {
-		CmdLineParser parser = new CmdLineParser(this);
-		try {
-			// parse the arguments.
-			parser.parseArgument(CommanLineSplitter.definedArgs(args, parser));
-		} catch (CmdLineException e) {
-			// this will report an error message.
-			LOG.error(e.getMessage());
-			LOG.error("java SampleMain [options...] arguments...");
-			// print the list of available options
-			parser.printUsage(System.err);
+		CmdLineParser parser = CommandLineParser.parse(args, this);
+		if (CommandLineSplitter.undefinedArgs(args, parser) != null) {
+			throw new MigrationToolInitException("arguments not valid");
 		}
 	}
 
 	@Override
 	public void findClasses() {
-		LOG.info(this.path);
+		LOG.info("Defined Path of project:" + this.path);
+		this.allClasses = LoadSourceFiles.listClasses(this.path);
+		LOG.info("Load complete");
 	}
 
 	@Override

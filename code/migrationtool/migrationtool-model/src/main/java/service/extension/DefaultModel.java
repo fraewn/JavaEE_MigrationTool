@@ -5,7 +5,7 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import api.ModelService;
-import utils.CommanLineSplitter;
+import utils.CommandLineSplitter;
 
 public class DefaultModel implements ModelService {
 
@@ -16,7 +16,7 @@ public class DefaultModel implements ModelService {
 		CmdLineParser parser = new CmdLineParser(this);
 		try {
 			// parse the arguments.
-			parser.parseArgument(CommanLineSplitter.definedArgs(args, parser));
+			parser.parseArgument(CommandLineSplitter.definedArgs(args, parser));
 		} catch (CmdLineException e) {
 			// this will report an error message.
 			LOG.error(e.getMessage());

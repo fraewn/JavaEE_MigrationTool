@@ -1,7 +1,6 @@
 package command;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Map;
 
 import org.kohsuke.args4j.Option;
 
@@ -10,6 +9,9 @@ import api.InterpreterService;
 import api.LoaderService;
 import api.ModelService;
 
+/**
+ * Basic Definition of a command with all three services
+ */
 public abstract class DefaultCommand extends AbstractCommand {
 
 	@Option(name = "-loader", usage = "value for defining the loader service class")
@@ -22,11 +24,9 @@ public abstract class DefaultCommand extends AbstractCommand {
 	private String interpreter;
 
 	@Override
-	protected SortedMap<String, Class<? extends CommandStep>> defineSteps() {
-		SortedMap<String, Class<? extends CommandStep>> steps = new TreeMap<>();
-		steps.put(this.loader == null ? "DefaultLoader" : this.loader, LoaderService.class);
-		steps.put(this.model == null ? "DefaultModel" : this.model, ModelService.class);
-		steps.put(this.interpreter == null ? "DefaultInterpreter" : this.interpreter, InterpreterService.class);
-		return steps;
+	protected void defineSteps(Map<String, Class<? extends CommandStep>> definedSteps) {
+		definedSteps.put(this.loader == null ? "DefaultLoader" : this.loader, LoaderService.class);
+		definedSteps.put(this.model == null ? "DefaultModel" : this.model, ModelService.class);
+		definedSteps.put(this.interpreter == null ? "DefaultInterpreter" : this.interpreter, InterpreterService.class);
 	}
 }
