@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="migrationtool-mock" />
+        <module name="migrationtool-core" />
+        <module name="migrationtool-interpreter" />
+        <module name="migrationtool-deploy-commander" />
+        <module name="migrationtool-model" />
+        <module name="migrationtool-loader" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="migrationtool" target="1.8" />
+      <module name="migrationtool-core" target="1.8" />
+      <module name="migrationtool-deploy-commander" target="1.8" />
+      <module name="migrationtool-interpreter" target="1.8" />
+      <module name="migrationtool-loader" target="1.8" />
+      <module name="migrationtool-mock" target="1.8" />
+      <module name="migrationtool-model" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
