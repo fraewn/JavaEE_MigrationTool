@@ -9,38 +9,54 @@
 	</parent>
 	<artifactId>migrationtool-deploy-commander</artifactId>
 
+	<properties>
+		<finalName>migrationtool</finalName>
+		<main.Class>core.Main</main.Class>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>thesis.hbrs</groupId>
 			<artifactId>migrationtool-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>thesis.hbrs</groupId>
+			<artifactId>migrationtool-loader</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>thesis.hbrs</groupId>
+			<artifactId>migrationtool-interpreter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>thesis.hbrs</groupId>
+			<artifactId>migrationtool-model</artifactId>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<finalName>migrationtool</finalName>
-					<appendAssemblyId>false</appendAssemblyId>
-					<archive>
-						<manifest>
-							<mainClass>core.Main</mainClass>
-						</manifest>
-					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id> 
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

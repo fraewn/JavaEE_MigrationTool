@@ -27,7 +27,6 @@ public class LoadSourceFiles {
 	private static final Logger LOG = Logger.getLogger(LoadSourceFiles.class);
 
 	public static List<ClassOrInterfaceDeclaration> listClasses(String filePath) {
-		LOG.info("Starting list class process");
 		File file = new File(filePath);
 		List<ClassOrInterfaceDeclaration> classList = new ArrayList<>();
 		// exclude all paths that do not lead to a directory or a .java file
@@ -61,7 +60,6 @@ public class LoadSourceFiles {
 		try {
 			LOG.debug("parsing: " + file.getPath());
 			cu = StaticJavaParser.parse(file);
-			LOG.debug("parsing: done");
 		} catch (FileNotFoundException e) {
 			LOG.error(e.getMessage(), e);
 			return Collections.emptyList();

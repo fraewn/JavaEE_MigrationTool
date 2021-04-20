@@ -1,6 +1,7 @@
 package utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.kohsuke.args4j.CmdLineParser;
@@ -13,7 +14,7 @@ public class CommandLineSplitter {
 
 	/**
 	 * Get all arguments which corresponds to the class
-	 * 
+	 *
 	 * @param args   list of arguments
 	 * @param parser used parser
 	 * @return defined arguments
@@ -33,24 +34,17 @@ public class CommandLineSplitter {
 
 	/**
 	 * Get all arguments which do not corresponds to the class
-	 * 
+	 *
 	 * @param args   list of arguments
 	 * @param parser used parser
 	 * @return undefined arguments
 	 */
 	public static String[] undefinedArgs(String[] args, CmdLineParser parser) {
-		String[] tmp = definedArgs(args, parser);
+		List<String> defined = new ArrayList<>(Arrays.asList(definedArgs(args, parser)));
 		List<String> res = new ArrayList<>();
-		for (String s : args) {
-			boolean defined = false;
-			for (String def : tmp) {
-				if (def.equals(s)) {
-					defined = true;
-					break;
-				}
-			}
-			if (!defined) {
-				res.add(s);
+		for (String param : args) {
+			if (!defined.contains(param)) {
+				res.add(param);
 			}
 		}
 		return res.toArray(new String[0]);

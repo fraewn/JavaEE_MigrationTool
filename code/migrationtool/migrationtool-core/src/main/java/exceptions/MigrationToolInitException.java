@@ -1,5 +1,8 @@
 package exceptions;
 
+/**
+ * Exception, thrown when the configuration is wrong
+ */
 public class MigrationToolInitException extends RuntimeException {
 
 	/**
