@@ -28,7 +28,6 @@ buildNumber.properties
 ## Eclipse
 ##############################
 .settings/
-bin/
 tmp/
 .metadata
 .classpath
