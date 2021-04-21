@@ -8,7 +8,6 @@ import org.kohsuke.args4j.Option;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
 import api.LoaderService;
-import core.LoadSourceFiles;
 import utils.CommandLineParser;
 
 public class DefaultLoader implements LoaderService {
@@ -28,7 +27,6 @@ public class DefaultLoader implements LoaderService {
 	@Override
 	public void findClasses() {
 		LOG.info("Defined Path of project:" + this.path);
-		this.allClasses = LoadSourceFiles.listClasses(this.path);
 		LOG.info("Load complete");
 	}
 
