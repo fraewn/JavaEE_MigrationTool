@@ -1,33 +1,61 @@
 package visitors;
 
-import java.io.File;
+import DTOs.MethodDependencyDTO;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import exceptions.MigrationToolInitException;
 import java.util.List;
 
-import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.symbolsolver.JavaSymbolSolver;
-import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-
-import DTOs.MethodDependencyDTO;
-import exceptions.MigrationToolInitException;
-
-public class MethodCallResolver {
-	public void findMethodDependencies(File file, List<ClassOrInterfaceDeclaration> classList,
-			MethodDependencyDTO methodDependencyDTO) throws MigrationToolInitException
-
+public class MethodCallResolver extends VoidVisitorAdapter<List<MethodDependencyDTO>> {
+	public void visit(MethodDeclaration methodDeclaration,
+													  List<MethodDependencyDTO> methodDependencyDTOList) throws MigrationToolInitException
 	{
 
-		TypeSolver typeSolver = new ReflectionTypeSolver();
-		JavaSymbolSolver symbolSolver = new JavaSymbolSolver(typeSolver);
+		super.visit(methodDeclaration, methodDependencyDTOList);
 
-		StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
-		try {
-			CompilationUnit cu = StaticJavaParser.parse(file);
-		} catch (Exception e) {
-			throw new MigrationToolInitException(e.getMessage());
-		}
+		MethodDependencyDTO methodDependencyDTO = new MethodDependencyDTO();
+		String method = methodDeclaration.getDeclarationAsString();
 
+
+
+
+		/*methodDependencyDTO.setMethodDeclaration(methodDeclaration.asMethodDeclaration());
+		methodDependencyDTO.setClassWithMethod(methodDeclaration.resolve().getQualifiedSignature());
+		methodDependencyDTO.setMethodCallingClass(methodDeclaration.asClassOrInterfaceDeclaration());*/
+		// if gucken wo method call expression hin geht
+		// schauen ob das iwie im nativen projekt ist oder ob das ne lib ist
+		// entweder mit blacklist
+		// alles was nicht mit .java anfängt exclude
+		//methodDependencyDTOList.add(methodDependencyDTO);
 	}
+
+	@Override
+	public void visit(MethodCallExpr n, List<MethodDependencyDTO> arg) {
+		super.visit(n, arg);
+
+		String method = n.getNameAsString();
+
+		try {
+			// calling Class vorher abfragen wo cu benutzt wird und zu dem zeitpunkt in dto schreiben
+			String callingClass = "";
+			// die anderen beiden hier:
+			String methodClass = n.resolve().getQualifiedSignature();
+			System.out.println(callingClass + " uses " + method  + "from " + methodClass);
+		}
+		catch(Exception e){
+			System.out.println("+ EXCEPTION for method: " + method);
+		}
+	}
+	/*@Override
+	public void visit(MethodReferenceExpr n, List<MethodDependencyDTO> arg) {
+		System.out.println("method ref expr");
+		super.visit(n, arg);
+		String method = n.toString();
+		//String methodClass = n.asMethodReferenceExpr().resolve().getQualifiedSignature();
+		System.out.println(" uses " + method  + "from ----");
+	}*/
+
+
+
 }

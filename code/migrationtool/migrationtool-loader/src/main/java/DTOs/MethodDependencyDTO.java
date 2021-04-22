@@ -1,15 +1,12 @@
 package DTOs;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.google.common.collect.HashBasedTable;
+import com.github.javaparser.ast.body.MethodDeclaration;
 
 public class MethodDependencyDTO {
 	protected ClassOrInterfaceDeclaration methodCallingClass = null;
 	protected ClassOrInterfaceDeclaration classWithMethod = null;
-	protected MethodCallExpr mce = null;
-
-	protected HashBasedTable<ClassOrInterfaceDeclaration, MethodCallExpr, ClassOrInterfaceDeclaration> methodCall = null;
+	protected MethodDeclaration mce = null;
 
 	public ClassOrInterfaceDeclaration getMethodCallingClass() {
 		return methodCallingClass;
@@ -27,26 +24,14 @@ public class MethodDependencyDTO {
 		this.classWithMethod = classWithMethod;
 	}
 
-	public MethodCallExpr getMce() {
+	public MethodDeclaration getMce() {
 		return mce;
 	}
 
-	public void setMce(MethodCallExpr mce) {
+	public void setMethodDeclaration(MethodDeclaration mce) {
 		this.mce = mce;
 	}
 
-	public HashBasedTable<ClassOrInterfaceDeclaration, MethodCallExpr, ClassOrInterfaceDeclaration> getMethodCall() {
-		return methodCall;
-	}
-
-	public void addMethodCall(ClassOrInterfaceDeclaration methodCallingClass , MethodCallExpr mce,
-							ClassOrInterfaceDeclaration classWithMethod) {
-		this.methodCall.put(methodCallingClass, mce, classWithMethod);
-	}
-
-	public void setMethodCall(HashBasedTable<ClassOrInterfaceDeclaration, MethodCallExpr, ClassOrInterfaceDeclaration> methodCall){
-		this.methodCall = methodCall;
-	}
 
 
 }

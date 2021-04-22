@@ -45,7 +45,7 @@ local.properties
 ##############################
 *.iml
 
-# User-specific stuff:
+# User-specific stuff:git
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/dictionaries
