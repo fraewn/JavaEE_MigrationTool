@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import api.CommandStep;
-import command.AbstractCommand;
+import operations.CommandExtension;
+import operations.CommandStep;
 
 /**
  * Utility class to load plugins of services or commands
@@ -18,7 +18,7 @@ public class PluginManager {
 
 	/**
 	 * Find service plugins
-	 * 
+	 *
 	 * @param plugin       Plugin Definition
 	 * @param searchedImpl Plugin Implementation
 	 * @return searched service
@@ -36,13 +36,13 @@ public class PluginManager {
 
 	/**
 	 * Find command plugins
-	 * 
+	 *
 	 * @param plugin       command definition
 	 * @param searchedImpl command implementation
 	 * @return searched command
 	 */
-	public static AbstractCommand findPluginCommand(Class<? extends AbstractCommand> plugin, String searchedImpl) {
-		List<AbstractCommand> res = new ArrayList<>();
+	public static CommandExtension findPluginCommand(Class<? extends CommandExtension> plugin, String searchedImpl) {
+		List<CommandExtension> res = new ArrayList<>();
 		ServiceLoader.load(plugin).forEach(p -> {
 			String path = COMMAND_EXTENSION_PACKAGE + "." + searchedImpl;
 			if (path.equals(p.getClass().getName())) {

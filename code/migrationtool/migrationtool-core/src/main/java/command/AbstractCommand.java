@@ -8,17 +8,19 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineParser;
 
-import api.CommandStep;
+import cmd.CommandLineParser;
+import cmd.CommandLineSplitter;
 import exceptions.MigrationToolInitException;
-import utils.CommandLineParser;
-import utils.CommandLineSplitter;
+import operations.CommandExtension;
+import operations.CommandStep;
+import operations.dto.GenericDTO;
 import utils.PluginManager;
 
 /**
  * Abstract class of all possible command. Defines a basic structure of the
  * processing
  */
-public abstract class AbstractCommand {
+public abstract class AbstractCommand extends CommandExtension {
 	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(AbstractCommand.class);
 
@@ -29,7 +31,7 @@ public abstract class AbstractCommand {
 	private Map<String, Class<? extends CommandStep>> definedSteps;
 
 	/** Temp var, save unknown arguments */
-	private String[] arguments;
+	protected String[] arguments;
 
 	public AbstractCommand() {
 		this.steps = new ArrayList<>();
@@ -41,14 +43,10 @@ public abstract class AbstractCommand {
 	 *
 	 * @return command name
 	 */
-	public abstract String getName();
-
-	/**
-	 * Define the order of possible services for this command
-	 *
-	 * @param definedSteps sorted list
-	 */
-	protected abstract void defineSteps(Map<String, Class<? extends CommandStep>> definedSteps);
+	@Override
+	public String getName() {
+		return this.getClass().getSimpleName();
+	}
 
 	/*
 	 * Load with the help of the PluginManager all defined services
@@ -87,10 +85,11 @@ public abstract class AbstractCommand {
 			LOG.info(">" + commandStep.getClass().getSimpleName());
 		}
 		LOG.info("Execute...");
+		GenericDTO<?> dto = null;
 		for (CommandStep commandStep : this.steps) {
 			// set arguments of service
 			commandStep.setCommandLineArguments(this.arguments);
-			commandStep.execute();
+			dto = commandStep.execute(dto);
 		}
 		afterExecution();
 		LOG.info("Done...");
@@ -99,21 +98,24 @@ public abstract class AbstractCommand {
 	/**
 	 * Process before Initialization
 	 */
-	protected void beforeInitialization() {
+	@Override
+	public void beforeInitialization() {
 		// Overwrite
 	}
 
 	/**
 	 * Process after Initialization
 	 */
-	protected void afterInitialization() {
+	@Override
+	public void afterInitialization() {
 		// Overwrite
 	}
 
 	/**
 	 * Process after Execution
 	 */
-	protected void afterExecution() {
+	@Override
+	public void afterExecution() {
 		// Overwrite
 	}
 
@@ -123,7 +125,14 @@ public abstract class AbstractCommand {
 	 * @param args command arguments
 	 */
 	protected void setCommandLineArguments(String[] args) {
-		CmdLineParser parser = CommandLineParser.parse(args, this);
+		CmdLineParser parser = CommandLineParser.parse(args, getCmdObject());
 		this.arguments = CommandLineSplitter.undefinedArgs(args, parser);
+	}
+
+	/**
+	 * Get the object with cmd parameters
+	 */
+	protected Object getCmdObject() {
+		return this;
 	}
 }

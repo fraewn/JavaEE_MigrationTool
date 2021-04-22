@@ -8,11 +8,10 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>migrationtool-core</module>
-		<module>migrationtool-loader</module>
-		<module>migrationtool-model</module>
-		<module>migrationtool-interpreter</module>
 		<module>migrationtool-deploy-commander</module>
-		<module>migrationtool-mock</module>
+		<module>migrationtool-api</module>
+		<module>migrationtool-ext-microservice</module>
+		<module>migrationtool-ext-nodejs</module>
 	</modules>
 
 	<properties>
@@ -24,9 +23,9 @@
 		<finalName>${project.name}</finalName>
 
 		<migrationtool-core-version>0.0.1-SNAPSHOT</migrationtool-core-version>
-		<migrationtool-loader-version>0.0.1-SNAPSHOT</migrationtool-loader-version>
-		<migrationtool-model-version>0.0.1-SNAPSHOT</migrationtool-model-version>
-		<migrationtool-interpreter-version>0.0.1-SNAPSHOT</migrationtool-interpreter-version>
+		<migrationtool-api-version>0.0.1-SNAPSHOT</migrationtool-api-version>
+		<migrationtool-microservice-version>0.0.1-SNAPSHOT</migrationtool-microservice-version>
+		<migrationtool-nodejs-version>0.0.1-SNAPSHOT</migrationtool-nodejs-version>
 
 		<!-- Library versions -->
 		<log4j-version>1.2.17</log4j-version>
@@ -37,7 +36,6 @@
 		<maven-antrun-version>1.8</maven-antrun-version>
 		<maven-assembly-version>2.5.3</maven-assembly-version>
 		<maven-jar-version>3.0.2</maven-jar-version>
-		<maven-clean-version>3.0.0</maven-clean-version>
 	</properties>
 
 	<dependencyManagement>
@@ -50,20 +48,8 @@
 
 			<dependency>
 				<groupId>thesis.hbrs</groupId>
-				<artifactId>migrationtool-loader</artifactId>
-				<version>${migrationtool-loader-version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>thesis.hbrs</groupId>
-				<artifactId>migrationtool-interpreter</artifactId>
-				<version>${migrationtool-interpreter-version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>thesis.hbrs</groupId>
-				<artifactId>migrationtool-model</artifactId>
-				<version>${migrationtool-model-version}</version>
+				<artifactId>migrationtool-api</artifactId>
+				<version>${migrationtool-api-version}</version>
 			</dependency>
 
 			<dependency>
@@ -191,34 +177,22 @@
 						</archive>
 					</configuration>
 				</plugin>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-clean-plugin</artifactId>
-					<version>${maven-clean-version}</version>
-					<executions>
-						<execution>
-							<id>Deleting generated-sources folder</id>
-							<phase>install</phase>
-							<goals>
-								<goal>clean</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<excludeDefaultDirectories>true</excludeDefaultDirectories>
-						<filesets>
-							<fileset>
-								<directory>target/</directory>
-								<followSymlinks>false</followSymlinks>
-								<includes>
-									<include>generated-sources/</include>
-								</includes>
-							</fileset>
-						</filesets>
-					</configuration>
-				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>microservice-build</id>
+			<modules>
+				<module>data</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>nodejs-build</id>
+			<modules>
+				<module>data</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

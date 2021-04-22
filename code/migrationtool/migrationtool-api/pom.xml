@@ -7,12 +7,22 @@
 		<artifactId>migrationtool</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>migrationtool-core</artifactId>
+	<artifactId>migrationtool-api</artifactId>
 
 	<dependencies>
 		<dependency>
-			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-api</artifactId>
+			<groupId>com.github.javaparser</groupId>
+			<artifactId>javaparser-symbol-solver-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>args4j</groupId>
+			<artifactId>args4j</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
 		</dependency>
 	</dependencies>
 </project>

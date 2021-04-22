@@ -19,21 +19,6 @@
 			<groupId>thesis.hbrs</groupId>
 			<artifactId>migrationtool-core</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-loader</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-interpreter</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-model</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -53,10 +38,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-clean-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
