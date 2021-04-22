@@ -5,12 +5,12 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import exceptions.MigrationToolInitException;
+
 import java.util.List;
 
 public class MethodCallResolver extends VoidVisitorAdapter<List<MethodDependencyDTO>> {
 	public void visit(MethodDeclaration methodDeclaration,
-													  List<MethodDependencyDTO> methodDependencyDTOList) throws MigrationToolInitException
-	{
+					  List<MethodDependencyDTO> methodDependencyDTOList) throws MigrationToolInitException {
 
 		super.visit(methodDeclaration, methodDependencyDTOList);
 
@@ -31,8 +31,8 @@ public class MethodCallResolver extends VoidVisitorAdapter<List<MethodDependency
 	}
 
 	@Override
-	public void visit(MethodCallExpr n, List<MethodDependencyDTO> arg) {
-		super.visit(n, arg);
+	public void visit(MethodCallExpr n, List<MethodDependencyDTO> methodDependencyDTOList) {
+		super.visit(n, methodDependencyDTOList);
 
 		String method = n.getNameAsString();
 
@@ -41,21 +41,10 @@ public class MethodCallResolver extends VoidVisitorAdapter<List<MethodDependency
 			String callingClass = "";
 			// die anderen beiden hier:
 			String methodClass = n.resolve().getQualifiedSignature();
-			System.out.println(callingClass + " uses " + method  + "from " + methodClass);
+			System.out.println(callingClass + " uses " + method  + " from " + methodClass);
 		}
 		catch(Exception e){
 			System.out.println("+ EXCEPTION for method: " + method);
 		}
 	}
-	/*@Override
-	public void visit(MethodReferenceExpr n, List<MethodDependencyDTO> arg) {
-		System.out.println("method ref expr");
-		super.visit(n, arg);
-		String method = n.toString();
-		//String methodClass = n.asMethodReferenceExpr().resolve().getQualifiedSignature();
-		System.out.println(" uses " + method  + "from ----");
-	}*/
-
-
-
 }

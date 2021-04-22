@@ -23,9 +23,6 @@ public class DependencyVisitor extends GenericVisitorAdapter<Boolean, String> {
 		for (VariableDeclarator variable : n.getVariables()) {
 			// Print the field's class typr
 			ResolvedReferenceType type = variable.getType().resolve().asReferenceType();
-			ResolvedPrimitiveType type = variable.getType().resolve().asPrimitive();
-			String qualifiedName = type.getQualifiedName();
-			System.out.println(qualifiedName + "+++" + variable.getName());
 		}
 		for (AnnotationExpr expr : n.getAnnotations()) {
 			System.out.println(expr.getNameAsString());
