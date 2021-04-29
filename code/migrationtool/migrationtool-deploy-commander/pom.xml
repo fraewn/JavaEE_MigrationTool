@@ -33,7 +33,7 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
+				<artifactId>maven-resources-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -41,4 +41,19 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>microservice-build</id>
+			<dependencies>
+				<dependency>
+					<groupId>thesis.hbrs</groupId>
+					<artifactId>migrationtool-microservices</artifactId>
+					<version>${migrationtool-microservice-version}</version>
+					<type>pom</type>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>

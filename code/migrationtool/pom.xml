@@ -10,8 +10,6 @@
 		<module>migrationtool-core</module>
 		<module>migrationtool-deploy-commander</module>
 		<module>migrationtool-api</module>
-		<module>migrationtool-ext-microservice</module>
-		<module>migrationtool-ext-nodejs</module>
 	</modules>
 
 	<properties>
@@ -33,7 +31,7 @@
 		<freemaker-version>2.3.31</freemaker-version>
 		<javaparser-version>3.20.2</javaparser-version>
 
-		<maven-antrun-version>1.8</maven-antrun-version>
+		<maven-resources-version>3.2.0</maven-resources-version>
 		<maven-assembly-version>2.5.3</maven-assembly-version>
 		<maven-jar-version>3.0.2</maven-jar-version>
 	</properties>
@@ -50,6 +48,18 @@
 				<groupId>thesis.hbrs</groupId>
 				<artifactId>migrationtool-api</artifactId>
 				<version>${migrationtool-api-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-microservice</artifactId>
+				<version>${migrationtool-microservice-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-nodejs</artifactId>
+				<version>${migrationtool-nodejs-version}</version>
 			</dependency>
 
 			<dependency>
@@ -103,9 +113,23 @@
 								<goal>copy-dependencies</goal>
 							</goals>
 							<configuration>
+								<excludeTypes>pom</excludeTypes>
 								<outputDirectory>
-									${project.build.directory}/libs
+									${project.build.directory}/temp
 								</outputDirectory>
+							</configuration>
+						</execution>
+						<execution>
+							<id>unpack</id>
+							<phase>package</phase>
+							<goals>
+								<goal>unpack-dependencies</goal>
+							</goals>
+							<configuration>
+								<includes>assets/**</includes>
+								<includeGroupIds>thesis.hbrs</includeGroupIds>
+								<excludeTypes>pom</excludeTypes>
+								<outputDirectory>${project.build.directory}</outputDirectory>
 							</configuration>
 						</execution>
 					</executions>
@@ -113,34 +137,55 @@
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-antrun-plugin</artifactId>
-					<version>${maven-antrun-version}</version>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>${maven-resources-version}</version>
 					<executions>
 						<execution>
+							<id>copy-bin</id>
 							<phase>generate-resources</phase>
-							<configuration>
-								<tasks>
-									<mkdir dir="${project.build.directory}/bin" />
-									<mkdir dir="${project.build.directory}/plugins" />
-									<copy todir="${project.build.directory}/bin">
-										<fileset dir="${basedir}/bin">
-											<include name="**/*.png" />
-											<include name="**/*.xml" />
-											<include name="**/*.gif" />
-											<exclude name="**/resources/**" />
-										</fileset>
-									</copy>
-									<copy todir="${project.build.directory}">
-										<fileset dir="${basedir}/bin">
-											<include name="*.bat" />
-											<include name="*.properties" />
-										</fileset>
-									</copy>
-								</tasks>
-							</configuration>
 							<goals>
-								<goal>run</goal>
+								<goal>copy-resources</goal>
 							</goals>
+							<configuration>
+								<outputDirectory>${project.build.directory}/bin</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${basedir}/bin</directory>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+						<execution>
+							<id>copy-plugins</id>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<outputDirectory>${project.build.directory}/plugins</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${project.build.directory}/temp</directory>
+										<include>**/*migrationtool-ext*.*</include>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+						<execution>
+							<id>delte-plugins-in-lib</id>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<outputDirectory>${project.build.directory}/libs</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${project.build.directory}/temp</directory>
+										<exclude>**/*migrationtool-ext*.*</exclude>
+									</resource>
+								</resources>
+							</configuration>
 						</execution>
 					</executions>
 				</plugin>
@@ -185,13 +230,13 @@
 		<profile>
 			<id>microservice-build</id>
 			<modules>
-				<module>data</module>
+				<module>migrationtool-ext-microservice</module>
 			</modules>
 		</profile>
 		<profile>
 			<id>nodejs-build</id>
 			<modules>
-				<module>data</module>
+				<module>migrationtool-ext-nodejs</module>
 			</modules>
 		</profile>
 	</profiles>
