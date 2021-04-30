@@ -14,13 +14,10 @@
 			<groupId>thesis.hbrs</groupId>
 			<artifactId>migrationtool-api</artifactId>
 		</dependency>
+		<!-- später die dependency wieder löschen -->
 		<dependency>
-			<groupId>com.github.javaparser</groupId>
-			<artifactId>javaparser-symbol-solver-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
+			<groupId>thesis.hbrs</groupId>
+			<artifactId>migrationtool-core</artifactId>
 		</dependency>
 	</dependencies>
 </project>

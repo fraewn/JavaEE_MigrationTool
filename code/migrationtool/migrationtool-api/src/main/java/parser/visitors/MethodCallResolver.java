@@ -13,6 +13,9 @@ public class MethodCallResolver extends VoidVisitorAdapter<List<MethodDependency
 	public void visit(MethodDeclaration methodDeclaration, List<MethodDependencyDTO> methodDependencyDTOList)
 			throws MigrationToolInitException {
 
+
+
+
 		super.visit(methodDeclaration, methodDependencyDTOList);
 
 		MethodDependencyDTO methodDependencyDTO = new MethodDependencyDTO();

@@ -2,14 +2,18 @@ package service.extension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.modules.ModuleDeclaration;
+import com.github.javaparser.ast.type.TypeParameter;
 import org.apache.log4j.Logger;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.ConstructorDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 import operations.LoaderService;
@@ -44,36 +48,75 @@ public class DefaultLoader extends LoaderService {
 		service.loadSources(this.path);
 		List<CompilationUnit> units = service.getAllCompilationUnits();
 		units.forEach(unit -> {
-			ClassDTO dto = new ClassDTO();
-			// TODO Ignore nested classes
-			List<ClassOrInterfaceDeclaration> list = unit.findAll(ClassOrInterfaceDeclaration.class);
-			if (list.size() == 0) {
+			ClassDTO classDTO = new ClassDTO();
+
+			// read package and module declaration from unit (same for all classes in unit)
+			String packageDeclaration = unit.getPackageDeclaration().toString();
+			String moduleDeclaration = unit.getModule().toString();
+			List<ImportDeclaration> imports = unit.getImports();
+
+			// Find all classes in file
+			List<ClassOrInterfaceDeclaration> classList = unit.findAll(ClassOrInterfaceDeclaration.class);
+			// if the file has no classes, skip further work
+			if (classList.size() == 0) {
 				return;
 			}
-			ClassOrInterfaceDeclaration decl = unit.findAll(ClassOrInterfaceDeclaration.class).get(0);
+
+			// iterate all classes in file
+			for (ClassOrInterfaceDeclaration decl : classList) {
+				String classPath = decl.getFullyQualifiedName().toString();
+				LOG.debug("Inspect class: " + classPath);
+
+				// ignore the class if it is nested (inner class)
+				if (decl.isInnerClass()){
+					LOG.debug("Ignoring class " + classPath + " since it's nested");
+					break;
+				}
+
+				// save package and module declaration as well as whole path
+				classDTO.setFullName(classPath);
+				classDTO.setPackageDeclaration(packageDeclaration);
+				classDTO.setModuleDeclaration(moduleDeclaration);
+
+				// save imports
+				classDTO.setImports(imports);
+
+				// save class
+				classDTO.setJavaClass(decl);
+
+				// add interfaces the class implements
+				List<ClassOrInterfaceType> implementsList = decl.getImplementedTypes();
+				classDTO.setImplementations(implementsList);
+				// add classes the class extends from
+				List<ClassOrInterfaceType> extendsList = decl.getExtendedTypes();
+				classDTO.setExtensions(extendsList);
+
+				// add fields of class
+				List<FieldDeclaration> fields = decl.findAll(FieldDeclaration.class);
+				classDTO.setFields(fields);
+				// add constructors of class
+				List<ConstructorDeclaration> constructors = decl.findAll(ConstructorDeclaration.class);
+				classDTO.setConstructors(constructors);
+				// add methods of class
+				List<MethodDeclaration> methods = decl.findAll(MethodDeclaration.class);
+				classDTO.setMethods(methods);
+
+				// collect all annotations for a class
+				List<AnnotationExpr> annotationExprs = decl.getAnnotations();
+				classDTO.setAnnotationDeclarationList(annotationExprs);
+				// collect all type parameters
+				List<TypeParameter> typeParameterList = decl.getTypeParameters();
+				classDTO.setTypeParameters(typeParameterList);
+
+				// add dto to the collection
+				this.classes.add(classDTO);
+			}
+
+// 			ClassOrInterfaceDeclaration decl = unit.findAll(ClassOrInterfaceDeclaration.class).get(0);
 //			ClassOrInterfaceDeclaration decl = unit.findAll(ClassOrInterfaceDeclaration.class).stream()
 //					.filter(ClassOrInterfaceDeclaration::isNestedType).findAny().get();
 			// add class
-			LOG.debug("Inspect class: " + decl.getFullyQualifiedName());
-			dto.setJavaClass(decl);
-			dto.setFullName(decl.getFullyQualifiedName().toString());
-			// add fields
-			List<FieldDeclaration> fields = decl.findAll(FieldDeclaration.class);
-			dto.setFields(fields);
-			// add constructors
-			List<ConstructorDeclaration> constructors = decl.findAll(ConstructorDeclaration.class);
-			dto.setConstructors(constructors);
-			// add methods
-			List<MethodDeclaration> methods = decl.findAll(MethodDeclaration.class);
-			dto.setMethods(methods);
-			// add implements
-			List<ClassOrInterfaceType> implementsList = new ArrayList<>(decl.getImplementedTypes());
-			dto.setImplementations(implementsList);
-			// add extends
-			List<ClassOrInterfaceType> extendsList = new ArrayList<>(decl.getExtendedTypes());
-			dto.setExtensions(extendsList);
-			// add dto to the collection
-			this.classes.add(dto);
+
 		});
 	}
 

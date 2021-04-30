@@ -2,30 +2,49 @@ package operations.dto;
 
 import java.util.List;
 
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.ConstructorDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.TypeParameter;
 
 public class ClassDTO {
 
+	// meta data
 	private String fullName;
+	private String moduleDeclaration;
+	private String packageDeclaration;
 
+	// imports (to the corresponding file)
+	private List<ImportDeclaration> imports;
+
+	// class
 	private ClassOrInterfaceDeclaration javaClass;
 
+	// all declared parameters in class
 	private List<TypeParameter> typeParameters;
 
+	// all attributes in a class
 	private List<FieldDeclaration> fields;
 
+	// all methods in a class
 	private List<MethodDeclaration> methods;
 
+	// all constructors of a class
 	private List<ConstructorDeclaration> constructors;
 
+	// all interfaces the class implements
 	private List<ClassOrInterfaceType> implementations;
 
+	// all other classes the class extends from
 	private List<ClassOrInterfaceType> extensions;
+
+	// all enums used in the class
+	private List<EnumDeclaration> enums;
+
+	// all annotations in a class
+	private List<AnnotationExpr> annotationDeclarationList;
+
 
 	/**
 	 * @return the fullName
@@ -137,5 +156,45 @@ public class ClassDTO {
 	 */
 	public void setExtensions(List<ClassOrInterfaceType> extensions) {
 		this.extensions = extensions;
+	}
+
+	public List<EnumDeclaration> getEnums() {
+		return enums;
+	}
+
+	public void setEnums(List<EnumDeclaration> enums) {
+		this.enums = enums;
+	}
+
+	public List<ImportDeclaration> getImports() {
+		return imports;
+	}
+
+	public void setImports(List<ImportDeclaration> imports) {
+		this.imports = imports;
+	}
+
+	public String getModuleDeclaration() {
+		return moduleDeclaration;
+	}
+
+	public void setModuleDeclaration(String moduleDeclaration) {
+		this.moduleDeclaration = moduleDeclaration;
+	}
+
+	public String getPackageDeclaration() {
+		return packageDeclaration;
+	}
+
+	public void setPackageDeclaration(String packageDeclaration) {
+		this.packageDeclaration = packageDeclaration;
+	}
+
+	public List<AnnotationExpr> getAnnotationDeclarationList() {
+		return annotationDeclarationList;
+	}
+
+	public void setAnnotationDeclarationList(List<AnnotationExpr> annotationDeclarationList) {
+		this.annotationDeclarationList = annotationDeclarationList;
 	}
 }
