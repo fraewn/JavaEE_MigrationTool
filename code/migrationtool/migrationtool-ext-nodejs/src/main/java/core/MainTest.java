@@ -3,7 +3,7 @@ package core;
 public class MainTest {
 	public static void main(String[] args){
 		Runner runner = new Runner();
-		String[] commands = {"-command=DefaultCommand", "-path=C:\\Users\\Administrator\\Desktop\\RatingMgmt"};
+		String[] commands = {"-command=DefaultCommand", "-path=C:\\Users\\Administrator\\Desktop\\RatingMgmt", "-model=GetData"};
 		runner.run(commands);
 	}
 }
