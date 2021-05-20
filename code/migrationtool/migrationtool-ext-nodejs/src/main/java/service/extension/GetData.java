@@ -9,18 +9,14 @@ import parser.visitors.AnnotationVisitor;
 import java.util.List;
 import java.util.Optional;
 
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.VariableDeclarationExpr;
-import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.TypeParameter;
@@ -42,17 +38,26 @@ public class GetData extends ModelService {
 		List<ClassOrInterfaceType> implementsList; 
 		List<ClassOrInterfaceType> extendsList;
 		List<FieldDeclaration> fields;
-		List<ConstructorDeclaration> constructors;
+		
 		List<MethodDeclaration> methods;
 		List<AnnotationExpr> annotationExprs;
 		List<TypeParameter> typeParameterList;
 		String classType; 
 	
+		// constructors
+		List<ConstructorDeclaration> constructors;
+		List<Modifier> constructorModifiers; 
+		List<Parameter> constructorParameters; 
+		String constructorName; 
+		String constuctorBody; 
+		List<AnnotationExpr> constructorParameterAnnotations; 
+		
 		// fields
 		String fieldElementType; 
 		List<VariableDeclarator> fieldVariables; 
 		List<Modifier> fieldModifiers; 
 		List<AnnotationExpr> fieldAnnotations; 
+		
 		
 		// methods
 		String returnType; 
@@ -87,16 +92,19 @@ public class GetData extends ModelService {
 			 for(ImportDeclaration importDeclaration : importDeclarationList){
 					System.out.println(importDeclaration.getNameAsString());
 			 }
+			 
 			 implementsList = classDTO.getImplementations();
 			 System.out.println("\nInterfaces:");
 			 for(ClassOrInterfaceType implementedInterface : implementsList){
 					System.out.println(implementedInterface.getNameAsString());
 			 }
+			 
 			 extendsList = classDTO.getExtensions();
-			 System.out.println("\nExtended Classes:");
+			 System.out.println("\nExtends from:");
 			 for(ClassOrInterfaceType extendedClass : extendsList){
 					System.out.println(extendedClass.getNameAsString());
 			 }
+			 
 			 fields = classDTO.getFields(); 
 			 System.out.println("\nFields:");
 			 for(FieldDeclaration field : fields){
@@ -122,8 +130,35 @@ public class GetData extends ModelService {
 				 	}	
 			 } 
 			 
-			 methods = classDTO.getMethods();  
+			 constructors = classDTO.getConstructors(); 
+			 for(ConstructorDeclaration constructor : constructors){
+				 constructorModifiers = constructor.getModifiers(); 
+				 for(Modifier constructorModifier : constructorModifiers){
+				 		System.out.println("Constructor Modifier: " + constructorModifier);
+				 }
+				 parameterList = constructor.getParameters(); 
+				 for(Parameter parameter : parameterList){
+					 System.out.println("Paramter complete: " + parameter.toString());
+					 constructorParameterAnnotations = parameter.getAnnotations(); 
+					 for(AnnotationExpr constructorParameterAnnotation : constructorParameterAnnotations){
+						 System.out.println("Parameter Annotation: " + constructorParameterAnnotation);
+					 }
+					 System.out.println("Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());
+				 }
+				 constructorName = constructor.getNameAsString();
+				 System.out.println("Constructor Name: " + constructorName);
+				 try{
+					 body = constructor.getBody().toString();
+				 }
+				 catch(Exception ex){
+					 body = null; 
+				 }
+				 System.out.println("Constructor Body: " + body);
+				 System.out.println("Constructor complete: " + constructor.toString());
+			 }
 			 
+			 
+			 methods = classDTO.getMethods();  
 			 System.out.println("\nMethods:");
 			 for(MethodDeclaration method : methods){
 				 methodAnnotations = method.getAnnotations(); 
