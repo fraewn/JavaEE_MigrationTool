@@ -2,6 +2,8 @@ package service.extension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
 
@@ -54,8 +56,14 @@ public class DefaultLoader extends LoaderService {
 			ClassDTO classDTO = new ClassDTO();
 
 			// read package and module declaration from unit (same for all classes in unit)
-			String packageDeclaration = unit.getPackageDeclaration().toString();
-			String moduleDeclaration = unit.getModule().toString();
+			String packageDeclaration = unit.getPackageDeclaration().get().getNameAsString();
+			String moduleDeclaration;
+			try{
+				moduleDeclaration = unit.getModule().get().getNameAsString();
+			}
+			catch(NoSuchElementException ex){
+				moduleDeclaration = null; 
+			}
 			List<ImportDeclaration> imports = unit.getImports();
 
 			// Find all classes in file
