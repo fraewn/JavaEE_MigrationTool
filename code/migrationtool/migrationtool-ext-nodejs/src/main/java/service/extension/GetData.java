@@ -16,10 +16,13 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.TypeParameter;
 
 public class GetData extends ModelService {
@@ -33,6 +36,8 @@ public class GetData extends ModelService {
 		List<ClassDTO> classDTOList = (List<ClassDTO>) dto.getObject();
 		// Type means class - jetzt sucht der am Klassenkopf die Annotation und sagt dann ob er da eine gefunden hat
 		AnnotationVisitor annotationVisitor = new AnnotationVisitor("javax.persistence.Entity", TargetTypes.TYPE);
+		
+		// class
 		List<ImportDeclaration> importDeclarationList;
 		List<ClassOrInterfaceType> implementsList; 
 		List<ClassOrInterfaceType> extendsList;
@@ -41,23 +46,31 @@ public class GetData extends ModelService {
 		List<MethodDeclaration> methods;
 		List<AnnotationExpr> annotationExprs;
 		List<TypeParameter> typeParameterList;
-		
+		String classType; 
+	
+		// fields
 		String fieldElementType; 
 		List<VariableDeclarator> fieldVariables; 
 		List<Modifier> fieldModifiers; 
-		
 		List<AnnotationExpr> fieldAnnotations; 
+		
+		// methods
+		String returnType; 
+		String methodName; 
+		List<Modifier> methodModifiers; 
 		List<AnnotationExpr> methodAnnotations; 
+		List<Parameter> parameterList; 
+		List<AnnotationExpr> methodParameterAnnotations; 
+		List<ReferenceType> exceptionList; 
+		String body; 
 
 		System.out.println("----------starting reading from dto");
 		for(ClassDTO classDTO: classDTOList){
-			System.out.print("\nClassname: ");
-			// printed Optional[ui.config.CustomAuthentification]
-			System.out.println(classDTO.getFullName());
+			System.out.println("\nClassname: " + classDTO.getFullName());
+			System.out.println("Is Interface: " + classDTO.getJavaClass().isInterface());
+			System.out.println("Is Abstract: " + classDTO.getJavaClass().isAbstract());
 			
-			// wenn der true zurück gibt gibt es in der klasse die annotation; wenn der null zurück gibt wird das zu false gemacht und es
-			// gab sie nicht
-			// printed true: wenn die Annotation "javax.persistence.Entity" da drin ist, ansonsten false
+			// true wenn die Annotation "javax.persistence.Entity" da drin ist, ansonsten false
 			System.out.print("\nHas Javax.Persistence.Entity: ");
 			System.out.println(Optional.ofNullable(classDTO.getJavaClass().accept(annotationVisitor, null)).orElse(false));
 			
@@ -105,15 +118,54 @@ public class GetData extends ModelService {
 				 	
 				 	fieldAnnotations = field.getAnnotations(); 
 				 	for(AnnotationExpr fieldAnnotation: fieldAnnotations){
-				 		System.out.println("Field Annotation: " + fieldAnnotation.getNameAsString() + " ");
+				 		System.out.println("Field Annotation: " + fieldAnnotation.getNameAsString());
 				 	}	
 			 } 
 			 
-			 /*methods = classDTO.getMethods();  
+			 methods = classDTO.getMethods();  
+			 
 			 System.out.println("\nMethods:");
 			 for(MethodDeclaration method : methods){
-					System.out.println(method.toString());
-			 } */
+				 methodAnnotations = method.getAnnotations(); 
+				 for(AnnotationExpr methodAnnotation : methodAnnotations){
+				 		System.out.println("Method Annotation: " + methodAnnotation.getNameAsString());
+				 }
+				 methodModifiers = method.getModifiers(); 
+				 for(Modifier methodModifier : methodModifiers){
+				 		System.out.println("Method Modifier: " + methodModifier);
+				 }
+				 
+				 returnType = method.getTypeAsString();
+				 System.out.println("Return Type: " + returnType.toString());
+				 
+				 methodName = method.getNameAsString();
+				 System.out.println("Method name: " + methodName);
+				 
+				 parameterList = method.getParameters(); 
+				 for(Parameter parameter : parameterList){
+					 System.out.println("Paramter complete: " + parameter.toString());
+					 methodParameterAnnotations = parameter.getAnnotations(); 
+					 for(AnnotationExpr methodParameterAnnotation : methodParameterAnnotations){
+						 System.out.println("Parameter Annotation: " + methodParameterAnnotation);
+					 }
+					 System.out.println("Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());
+				 }
+				 
+				 exceptionList = method.getThrownExceptions(); 
+				 for(ReferenceType exception : exceptionList){
+					 System.out.println("Thrown Exception: " + exception.toString());
+				 }
+				 
+				 try{
+					 body = method.getBody().get().toString();
+				 }
+				 catch(Exception ex){
+					 body = null; 
+				 }
+				 System.out.println("Body: " + body);
+				 System.out.println(method.toString());
+				 
+			 } 
 		}
 		System.out.println("----------stopping reading from dto");
 	}
