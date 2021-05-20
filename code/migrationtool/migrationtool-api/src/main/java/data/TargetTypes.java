@@ -1,5 +1,23 @@
 package data;
 
+/**
+ * Supported target types of an annotation
+ */
 public enum TargetTypes {
-	TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE, TYPE_PARAMETER, TYPE_USE;
+	/**
+	 * Class
+	 */
+	TYPE,
+	/**
+	 * Attribute
+	 */
+	FIELD,
+	/**
+	 * Method
+	 */
+	METHOD,
+	/**
+	 * Constructor
+	 */
+	CONSTRUCTOR;
 }

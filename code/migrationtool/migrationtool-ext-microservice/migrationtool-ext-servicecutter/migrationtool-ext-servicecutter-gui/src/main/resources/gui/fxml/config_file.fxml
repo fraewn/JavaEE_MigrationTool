@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefWidth="200.0" BorderPane.alignment="CENTER">
+	<children>
+		<AnchorPane>
+			<children>
+				<Label alignment="CENTER" contentDisplay="CENTER"
+					text="Configurations" textAlignment="RIGHT"
+					AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+					AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+					<font>
+						<Font size="14.0" />
+					</font>
+				</Label>
+			</children>
+			<padding>
+				<Insets bottom="7.0" left="7.0" right="7.0" top="7.0" />
+			</padding>
+		</AnchorPane>
+		<Separator />
+		<ScrollPane hbarPolicy="NEVER" vbarPolicy="NEVER"
+			VBox.vgrow="ALWAYS">
+			<content>
+				<AnchorPane>
+					<children>
+						<Accordion prefWidth="200.0"
+							AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+							AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<panes>
+								<TitledPane animated="false" text="Algorithmn">
+									<content>
+										<AnchorPane minHeight="0.0" minWidth="0.0">
+											<children>
+												<VBox spacing="15.0" AnchorPane.bottomAnchor="0.0"
+													AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+													AnchorPane.topAnchor="0.0">
+													<children>
+														<HBox spacing="20.0">
+															<children>
+																<AnchorPane>
+																	<children>
+																		<Label alignment="CENTER"
+																			contentDisplay="CENTER" text="Selection"
+																			textAlignment="CENTER" AnchorPane.bottomAnchor="0.0"
+																			AnchorPane.leftAnchor="0.0"
+																			AnchorPane.rightAnchor="0.0"
+																			AnchorPane.topAnchor="0.0" />
+																	</children>
+																</AnchorPane>
+																<Pane HBox.hgrow="ALWAYS" />
+																<ComboBox HBox.hgrow="ALWAYS" />
+															</children>
+														</HBox>
+														<VBox>
+															<children>
+																<Label text="Number of Clusters" />
+																<Slider majorTickUnit="5.0" max="30.0"
+																	showTickLabels="true" showTickMarks="true" />
+																<HBox>
+																	<children>
+																		<AnchorPane>
+																			<children>
+																				<Label text="Current"
+																					AnchorPane.bottomAnchor="0.0"
+																					AnchorPane.leftAnchor="0.0"
+																					AnchorPane.rightAnchor="0.0"
+																					AnchorPane.topAnchor="0.0" />
+																			</children>
+																		</AnchorPane>
+																		<Pane HBox.hgrow="ALWAYS" />
+																		<TextField prefWidth="50.0">
+																			<HBox.margin>
+																				<Insets left="50.0" />
+																			</HBox.margin>
+																		</TextField>
+																	</children>
+																</HBox>
+															</children>
+														</VBox>
+													</children>
+													<padding>
+														<Insets bottom="7.0" left="7.0" right="7.0"
+															top="7.0" />
+													</padding>
+												</VBox>
+											</children>
+										</AnchorPane>
+									</content>
+								</TitledPane>
+							</panes>
+							<padding>
+								<Insets bottom="10.0" top="10.0" />
+							</padding>
+						</Accordion>
+					</children>
+				</AnchorPane>
+			</content>
+			<VBox.margin>
+				<Insets />
+			</VBox.margin>
+		</ScrollPane>
+		<AnchorPane>
+			<children>
+				<Button mnemonicParsing="false" text="Evaluate"
+					AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+					AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+			</children>
+			<padding>
+				<Insets bottom="7.0" top="7.0" />
+			</padding>
+		</AnchorPane>
+	</children>
+</VBox>

@@ -1,0 +1,30 @@
+graph {
+	fill-mode: gradient-vertical;
+	fill-color: gray, white, white, white, white, gray;
+}
+
+node {
+	size: 20px;
+	z-index: 1;
+	fill-color: yellow, orange;
+	fill-mode: gradient-horizontal;
+	text-alignment: under;
+	text-color: white;
+	text-style: bold;
+	text-background-mode: rounded-box;
+	text-background-color: #222C;
+	text-padding: 5px, 4px;
+	text-offset: 0px, 5px;
+}
+
+edge {
+	z-index: 0;
+	fill-color: #333;
+	size: 3px;
+}
+
+sprite {
+	shape: circle;
+	fill-mode: gradient-radial;
+	fill-color: #FFF8, #FFF0;
+}

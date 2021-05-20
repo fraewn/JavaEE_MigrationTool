@@ -6,6 +6,9 @@ import exceptions.MigrationToolInitException;
 import operations.CommandExtension;
 import operations.CommandStep;
 
+/**
+ * Wrapper class for a user defined comannd
+ */
 public class ExtensionCommand extends AbstractCommand {
 
 	/** reference to the extension */

@@ -63,7 +63,8 @@ public abstract class AbstractCommand extends CommandExtension {
 				this.steps.add(tmp);
 			}
 			if (foundImpl == this.steps.size()) {
-				throw new MigrationToolInitException("No Implementation found");
+				throw new MigrationToolInitException(
+						"No Implementation found for " + step.getValue() + " <-> " + step.getKey());
 			}
 		}
 	}
@@ -87,7 +88,7 @@ public abstract class AbstractCommand extends CommandExtension {
 		LOG.info("Execute...");
 		GenericDTO<?> dto = null;
 		for (CommandStep commandStep : this.steps) {
-			// set arguments of service
+			// push unknown arguments to service definition
 			commandStep.setCommandLineArguments(this.arguments);
 			dto = commandStep.execute(dto);
 		}

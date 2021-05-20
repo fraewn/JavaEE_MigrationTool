@@ -1,7 +1,12 @@
 package operations.dto;
 
+/**
+ * Generic DTO class, which is exchanged between the different operations
+ *
+ * @param <T> Passed Object
+ */
 public class GenericDTO<T> {
-
+	/** passed Object */
 	private T object;
 
 	public GenericDTO() {

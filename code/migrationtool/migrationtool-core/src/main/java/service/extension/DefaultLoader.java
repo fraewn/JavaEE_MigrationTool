@@ -2,19 +2,18 @@ package service.extension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.*;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.modules.ModuleDeclaration;
-import com.github.javaparser.ast.type.TypeParameter;
 import org.apache.log4j.Logger;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.TypeParameter;
 
 import operations.LoaderService;
 import operations.dto.ClassDTO;
@@ -22,6 +21,10 @@ import operations.dto.GenericDTO;
 import parser.LoadSourcesService;
 import parser.LoadSourcesServiceImpl;
 
+/**
+ * Default method to load a defined project. Convert all classes to a
+ * {@link ClassDTO}
+ */
 public class DefaultLoader extends LoaderService {
 
 	private static final Logger LOG = Logger.getLogger(DefaultLoader.class);
@@ -64,11 +67,11 @@ public class DefaultLoader extends LoaderService {
 
 			// iterate all classes in file
 			for (ClassOrInterfaceDeclaration decl : classList) {
-				String classPath = decl.getFullyQualifiedName().toString();
+				String classPath = decl.getFullyQualifiedName().get().toString();
 				LOG.debug("Inspect class: " + classPath);
 
 				// ignore the class if it is nested (inner class)
-				if (decl.isInnerClass()){
+				if (decl.isInnerClass()) {
 					LOG.debug("Ignoring class " + classPath + " since it's nested");
 					break;
 				}
@@ -111,12 +114,6 @@ public class DefaultLoader extends LoaderService {
 				// add dto to the collection
 				this.classes.add(classDTO);
 			}
-
-// 			ClassOrInterfaceDeclaration decl = unit.findAll(ClassOrInterfaceDeclaration.class).get(0);
-//			ClassOrInterfaceDeclaration decl = unit.findAll(ClassOrInterfaceDeclaration.class).stream()
-//					.filter(ClassOrInterfaceDeclaration::isNestedType).findAny().get();
-			// add class
-
 		});
 	}
 

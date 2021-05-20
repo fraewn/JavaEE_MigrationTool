@@ -21,9 +21,9 @@ import com.github.javaparser.utils.ProjectRoot;
 import com.github.javaparser.utils.SourceRoot;
 
 public class LoadSourcesServiceImpl implements LoadSourcesService {
-
+	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(LoadSourcesServiceImpl.class);
-
+	/** Project root directory, containing all analyzed classes */
 	private ProjectRoot rootDirectory;
 
 	@Override
@@ -34,9 +34,11 @@ public class LoadSourcesServiceImpl implements LoadSourcesService {
 			loadDependencyJars(path, pathsToJars);
 			// build solver
 			CombinedTypeSolver solver = new CombinedTypeSolver();
+			// add java classes
 			solver.add(new ReflectionTypeSolver());
 			for (String pathJar : pathsToJars) {
 				LOG.debug("jarFound: " + pathJar);
+				// add dependency jars
 				solver.add(new JarTypeSolver(pathJar));
 			}
 			JavaSymbolSolver symbolSolver = new JavaSymbolSolver(solver);
@@ -45,6 +47,7 @@ public class LoadSourcesServiceImpl implements LoadSourcesService {
 			// parse classes
 			this.rootDirectory = new ParserCollectionStrategy(conf).collect(new File(path).toPath());
 			for (SourceRoot source : this.rootDirectory.getSourceRoots()) {
+				// add the analyzed project
 				solver.add(new JavaParserTypeSolver(source.getRoot()));
 				source.tryToParse();
 			}
@@ -54,6 +57,9 @@ public class LoadSourcesServiceImpl implements LoadSourcesService {
 		}
 	}
 
+	/*
+	 * Search for all .jar files recursively in a defined parent folder
+	 */
 	private void loadDependencyJars(String path, List<String> pathsToJars) {
 		File file = new File(path);
 		FileFilter filter = pathname -> pathname.isDirectory() || pathname.getName().endsWith(".jar");
@@ -79,6 +85,10 @@ public class LoadSourcesServiceImpl implements LoadSourcesService {
 		return allLoadedUnits();
 	}
 
+	/*
+	 * convert the entries of the source directory to compilation units (javaparser
+	 * class representing a class)
+	 */
 	private List<CompilationUnit> allLoadedUnits() {
 		List<CompilationUnit> cu = new ArrayList<>();
 		for (SourceRoot source : this.rootDirectory.getSourceRoots()) {

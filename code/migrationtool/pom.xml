@@ -126,10 +126,11 @@
 								<goal>unpack-dependencies</goal>
 							</goals>
 							<configuration>
-								<includes>assets/**</includes>
+								<excludes>**/*.class,gui/,META-INF/,*</excludes>
+								<includes>**/*.*</includes>
 								<includeGroupIds>thesis.hbrs</includeGroupIds>
 								<excludeTypes>pom</excludeTypes>
-								<outputDirectory>${project.build.directory}</outputDirectory>
+								<outputDirectory>${project.build.directory}/assets</outputDirectory>
 							</configuration>
 						</execution>
 					</executions>

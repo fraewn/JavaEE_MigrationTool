@@ -1,23 +1,20 @@
 package service.extension;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 
 import operations.ModelService;
-import operations.dto.ClassDTO;
 import operations.dto.GenericDTO;
 
+/**
+ * Dummy class for the service model
+ */
 public class DefaultModel extends ModelService {
-
+	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(DefaultModel.class);
 
-	private List<ClassDTO> classes;
-
-	@SuppressWarnings("unchecked")
 	@Override
 	public void setDTO(GenericDTO<?> dto) {
-		this.classes = (List<ClassDTO>) dto.getObject();
+		// Nothing
 	}
 
 	@Override
@@ -29,6 +26,5 @@ public class DefaultModel extends ModelService {
 	@Override
 	public void save() {
 		LOG.info("Run DefaultModel, implement your own variant");
-		this.classes.forEach(x -> LOG.info("Consumed class: " + x.getFullName()));
 	}
 }

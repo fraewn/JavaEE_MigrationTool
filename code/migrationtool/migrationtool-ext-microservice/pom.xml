@@ -8,19 +8,117 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>migrationtool-ext-microservice</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>migrationtool-ext-servicecutter</module>
+		<module>migrationtool-ext-servicecut</module>
+		<module>migrationtool-microservices</module>
+	</modules>
 
-	<dependencies>
-		<dependency>
-			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.github.javaparser</groupId>
-			<artifactId>javaparser-symbol-solver-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-	</dependencies>
+	<repositories>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>spring-milestone</id>
+			<name>Spring Milestone</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>rabbit-milestone</id>
+			<name>Rabbit Milestone</name>
+			<url>https://dl.bintray.com/rabbitmq/maven-milestones</url>
+		</repository>
+	</repositories>
+
+	<properties>
+		<servicecutter-version>0.0.1-SNAPSHOT</servicecutter-version>
+		<servicecut-version>0.0.1-SNAPSHOT</servicecut-version>
+
+		<!-- Library versions -->
+		<spring-boot-version>2.3.10.RELEASE</spring-boot-version>
+		<spring-cloud.version>Hoxton.RELEASE</spring-cloud.version>
+		<jsonwebtoken-version>0.9.1</jsonwebtoken-version>
+		<jackson-version>2.12.2</jackson-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-servicecutter</artifactId>
+				<type>pom</type>
+				<version>${servicecutter-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-servicecut</artifactId>
+				<version>${servicecut-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt</artifactId>
+				<version>${jsonwebtoken-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>repackage</id>
+							<goals>
+								<goal>repackage</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
 </project>

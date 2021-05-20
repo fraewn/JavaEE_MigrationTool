@@ -13,4 +13,8 @@ public class MigrationToolRuntimeException extends RuntimeException {
 	public MigrationToolRuntimeException(String s) {
 		super(s);
 	}
+
+	public MigrationToolRuntimeException(String message, Exception e) {
+		super(message, e);
+	}
 }

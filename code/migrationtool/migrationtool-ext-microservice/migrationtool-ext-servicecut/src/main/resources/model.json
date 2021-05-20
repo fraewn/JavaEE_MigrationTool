@@ -1,0 +1,76 @@
+{
+	"name": "d0cdd4b3",
+	"generatedDate": "24-04-2021 07:57:30",
+	"entityDiagram": {
+		"entities": [
+			{
+				"name": "Customer",
+				"attributes": [
+					"customerIdentifier",
+					"firstname",
+					"name",
+					"street",
+					"city",
+					"accountNr",
+					"creditCard"
+				]
+			},
+			{
+				"name": "Booking",
+				"attributes": [
+					"bookingIdentifier",
+					"bookingDate",
+					"paymentDate",
+					"totalPrice",
+					"bookingState"
+				]
+			},
+			{
+				"name": "Article",
+				"attributes": [
+					"articleIdentifier",
+					"articleName",
+					"price",
+					"serial"
+				]
+			}
+		],
+		"relationships": [
+			{
+				"origin": "Booking",
+				"destination": "Article",
+				"type": "AGGREGATION"
+			},
+			{
+				"origin": "Booking",
+				"destination": "Customer",
+				"type": "AGGREGATION"
+			}
+		]
+	},
+	"information": {
+		"useCases": [
+			{
+				"name": "HelloWorld",
+				"input": "User.name",
+				"persistenceChanges": ""
+			}
+		],
+		"criteria": {
+			"SECURITY_CONSTRAINT": [
+				{
+					"name": null,
+					"instances": "User.name"
+				}
+			]
+		},
+		"compatibilities": {
+			"CONSISTENCY_CONSTRAINT": [
+				{
+					"compabilityCharacteristics": "Normal(CC_7_NORMAL)",
+					"instances": "User.name"
+				}
+			]
+		}
+	}
+}

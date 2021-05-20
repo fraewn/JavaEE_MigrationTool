@@ -3,48 +3,47 @@ package operations.dto;
 import java.util.List;
 
 import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.TypeParameter;
 
+/**
+ * General DTO object, which flattens the structure of a analyzed java object by
+ * javaparser
+ */
 public class ClassDTO {
 
-	// meta data
+	/** Full Quailifed class name */
 	private String fullName;
+	/** Module declaration used in Java 9+ */
 	private String moduleDeclaration;
+	/** Package name of a class */
 	private String packageDeclaration;
-
-	// imports (to the corresponding file)
+	/** imports of the corresponding class */
 	private List<ImportDeclaration> imports;
-
-	// class
+	/** java class */
 	private ClassOrInterfaceDeclaration javaClass;
-
-	// all declared parameters in class
+	/** type parameters of the class */
 	private List<TypeParameter> typeParameters;
-
-	// all attributes in a class
+	/** all attributes of the class */
 	private List<FieldDeclaration> fields;
-
-	// all methods in a class
+	/** all methods of the class */
 	private List<MethodDeclaration> methods;
-
-	// all constructors of a class
+	/** all constructors of the class */
 	private List<ConstructorDeclaration> constructors;
-
-	// all interfaces the class implements
+	/** all interfaces of the class */
 	private List<ClassOrInterfaceType> implementations;
-
-	// all other classes the class extends from
+	/** all mother classes of the class */
 	private List<ClassOrInterfaceType> extensions;
-
-	// all enums used in the class
+	/** all used enums of the class */
 	private List<EnumDeclaration> enums;
-
-	// all annotations in a class
+	/** all declarated annotations of the class */
 	private List<AnnotationExpr> annotationDeclarationList;
-
 
 	/**
 	 * @return the fullName
@@ -158,42 +157,72 @@ public class ClassDTO {
 		this.extensions = extensions;
 	}
 
-	public List<EnumDeclaration> getEnums() {
-		return enums;
-	}
-
-	public void setEnums(List<EnumDeclaration> enums) {
-		this.enums = enums;
-	}
-
-	public List<ImportDeclaration> getImports() {
-		return imports;
-	}
-
-	public void setImports(List<ImportDeclaration> imports) {
-		this.imports = imports;
-	}
-
+	/**
+	 * @return the moduleDeclaration
+	 */
 	public String getModuleDeclaration() {
-		return moduleDeclaration;
+		return this.moduleDeclaration;
 	}
 
+	/**
+	 * @param moduleDeclaration the moduleDeclaration to set
+	 */
 	public void setModuleDeclaration(String moduleDeclaration) {
 		this.moduleDeclaration = moduleDeclaration;
 	}
 
+	/**
+	 * @return the packageDeclaration
+	 */
 	public String getPackageDeclaration() {
-		return packageDeclaration;
+		return this.packageDeclaration;
 	}
 
+	/**
+	 * @param packageDeclaration the packageDeclaration to set
+	 */
 	public void setPackageDeclaration(String packageDeclaration) {
 		this.packageDeclaration = packageDeclaration;
 	}
 
-	public List<AnnotationExpr> getAnnotationDeclarationList() {
-		return annotationDeclarationList;
+	/**
+	 * @return the imports
+	 */
+	public List<ImportDeclaration> getImports() {
+		return this.imports;
 	}
 
+	/**
+	 * @param imports the imports to set
+	 */
+	public void setImports(List<ImportDeclaration> imports) {
+		this.imports = imports;
+	}
+
+	/**
+	 * @return the enums
+	 */
+	public List<EnumDeclaration> getEnums() {
+		return this.enums;
+	}
+
+	/**
+	 * @param enums the enums to set
+	 */
+	public void setEnums(List<EnumDeclaration> enums) {
+		this.enums = enums;
+	}
+
+	/**
+	 * @return the annotationDeclarationList
+	 */
+	public List<AnnotationExpr> getAnnotationDeclarationList() {
+		return this.annotationDeclarationList;
+	}
+
+	/**
+	 * @param annotationDeclarationList the annotationDeclarationList to set
+	 */
 	public void setAnnotationDeclarationList(List<AnnotationExpr> annotationDeclarationList) {
 		this.annotationDeclarationList = annotationDeclarationList;
 	}

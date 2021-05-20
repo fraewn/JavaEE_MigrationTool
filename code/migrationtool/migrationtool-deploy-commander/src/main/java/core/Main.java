@@ -1,25 +1,35 @@
 package core;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import command.AbstractCommand;
+import utils.PropertiesLoader;
 
 public class Main {
 
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(AbstractCommand.class);
+	private static final Logger LOG = Logger.getLogger(Main.class);
 
 	public static void main(String[] args) {
+		// Print logo
+		try (BufferedReader br = new BufferedReader(
+				new InputStreamReader(Main.class.getClassLoader().getResourceAsStream("ascii-art.txt")))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				System.out.println(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		LOG.info("Starting migrationtool (version: commandline)");
 		String javaClassPath = System.getProperty("java.class.path");
 		if (javaClassPath != null) {
 			for (String path : javaClassPath.split(File.pathSeparator)) {
@@ -35,17 +45,17 @@ public class Main {
 				break;
 			}
 		}
-		try (InputStream input = new FileInputStream(propertiesFile)) {
-			Properties prop = new Properties();
-			prop.load(input);
-			for (Map.Entry<Object, Object> e : prop.entrySet()) {
-				String key = e.getKey().toString();
-				key = key.startsWith("-") ? key : "-" + key;
-				String tmp = key + "=" + e.getValue().toString();
-				arguments.add(tmp);
+		PropertiesLoader properties = new PropertiesLoader(propertiesFile);
+		properties.loadProps();
+		for (Map.Entry<String, String> e : properties.getCache().entrySet()) {
+			String key = e.getKey();
+			key = key.startsWith("-") ? key : "-" + key;
+			String value = e.getValue();
+			value = value.equals("true") ? "" : "=" + e.getValue();
+			// remove false arguments
+			if (!value.equals("false")) {
+				arguments.add(key + value);
 			}
-		} catch (IOException ex) {
-			LOG.info("No properties file found");
 		}
 		Runner runner = new Runner();
 		runner.run(arguments.toArray(new String[0]));

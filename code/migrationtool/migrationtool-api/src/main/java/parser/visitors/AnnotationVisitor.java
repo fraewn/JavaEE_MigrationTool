@@ -5,6 +5,7 @@ import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
 import data.TargetTypes;
@@ -14,7 +15,9 @@ import data.TargetTypes;
  */
 public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, AnnotationExpr> {
 
+	/** searched annotation, fully qualified name */
 	private String searchedAnnotation;
+	/** target type of searched annotation */
 	private TargetTypes type;
 
 	public AnnotationVisitor(String searchedAnnotation, TargetTypes type) {
@@ -25,11 +28,8 @@ public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, Annotation
 	@Override
 	public Boolean visit(MethodDeclaration n, AnnotationExpr container) {
 		if (this.type.equals(TargetTypes.METHOD)) {
-			for (AnnotationExpr expr : n.getAnnotations()) {
-				String qualifiedName = expr.resolve().getQualifiedName();
-				if (qualifiedName.equals(this.searchedAnnotation)) {
-					return Boolean.TRUE;
-				}
+			if (check(n)) {
+				return Boolean.TRUE;
 			}
 		}
 		return super.visit(n, container);
@@ -38,11 +38,8 @@ public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, Annotation
 	@Override
 	public Boolean visit(ClassOrInterfaceDeclaration n, AnnotationExpr container) {
 		if (this.type.equals(TargetTypes.TYPE)) {
-			for (AnnotationExpr expr : n.getAnnotations()) {
-				String qualifiedName = expr.resolve().getQualifiedName();
-				if (qualifiedName.equals(this.searchedAnnotation)) {
-					return Boolean.TRUE;
-				}
+			if (check(n)) {
+				return Boolean.TRUE;
 			}
 		}
 		return super.visit(n, container);
@@ -51,11 +48,8 @@ public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, Annotation
 	@Override
 	public Boolean visit(FieldDeclaration n, AnnotationExpr container) {
 		if (this.type.equals(TargetTypes.FIELD)) {
-			for (AnnotationExpr expr : n.getAnnotations()) {
-				String qualifiedName = expr.resolve().getQualifiedName();
-				if (qualifiedName.equals(this.searchedAnnotation)) {
-					return Boolean.TRUE;
-				}
+			if (check(n)) {
+				return Boolean.TRUE;
 			}
 		}
 		return super.visit(n, container);
@@ -64,13 +58,20 @@ public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, Annotation
 	@Override
 	public Boolean visit(ConstructorDeclaration n, AnnotationExpr container) {
 		if (this.type.equals(TargetTypes.CONSTRUCTOR)) {
-			for (AnnotationExpr expr : n.getAnnotations()) {
-				String qualifiedName = expr.resolve().getQualifiedName();
-				if (qualifiedName.equals(this.searchedAnnotation)) {
-					return Boolean.TRUE;
-				}
+			if (check(n)) {
+				return Boolean.TRUE;
 			}
 		}
 		return super.visit(n, container);
+	}
+
+	private <T extends NodeWithAnnotations<?>> boolean check(T obj) {
+		for (AnnotationExpr expr : obj.getAnnotations()) {
+			String qualifiedName = expr.resolve().getQualifiedName();
+			if (qualifiedName.equals(this.searchedAnnotation)) {
+				return Boolean.TRUE;
+			}
+		}
+		return false;
 	}
 }
