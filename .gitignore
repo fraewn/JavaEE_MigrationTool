@@ -79,3 +79,10 @@ Icon
 
 # Thumbnails
 ._*
+
+
+###########################
+Database Configuration
+###########################
+
+neo4j_conf.ini
