@@ -1,6 +1,7 @@
 package service.extension;
 
 import data.TargetTypes;
+import model.GraphFoundationDAO;
 import operations.ModelService;
 import operations.dto.ClassDTO;
 import operations.dto.GenericDTO;
@@ -21,6 +22,9 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.TypeParameter;
 
+import org.ini4j.Ini;
+import java.io.File;
+
 public class GetData extends ModelService {
 	@Override
 	public void save() {
@@ -29,7 +33,28 @@ public class GetData extends ModelService {
 
 	@Override
 	public void setDTO(GenericDTO<?> dto) {
-		List<ClassDTO> classDTOList = (List<ClassDTO>) dto.getObject();
+		
+		try{
+			Ini ini = new Ini(new File("src/main/resources/neo4j_conf.ini"));
+			String portType = ini.get("remote", "portType");
+			String ip = ini.get("remote", "ip");
+			String port = ini.get("remote", "port");
+			String url = portType + "://" + ip + ":" + port;
+			String username = ini.get("remote", "username");
+			String password = ini.get("remote", "password");
+			System.out.println(url + username + password);
+			GraphFoundationDAO graphFoundationDAO = new GraphFoundationDAO(url, username, password); 
+			System.out.println("+++++++++++++started connection++++++++");
+			System.out.println("++++++++++++++result: " + graphFoundationDAO.execute());
+			graphFoundationDAO.close(); 
+			}
+			catch(Exception e){
+				System.out.println(e.getMessage());
+			}
+		
+		
+		
+		/*List<ClassDTO> classDTOList = (List<ClassDTO>) dto.getObject();
 		// Type means class - jetzt sucht der am Klassenkopf die Annotation und sagt dann ob er da eine gefunden hat
 		AnnotationVisitor annotationVisitor = new AnnotationVisitor("javax.persistence.Entity", TargetTypes.TYPE);
 		
@@ -202,7 +227,7 @@ public class GetData extends ModelService {
 				 
 			 } 
 		}
-		System.out.println("----------stopping reading from dto");
+		System.out.println("----------stopping reading from dto");*/
 	}
 
 	@Override
