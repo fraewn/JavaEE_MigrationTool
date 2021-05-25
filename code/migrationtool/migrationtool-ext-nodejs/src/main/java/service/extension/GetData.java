@@ -34,7 +34,7 @@ public class GetData extends ModelService {
 	@Override
 	public void setDTO(GenericDTO<?> dto) {
 		
-		try{
+		/*try{
 			Ini ini = new Ini(new File("src/main/resources/neo4j_conf.ini"));
 			String portType = ini.get("remote", "portType");
 			String ip = ini.get("remote", "ip");
@@ -43,18 +43,28 @@ public class GetData extends ModelService {
 			String username = ini.get("remote", "username");
 			String password = ini.get("remote", "password");
 			System.out.println(url + username + password);
-			GraphFoundationDAO graphFoundationDAO = new GraphFoundationDAO(url, username, password); 
-			System.out.println("+++++++++++++started connection++++++++");
-			System.out.println("++++++++++++++result: " + graphFoundationDAO.execute());
-			graphFoundationDAO.close(); 
+			
+			GraphFoundationDAO graphFoundationDAO = GraphFoundationDAO.getInstance(); 
+			
+			graphFoundationDAO.initConnection(url, username, password);
+			
+			
+			try{
+			graphFoundationDAO.getClassNode("BatchServiceImpl.java");
 			}
 			catch(Exception e){
+				System.out.println(e.getStackTrace());
 				System.out.println(e.getMessage());
 			}
+			graphFoundationDAO.close(); 
+		}
+		catch(Exception e){
+			System.out.println(e.getMessage());
+		}*/
 		
 		
 		
-		/*List<ClassDTO> classDTOList = (List<ClassDTO>) dto.getObject();
+		List<ClassDTO> classDTOList = (List<ClassDTO>) dto.getObject();
 		// Type means class - jetzt sucht der am Klassenkopf die Annotation und sagt dann ob er da eine gefunden hat
 		AnnotationVisitor annotationVisitor = new AnnotationVisitor("javax.persistence.Entity", TargetTypes.TYPE);
 		
@@ -62,6 +72,7 @@ public class GetData extends ModelService {
 		List<ImportDeclaration> importDeclarationList;
 		List<ClassOrInterfaceType> implementsList; 
 		List<ClassOrInterfaceType> extendsList;
+		List<ConstructorDeclaration> constructors;
 		List<FieldDeclaration> fields;
 		
 		List<MethodDeclaration> methods;
@@ -70,11 +81,10 @@ public class GetData extends ModelService {
 		String classType; 
 	
 		// constructors
-		List<ConstructorDeclaration> constructors;
-		List<Modifier> constructorModifiers; 
-		List<Parameter> constructorParameters; 
 		String constructorName; 
 		String constuctorBody; 
+		List<Modifier> constructorModifiers; 
+		List<Parameter> constructorParameters; 
 		List<AnnotationExpr> constructorParameterAnnotations; 
 		
 		// fields
@@ -87,12 +97,12 @@ public class GetData extends ModelService {
 		// methods
 		String returnType; 
 		String methodName; 
+		String body; 
 		List<Modifier> methodModifiers; 
 		List<AnnotationExpr> methodAnnotations; 
 		List<Parameter> parameterList; 
 		List<AnnotationExpr> methodParameterAnnotations; 
 		List<ReferenceType> exceptionList; 
-		String body; 
 
 		System.out.println("----------starting reading from dto");
 		for(ClassDTO classDTO: classDTOList){
@@ -227,7 +237,7 @@ public class GetData extends ModelService {
 				 
 			 } 
 		}
-		System.out.println("----------stopping reading from dto");*/
+		System.out.println("----------stopping reading from dto");
 	}
 
 	@Override
