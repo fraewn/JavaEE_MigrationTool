@@ -2,13 +2,17 @@ package service.extension;
 
 import data.TargetTypes;
 import model.GraphFoundationDAO;
+import model.entities.Field;
 import operations.ModelService;
 import operations.dto.ClassDTO;
 import operations.dto.GenericDTO;
 import parser.visitors.AnnotationVisitor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
@@ -21,11 +25,54 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.TypeParameter;
+import com.google.gson.Gson;
 
 import org.ini4j.Ini;
 import java.io.File;
 
 public class GetData extends ModelService {
+	
+	List<ClassDTO> classDTOList = new ArrayList(); 
+			
+	// Type means class - jetzt sucht der am Klassenkopf die Annotation und sagt dann ob er da eine gefunden hat
+	AnnotationVisitor annotationVisitor = new AnnotationVisitor("javax.persistence.Entity", TargetTypes.TYPE);
+	
+	// class
+	List<ImportDeclaration> importDeclarationList;
+	List<ClassOrInterfaceType> implementsList; 
+	List<ClassOrInterfaceType> extendsList;
+	List<ConstructorDeclaration> constructors;
+	List<FieldDeclaration> fields;
+	
+	List<MethodDeclaration> methods;
+	List<AnnotationExpr> annotationExprs;
+	List<TypeParameter> typeParameterList;
+	String classType; 
+
+	// constructors
+	String constructorName; 
+	String constuctorBody; 
+	List<Modifier> constructorModifiers; 
+	List<Parameter> constructorParameters; 
+	List<AnnotationExpr> constructorParameterAnnotations; 
+	
+	// fields
+	String fieldElementType; 
+	List<VariableDeclarator> fieldVariables; 
+	List<Modifier> fieldModifiers; 
+	List<AnnotationExpr> fieldAnnotations; 
+	
+	
+	// methods
+	String returnType; 
+	String methodName; 
+	String body; 
+	List<Modifier> methodModifiers; 
+	List<AnnotationExpr> methodAnnotations; 
+	List<Parameter> parameterList; 
+	List<AnnotationExpr> methodParameterAnnotations; 
+	List<ReferenceType> exceptionList; 
+	
 	@Override
 	public void save() {
 
@@ -34,75 +81,11 @@ public class GetData extends ModelService {
 	@Override
 	public void setDTO(GenericDTO<?> dto) {
 		
-		/*try{
-			Ini ini = new Ini(new File("src/main/resources/neo4j_conf.ini"));
-			String portType = ini.get("remote", "portType");
-			String ip = ini.get("remote", "ip");
-			String port = ini.get("remote", "port");
-			String url = portType + "://" + ip + ":" + port;
-			String username = ini.get("remote", "username");
-			String password = ini.get("remote", "password");
-			System.out.println(url + username + password);
-			
-			GraphFoundationDAO graphFoundationDAO = GraphFoundationDAO.getInstance(); 
-			
-			graphFoundationDAO.initConnection(url, username, password);
-			
-			
-			try{
-			graphFoundationDAO.getClassNode("BatchServiceImpl.java");
-			}
-			catch(Exception e){
-				System.out.println(e.getStackTrace());
-				System.out.println(e.getMessage());
-			}
-			graphFoundationDAO.close(); 
-		}
-		catch(Exception e){
-			System.out.println(e.getMessage());
-		}*/
 		
 		
 		
-		List<ClassDTO> classDTOList = (List<ClassDTO>) dto.getObject();
-		// Type means class - jetzt sucht der am Klassenkopf die Annotation und sagt dann ob er da eine gefunden hat
-		AnnotationVisitor annotationVisitor = new AnnotationVisitor("javax.persistence.Entity", TargetTypes.TYPE);
+		classDTOList = (List<ClassDTO>) dto.getObject();
 		
-		// class
-		List<ImportDeclaration> importDeclarationList;
-		List<ClassOrInterfaceType> implementsList; 
-		List<ClassOrInterfaceType> extendsList;
-		List<ConstructorDeclaration> constructors;
-		List<FieldDeclaration> fields;
-		
-		List<MethodDeclaration> methods;
-		List<AnnotationExpr> annotationExprs;
-		List<TypeParameter> typeParameterList;
-		String classType; 
-	
-		// constructors
-		String constructorName; 
-		String constuctorBody; 
-		List<Modifier> constructorModifiers; 
-		List<Parameter> constructorParameters; 
-		List<AnnotationExpr> constructorParameterAnnotations; 
-		
-		// fields
-		String fieldElementType; 
-		List<VariableDeclarator> fieldVariables; 
-		List<Modifier> fieldModifiers; 
-		List<AnnotationExpr> fieldAnnotations; 
-		
-		
-		// methods
-		String returnType; 
-		String methodName; 
-		String body; 
-		List<Modifier> methodModifiers; 
-		List<AnnotationExpr> methodAnnotations; 
-		List<Parameter> parameterList; 
-		List<AnnotationExpr> methodParameterAnnotations; 
-		List<ReferenceType> exceptionList; 
 
 		System.out.println("----------starting reading from dto");
 		for(ClassDTO classDTO: classDTOList){
@@ -141,29 +124,8 @@ public class GetData extends ModelService {
 			 }
 			 
 			 fields = classDTO.getFields(); 
-			 System.out.println("\nFields:");
-			 for(FieldDeclaration field : fields){
-					 fieldElementType = field.getElementType().asString(); 
-					 System.out.println("\nField Element Type: " + fieldElementType);
-					 
-					 fieldModifiers = field.getModifiers(); 
-					 for(Modifier fieldModifier : fieldModifiers){
-						 System.out.println("Field Modifier: " + fieldModifier);
-					 }
-				 
-				 	fieldVariables = field.getVariables();
-				 	for(VariableDeclarator fieldVariable: fieldVariables){
-				 		System.out.println("Field variable: " + fieldVariable.getNameAsString());
-				 		fieldVariable.getInitializer().ifPresent((i) -> { 
-				 			System.out.println("Field Initializer: " + i);
-				 			});
-				 	}
-				 	
-				 	fieldAnnotations = field.getAnnotations(); 
-				 	for(AnnotationExpr fieldAnnotation: fieldAnnotations){
-				 		System.out.println("Field Annotation: " + fieldAnnotation.getNameAsString());
-				 	}	
-			 } 
+			 List<String> fieldsAsJsonObjects = saveFieldsAsJsonObjects(fields); 
+			 
 			 
 			 constructors = classDTO.getConstructors(); 
 			 for(ConstructorDeclaration constructor : constructors){
@@ -234,14 +196,123 @@ public class GetData extends ModelService {
 				 }
 				 System.out.println("Body: " + body);
 				 System.out.println(method.toString());
-				 
+				 manageClassPersistence("Test.zwei.drei", fieldsAsJsonObjects); 
 			 } 
 		}
 		System.out.println("----------stopping reading from dto");
+		
 	}
 
 	@Override
 	public GenericDTO<?> buildDTO() {
 		return null;
+	}
+	
+	public List<String> saveFieldsAsJsonObjects(List<FieldDeclaration> fields){
+		List<String> fieldsAsJsonObjects = new ArrayList(); 
+		
+		for (FieldDeclaration field : fields) {
+			System.out.println("\nFields:");
+			
+			// create empty json string for one field 
+			String fieldAsJsonObject = "";
+			
+			// create an empty Field
+			Field fieldEntity = new Field();
+			List<String> names = fieldEntity.getNames();
+			String type = fieldEntity.getType();
+			List<String> modifiersAsStrings = fieldEntity.getModifiers();
+			List<String> annotationsAsString = fieldEntity.getAnnotations();
+
+			// names and initializer
+			for (VariableDeclarator fieldVariable : field.getVariables()) {
+				System.out.println("Field variable: " + fieldVariable.getNameAsString());
+				names.add(fieldVariable.getNameAsString());
+				fieldVariable.getInitializer().ifPresent((init) -> {
+					// System.out.println("Field Initializer: " + init);
+					String initializer = fieldEntity.getInitializer();
+					initializer = init.toString();
+					fieldEntity.setInitializer(initializer);
+				});
+			}
+
+			// type
+			type = field.getElementType().asString();
+			fieldEntity.setType(type);
+			System.out.println("\nField Element Type: " + type);
+
+			// modifier list
+			for (Modifier fieldModifier : field.getModifiers()) {
+				modifiersAsStrings.add(fieldModifier.toString());
+				System.out.println("Field Modifier: " + fieldModifier);
+			}
+			fieldEntity.setModifiers(modifiersAsStrings);
+
+			// annotations list
+			for (AnnotationExpr fieldAnnotation : field.getAnnotations()) {
+				System.out.println("Field Annotation: " + fieldAnnotation.getNameAsString());
+				annotationsAsString.add(fieldAnnotation.getNameAsString());
+			}
+			fieldEntity.setAnnotations(annotationsAsString);
+
+			// create JsonObject from Field
+			fieldAsJsonObject = new Gson().toJson(fieldEntity);
+			fieldsAsJsonObjects.add(fieldAsJsonObject);
+			System.out.println("JSON++++++++++++++++ " + fieldAsJsonObject);
+		}
+		return fieldsAsJsonObjects;
+	}
+	
+	public void manageClassPersistence(String fullPath, List<String> fieldsAsJsonObjects){
+		try {
+			Ini ini = new Ini(new File("src/main/resources/neo4j_conf.ini"));
+			String portType = ini.get("remote", "portType");
+			String ip = ini.get("remote", "ip");
+			String port = ini.get("remote", "port");
+			String url = portType + "://" + ip + ":" + port;
+			String username = ini.get("remote", "username");
+			String password = ini.get("remote", "password");
+			System.out.println(url + username + password);
+
+			GraphFoundationDAO graphFoundationDAO = GraphFoundationDAO.getInstance();
+			
+			List<String> modules = extractPathStructure(fullPath);
+			System.out.println(modules.size());
+			String className = modules.get(modules.size()-1); 
+			String javaClassName = className + ".java"; 
+			System.out.println("classname:" + className);
+			System.out.println("javaclassname:" + javaClassName);
+			
+			graphFoundationDAO.initConnection(url, username, password);
+
+			try {
+				graphFoundationDAO.getClassNode("BatchServiceImpl.java");
+				boolean test = graphFoundationDAO.persistClassNode("TestClass", "TestClass.java");
+				boolean test2 = graphFoundationDAO.setFieldinClassNode(className, javaClassName, fieldsAsJsonObjects);
+				System.out.println(test);
+				
+			} catch (Exception e) {
+				System.out.println(e.getStackTrace());
+				System.out.println(e.getMessage());
+			}
+			graphFoundationDAO.close();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			System.out.println(e.getStackTrace());
+		}
+	}
+	
+	public List<String> extractPathStructure(String fullPath){
+		List<String> modules = new ArrayList(); 
+		if(fullPath.contains(".")){
+			modules = Arrays.asList(fullPath.split(Pattern.quote(".")));
+		}
+		else {
+			modules.add(fullPath);
+		}
+		for(String s : modules){
+			System.out.println(s);
+		}
+		return modules; 
 	}
 }

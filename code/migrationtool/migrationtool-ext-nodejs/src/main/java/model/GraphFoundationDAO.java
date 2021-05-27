@@ -1,5 +1,7 @@
 package model;
 
+import java.util.List;
+
 import org.neo4j.driver.v1.*;
 
 // create class nodes in neo4j graph 
@@ -58,5 +60,26 @@ public class GraphFoundationDAO implements AutoCloseable {
 		System.out.println(result.single().get(0).toString());
 		return true; 
 	}
+	
+	public boolean persistClassNode(String className, String javaClassName) throws Exception {
+		query = "MERGE (" + className + ":Class {name:'" + javaClassName + "'})";
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+		 
+	}
+	
+	public boolean setFieldinClassNode(String className, String javaClassName, List<String> fieldsAsJsonObjects) throws Exception {
+		query = "MATCH (c:Class {name:'" + javaClassName + "'}) SET c.field = [" + fieldsAsJsonObjects + "]";
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+	}
+	
+	
 
 }
