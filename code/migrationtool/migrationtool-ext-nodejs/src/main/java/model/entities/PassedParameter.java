@@ -1,10 +1,12 @@
 package model.entities;
 
-public class Parameter {
+import java.util.List;
+
+public class PassedParameter {
 	private String name; 
 	private String type; 
-	private String[] modifiers; 
-	private String[] annotations; 
+	private List<String> modifiers; 
+	private List<String> annotations; 
 	
 	public String getName() {
 		return name;
@@ -18,18 +20,19 @@ public class Parameter {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public String[] getModifiers() {
+	public List<String> getModifiers() {
 		return modifiers;
 	}
-	public void setModifiers(String[] modifiers) {
+	public void setModifiers(List<String> modifiers) {
 		this.modifiers = modifiers;
 	}
-	public String[] getAnnotations() {
+	public List<String> getAnnotations() {
 		return annotations;
 	}
-	public void setAnnotations(String[] annotations) {
+	public void setAnnotations(List<String> annotations) {
 		this.annotations = annotations;
 	}
+	
 	
 
 	

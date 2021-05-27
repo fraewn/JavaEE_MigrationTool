@@ -2,7 +2,9 @@ package service.extension;
 
 import data.TargetTypes;
 import model.GraphFoundationDAO;
+import model.entities.Constructor;
 import model.entities.Field;
+import model.entities.PassedParameter;
 import operations.ModelService;
 import operations.dto.ClassDTO;
 import operations.dto.GenericDTO;
@@ -128,31 +130,7 @@ public class GetData extends ModelService {
 			 
 			 
 			 constructors = classDTO.getConstructors(); 
-			 for(ConstructorDeclaration constructor : constructors){
-				 constructorModifiers = constructor.getModifiers(); 
-				 for(Modifier constructorModifier : constructorModifiers){
-				 		System.out.println("Constructor Modifier: " + constructorModifier);
-				 }
-				 parameterList = constructor.getParameters(); 
-				 for(Parameter parameter : parameterList){
-					 System.out.println("Paramter complete: " + parameter.toString());
-					 constructorParameterAnnotations = parameter.getAnnotations(); 
-					 for(AnnotationExpr constructorParameterAnnotation : constructorParameterAnnotations){
-						 System.out.println("Parameter Annotation: " + constructorParameterAnnotation);
-					 }
-					 System.out.println("Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());
-				 }
-				 constructorName = constructor.getNameAsString();
-				 System.out.println("Constructor Name: " + constructorName);
-				 try{
-					 body = constructor.getBody().toString();
-				 }
-				 catch(Exception ex){
-					 body = null; 
-				 }
-				 System.out.println("Constructor Body: " + body);
-				 System.out.println("Constructor complete: " + constructor.toString());
-			 }
+			 List<String> constructorsAsJsonObjects = saveConstructorsAsJsonObjects(constructors);
 			 
 			 
 			 methods = classDTO.getMethods();  
@@ -194,9 +172,9 @@ public class GetData extends ModelService {
 				 catch(Exception ex){
 					 body = null; 
 				 }
-				 System.out.println("Body: " + body);
-				 System.out.println(method.toString());
-				 manageClassPersistence("Test.zwei.drei", fieldsAsJsonObjects); 
+				 //System.out.println("Body: " + body);
+				 //System.out.println(method.toString());
+				 //manageClassPersistence("Test.zwei.drei", fieldsAsJsonObjects); 
 			 } 
 		}
 		System.out.println("----------stopping reading from dto");
@@ -206,6 +184,84 @@ public class GetData extends ModelService {
 	@Override
 	public GenericDTO<?> buildDTO() {
 		return null;
+	}
+	
+	public List<String> saveConstructorsAsJsonObjects(List<ConstructorDeclaration> constructors) {
+		List<String> constructorsAsJsonObjects = new ArrayList();
+		for (ConstructorDeclaration constructor : constructors) {
+			// empty json object
+			String constructorAsJsonObject = ""; 
+			
+			// create constructor entity
+			Constructor constructorEntity = new Constructor();
+			String name = constructorEntity.getName();
+			String body = constructorEntity.getBody(); 
+			List<String> modifiersAsStrings = constructorEntity.getModifiers();
+			List<String> annotationsAsString = constructorEntity.getAnnotations();
+			List<PassedParameter> parameters = constructorEntity.getParameters(); 
+			
+			// name 
+			name = constructor.getNameAsString(); 
+			constructorEntity.setName(name);
+			System.out.println("Constructor Name: " + constructor.getNameAsString());
+			
+			// body 
+			try {
+				body = constructor.getBody().toString();
+			} catch (Exception ex) {
+				body = ""; 
+			}
+			constructorEntity.setBody(body);
+			
+			// modifiers
+			constructorModifiers = constructor.getModifiers();
+			for (Modifier constructorModifier : constructorModifiers) {
+				System.out.println("Constructor Modifier: " + constructorModifier);
+				modifiersAsStrings.add(constructorModifier.toString());
+			}
+			constructorEntity.setModifiers(modifiersAsStrings); 
+			
+			// creating the parameter object (nested)
+			for (Parameter parameter : constructor.getParameters()) {
+				// create Parameter object 
+				PassedParameter parameterAsJsonObject = new PassedParameter(); 
+				String parameterName = parameterAsJsonObject.getName(); 
+				String type = parameterAsJsonObject.getType(); 
+				List<String> parameterModifiersAsStrings = parameterAsJsonObject.getModifiers();
+				List<String> parameterAnnotationsAsStrings = parameterAsJsonObject.getAnnotations();
+				
+				System.out.println("Paramter complete: " + parameter.toString());
+				
+				// name and type 
+				parameterName = parameter.getNameAsString(); 
+				parameterAsJsonObject.setName(parameterName);
+				type = parameter.getType().asString();
+				parameterAsJsonObject.setType(type);
+				
+				// modifiers 
+				for (Modifier constructorParameterModifier : parameter.getModifiers()) {
+					parameterModifiersAsStrings.add(constructorParameterModifier.toString());
+				}
+				
+				// annotations
+				for (AnnotationExpr constructorParameterAnnotation : parameter.getAnnotations()) {
+					System.out.println("Parameter Annotation: " + constructorParameterAnnotation);
+					parameterAnnotationsAsStrings.add(constructorParameterAnnotation.toString());
+				}
+				
+				System.out.println("Parameter type: " + parameter.getType() + "   Parameter name: "
+						+ parameter.getName().toString());
+				
+				// add parameter object to parameter list 
+				parameters.add(parameterAsJsonObject); 
+			}
+			constructorEntity.setParameters(parameters);
+			
+			constructorAsJsonObject = new Gson().toJson(constructorEntity);
+			System.out.println("JSON++++++++++++++++ " + constructorAsJsonObject);
+			constructorsAsJsonObjects.add("'" + constructorAsJsonObject + "'");
+		}
+		return constructorsAsJsonObjects;
 	}
 	
 	public List<String> saveFieldsAsJsonObjects(List<FieldDeclaration> fields){

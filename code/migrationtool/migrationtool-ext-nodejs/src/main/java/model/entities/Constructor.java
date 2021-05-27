@@ -1,12 +1,33 @@
 package model.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Constructor {
 	private String name; 
 	private String body; 
-	private String[] modifiers; 
-	private String[] annotations; 
-	private Parameter[] parameters; 
+	private List<String> modifiers = new ArrayList(); 
+	private List<String> annotations = new ArrayList(); 
+	private List<PassedParameter> parameters = new ArrayList();
 	
+	public List<String> getModifiers() {
+		return modifiers;
+	}
+	public void setModifiers(List<String> modifiers) {
+		this.modifiers = modifiers;
+	}
+	public List<String> getAnnotations() {
+		return annotations;
+	}
+	public void setAnnotations(List<String> annotations) {
+		this.annotations = annotations;
+	}
+	public List<PassedParameter> getParameters() {
+		return parameters;
+	}
+	public void setParameters(List<PassedParameter> parameters) {
+		this.parameters = parameters;
+	}
 	public String getName() {
 		return name;
 	}
@@ -19,22 +40,5 @@ public class Constructor {
 	public void setBody(String body) {
 		this.body = body;
 	}
-	public String[] getModifiers() {
-		return modifiers;
-	}
-	public void setModifiers(String[] modifiers) {
-		this.modifiers = modifiers;
-	}
-	public String[] getAnnotations() {
-		return annotations;
-	}
-	public void setAnnotations(String[] annotations) {
-		this.annotations = annotations;
-	}
-	public Parameter[] getParameters() {
-		return parameters;
-	}
-	public void setParameters(Parameter[] parameters) {
-		this.parameters = parameters;
-	}
+	
 }

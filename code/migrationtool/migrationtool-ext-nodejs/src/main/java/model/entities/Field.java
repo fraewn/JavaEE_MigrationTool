@@ -9,7 +9,7 @@ public class Field {
 	private String initializer = ""; 
 	private List<String> modifiers = new ArrayList(); 
 	private List<String> annotations = new ArrayList(); 
-	private List<Parameter> parameters = new ArrayList(); 
+	private List<PassedParameter> parameters = new ArrayList(); 
 	
 	public List<String> getNames() {
 		return names;
@@ -41,10 +41,10 @@ public class Field {
 	public void setAnnotations(List<String> annotations) {
 		this.annotations = annotations;
 	}
-	public List<Parameter> getParameters() {
+	public List<PassedParameter> getParameters() {
 		return parameters;
 	}
-	public void setParameters(List<Parameter> parameters) {
+	public void setParameters(List<PassedParameter> parameters) {
 		this.parameters = parameters;
 	}
 	

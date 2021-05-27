@@ -7,7 +7,7 @@ public class Method {
 	private String[] modifiers; 
 	private String[] annotations;
 	private String[] exceptions; 
-	private Parameter[] parameters; 
+	private PassedParameter[] parameters; 
 	
 	public String getName() {
 		return name;
@@ -45,10 +45,10 @@ public class Method {
 	public void setExceptions(String[] exceptions) {
 		this.exceptions = exceptions;
 	}
-	public Parameter[] getParameters() {
+	public PassedParameter[] getParameters() {
 		return parameters;
 	}
-	public void setParameters(Parameter[] parameters) {
+	public void setParameters(PassedParameter[] parameters) {
 		this.parameters = parameters;
 	}
 }

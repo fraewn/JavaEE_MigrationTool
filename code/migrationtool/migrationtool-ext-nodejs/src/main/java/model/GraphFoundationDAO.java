@@ -70,6 +70,8 @@ public class GraphFoundationDAO implements AutoCloseable {
 		return false; 
 	}
 	
+	
+	// TODO refactor to generic method to write string array node property 
 	public boolean setFieldinClassNode(String className, String javaClassName, List<String> fieldsAsJsonObjects) throws Exception {
 		System.out.println(fieldsAsJsonObjects.get(0));
 		System.out.println(fieldsAsJsonObjects.get(1));
