@@ -68,11 +68,12 @@ public class GraphFoundationDAO implements AutoCloseable {
 			return true;
 		}
 		return false; 
-		 
 	}
 	
 	public boolean setFieldinClassNode(String className, String javaClassName, List<String> fieldsAsJsonObjects) throws Exception {
-		query = "MATCH (c:Class {name:'" + javaClassName + "'}) SET c.field = [" + fieldsAsJsonObjects + "]";
+		System.out.println(fieldsAsJsonObjects.get(0));
+		System.out.println(fieldsAsJsonObjects.get(1));
+		query = "MATCH (c:Class {name:'" + javaClassName + "'}) SET c.field = " + fieldsAsJsonObjects;
 		result = session.run(query);
 		if(result.summary() != null){
 			return true;

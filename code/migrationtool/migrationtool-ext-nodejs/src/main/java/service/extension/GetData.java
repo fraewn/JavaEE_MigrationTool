@@ -257,7 +257,7 @@ public class GetData extends ModelService {
 
 			// create JsonObject from Field
 			fieldAsJsonObject = new Gson().toJson(fieldEntity);
-			fieldsAsJsonObjects.add(fieldAsJsonObject);
+			fieldsAsJsonObjects.add("'" + fieldAsJsonObject + "'");
 			System.out.println("JSON++++++++++++++++ " + fieldAsJsonObject);
 		}
 		return fieldsAsJsonObjects;
