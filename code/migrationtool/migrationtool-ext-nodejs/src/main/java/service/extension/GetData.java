@@ -7,7 +7,6 @@ import model.entities.Field;
 import model.entities.PassedParameter;
 import operations.ModelService;
 import operations.dto.ClassDTO;
-import operations.dto.GenericDTO;
 import parser.visitors.AnnotationVisitor;
 
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ import com.google.gson.Gson;
 import org.ini4j.Ini;
 import java.io.File;
 
-public class GetData extends ModelService {
+public class GetData extends ModelService<List<ClassDTO>, String> {
 	
 	List<ClassDTO> classDTOList = new ArrayList(); 
 			
@@ -74,117 +73,6 @@ public class GetData extends ModelService {
 	List<Parameter> parameterList; 
 	List<AnnotationExpr> methodParameterAnnotations; 
 	List<ReferenceType> exceptionList; 
-	
-	@Override
-	public void save() {
-
-	}
-
-	@Override
-	public void setDTO(GenericDTO<?> dto) {
-		
-		
-		
-		
-		classDTOList = (List<ClassDTO>) dto.getObject();
-		
-
-		System.out.println("----------starting reading from dto");
-		for(ClassDTO classDTO: classDTOList){
-			System.out.println("\nClassname: " + classDTO.getFullName());
-			System.out.println("Is Interface: " + classDTO.getJavaClass().isInterface());
-			System.out.println("Is Abstract: " + classDTO.getJavaClass().isAbstract());
-			
-			// true wenn die Annotation "javax.persistence.Entity" da drin ist, ansonsten false
-			System.out.print("\nHas Javax.Persistence.Entity: ");
-			System.out.println(Optional.ofNullable(classDTO.getJavaClass().accept(annotationVisitor, null)).orElse(false));
-			
-			System.out.print("\nPackage Declaration: ");
-			System.out.println(classDTO.getPackageDeclaration());	
-			
-			// printed die komplette java klasse
-			// System.out.println(classDTO.getJavaClass().toString());
-			System.out.print("\nModule Declaration or, if non-existent, null: ");
-			System.out.println(classDTO.getModuleDeclaration());
-			
-			importDeclarationList = classDTO.getImports(); 
-			System.out.println("\nImports:");
-			 for(ImportDeclaration importDeclaration : importDeclarationList){
-					System.out.println(importDeclaration.getNameAsString());
-			 }
-			 
-			 implementsList = classDTO.getImplementations();
-			 System.out.println("\nInterfaces:");
-			 for(ClassOrInterfaceType implementedInterface : implementsList){
-					System.out.println(implementedInterface.getNameAsString());
-			 }
-			 
-			 extendsList = classDTO.getExtensions();
-			 System.out.println("\nExtends from:");
-			 for(ClassOrInterfaceType extendedClass : extendsList){
-					System.out.println(extendedClass.getNameAsString());
-			 }
-			 
-			 fields = classDTO.getFields(); 
-			 List<String> fieldsAsJsonObjects = saveFieldsAsJsonObjects(fields); 
-			 
-			 
-			 constructors = classDTO.getConstructors(); 
-			 List<String> constructorsAsJsonObjects = saveConstructorsAsJsonObjects(constructors);
-			 
-			 
-			 methods = classDTO.getMethods();  
-			 System.out.println("\nMethods:");
-			 for(MethodDeclaration method : methods){
-				 methodAnnotations = method.getAnnotations(); 
-				 for(AnnotationExpr methodAnnotation : methodAnnotations){
-				 		System.out.println("Method Annotation: " + methodAnnotation.getNameAsString());
-				 }
-				 methodModifiers = method.getModifiers(); 
-				 for(Modifier methodModifier : methodModifiers){
-				 		System.out.println("Method Modifier: " + methodModifier);
-				 }
-				 
-				 returnType = method.getTypeAsString();
-				 System.out.println("Return Type: " + returnType.toString());
-				 
-				 methodName = method.getNameAsString();
-				 System.out.println("Method name: " + methodName);
-				 
-				 parameterList = method.getParameters(); 
-				 for(Parameter parameter : parameterList){
-					 System.out.println("Paramter complete: " + parameter.toString());
-					 methodParameterAnnotations = parameter.getAnnotations(); 
-					 for(AnnotationExpr methodParameterAnnotation : methodParameterAnnotations){
-						 System.out.println("Parameter Annotation: " + methodParameterAnnotation);
-					 }
-					 System.out.println("Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());
-				 }
-				 
-				 exceptionList = method.getThrownExceptions(); 
-				 for(ReferenceType exception : exceptionList){
-					 System.out.println("Thrown Exception: " + exception.toString());
-				 }
-				 
-				 try{
-					 body = method.getBody().get().toString();
-				 }
-				 catch(Exception ex){
-					 body = null; 
-				 }
-				 //System.out.println("Body: " + body);
-				 //System.out.println(method.toString());
-				 //manageClassPersistence("Test.zwei.drei", fieldsAsJsonObjects); 
-			 } 
-		}
-		System.out.println("----------stopping reading from dto");
-		
-	}
-
-	@Override
-	public GenericDTO<?> buildDTO() {
-		return null;
-	}
 	
 	public List<String> saveConstructorsAsJsonObjects(List<ConstructorDeclaration> constructors) {
 		List<String> constructorsAsJsonObjects = new ArrayList();
@@ -370,5 +258,104 @@ public class GetData extends ModelService {
 			System.out.println(s);
 		}
 		return modules; 
+	}
+
+	@Override
+	public String save(List<ClassDTO> input) {
+		// TODO Auto-generated method stub
+
+		classDTOList = input;
+		
+
+		System.out.println("----------starting reading from dto");
+		for(ClassDTO classDTO: classDTOList){
+			System.out.println("\nClassname: " + classDTO.getFullName());
+			System.out.println("Is Interface: " + classDTO.getJavaClass().isInterface());
+			System.out.println("Is Abstract: " + classDTO.getJavaClass().isAbstract());
+			
+			// true wenn die Annotation "javax.persistence.Entity" da drin ist, ansonsten false
+			System.out.print("\nHas Javax.Persistence.Entity: ");
+			System.out.println(Optional.ofNullable(classDTO.getJavaClass().accept(annotationVisitor, null)).orElse(false));
+			
+			System.out.print("\nPackage Declaration: ");
+			System.out.println(classDTO.getPackageDeclaration());	
+			
+			// printed die komplette java klasse
+			// System.out.println(classDTO.getJavaClass().toString());
+			System.out.print("\nModule Declaration or, if non-existent, null: ");
+			System.out.println(classDTO.getModuleDeclaration());
+			
+			importDeclarationList = classDTO.getImports(); 
+			System.out.println("\nImports:");
+			 for(ImportDeclaration importDeclaration : importDeclarationList){
+					System.out.println(importDeclaration.getNameAsString());
+			 }
+			 
+			 implementsList = classDTO.getImplementations();
+			 System.out.println("\nInterfaces:");
+			 for(ClassOrInterfaceType implementedInterface : implementsList){
+					System.out.println(implementedInterface.getNameAsString());
+			 }
+			 
+			 extendsList = classDTO.getExtensions();
+			 System.out.println("\nExtends from:");
+			 for(ClassOrInterfaceType extendedClass : extendsList){
+					System.out.println(extendedClass.getNameAsString());
+			 }
+			 
+			 fields = classDTO.getFields(); 
+			 List<String> fieldsAsJsonObjects = saveFieldsAsJsonObjects(fields); 
+			 
+			 
+			 constructors = classDTO.getConstructors(); 
+			 List<String> constructorsAsJsonObjects = saveConstructorsAsJsonObjects(constructors);
+			 
+			 
+			 methods = classDTO.getMethods();  
+			 System.out.println("\nMethods:");
+			 for(MethodDeclaration method : methods){
+				 methodAnnotations = method.getAnnotations(); 
+				 for(AnnotationExpr methodAnnotation : methodAnnotations){
+				 		System.out.println("Method Annotation: " + methodAnnotation.getNameAsString());
+				 }
+				 methodModifiers = method.getModifiers(); 
+				 for(Modifier methodModifier : methodModifiers){
+				 		System.out.println("Method Modifier: " + methodModifier);
+				 }
+				 
+				 returnType = method.getTypeAsString();
+				 System.out.println("Return Type: " + returnType.toString());
+				 
+				 methodName = method.getNameAsString();
+				 System.out.println("Method name: " + methodName);
+				 
+				 parameterList = method.getParameters(); 
+				 for(Parameter parameter : parameterList){
+					 System.out.println("Paramter complete: " + parameter.toString());
+					 methodParameterAnnotations = parameter.getAnnotations(); 
+					 for(AnnotationExpr methodParameterAnnotation : methodParameterAnnotations){
+						 System.out.println("Parameter Annotation: " + methodParameterAnnotation);
+					 }
+					 System.out.println("Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());
+				 }
+				 
+				 exceptionList = method.getThrownExceptions(); 
+				 for(ReferenceType exception : exceptionList){
+					 System.out.println("Thrown Exception: " + exception.toString());
+				 }
+				 
+				 try{
+					 body = method.getBody().get().toString();
+				 }
+				 catch(Exception ex){
+					 body = null; 
+				 }
+				 //System.out.println("Body: " + body);
+				 //System.out.println(method.toString());
+				 //manageClassPersistence("Test.zwei.drei", fieldsAsJsonObjects); 
+			 } 
+		}
+		System.out.println("----------stopping reading from dto");
+		return null;
 	}
 }
