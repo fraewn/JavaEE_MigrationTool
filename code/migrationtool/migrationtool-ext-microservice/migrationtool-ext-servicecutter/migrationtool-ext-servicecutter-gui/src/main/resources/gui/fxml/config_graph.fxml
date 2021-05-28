@@ -19,7 +19,6 @@
 <?import javafx.scene.text.Font?>
 
 <VBox
-	prefWidth="200.0"
 	BorderPane.alignment="CENTER"
 	xmlns="http://javafx.com/javafx/"
 	xmlns:fx="http://javafx.com/fxml/"
@@ -65,7 +64,6 @@
 							AnchorPane.topAnchor="0.0">
 							<panes>
 								<TitledPane
-									styleClass="jfx-titledPane"
 									animated="true"
 									text="%graphconfig.config1.header">
 									<content>
@@ -173,7 +171,7 @@
 					AnchorPane.leftAnchor="0.0"
 					AnchorPane.rightAnchor="0.0"
 					AnchorPane.topAnchor="0.0"
-					styleClass="custom-jfx-button-raised" />
+					styleClass="jfx-button-raised" />
 			</children>
 			<padding>
 				<Insets

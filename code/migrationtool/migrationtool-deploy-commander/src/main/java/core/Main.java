@@ -18,6 +18,10 @@ public class Main {
 	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(Main.class);
 
+	public void execute() {
+
+	}
+
 	public static void main(String[] args) {
 		// Print logo
 		try (BufferedReader br = new BufferedReader(
@@ -46,7 +50,7 @@ public class Main {
 			}
 		}
 		PropertiesLoader properties = new PropertiesLoader(propertiesFile);
-		properties.loadProps();
+		properties.loadProps(true);
 		for (Map.Entry<String, String> e : properties.getCache().entrySet()) {
 			String key = e.getKey();
 			key = key.startsWith("-") ? key : "-" + key;

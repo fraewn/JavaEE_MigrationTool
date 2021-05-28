@@ -29,7 +29,7 @@ public class GraphViewer {
 	private int counter = 1;
 	private int lexicalCounter = 0;
 
-	public void initialize() throws Exception {
+	public void initialize() {
 		System.setProperty("org.graphstream.ui", "javafx");
 		System.setProperty("org.graphstream.debug", "true");
 
@@ -102,6 +102,7 @@ public class GraphViewer {
 					if (this.graph.getEdge(origin + destination) == null) {
 						this.graph.addEdge(origin + destination, origin, destination);
 					}
+					this.graph.getEdge(origin + destination).setAttribute("ui.label", "" + value);
 				}
 			}
 		}

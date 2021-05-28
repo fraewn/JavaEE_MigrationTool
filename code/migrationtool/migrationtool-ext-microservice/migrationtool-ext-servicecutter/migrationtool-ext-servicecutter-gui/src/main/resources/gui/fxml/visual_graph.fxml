@@ -3,7 +3,9 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXTreeView?>
+<?import com.jfoenix.controls.JFXTabPane?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
@@ -19,7 +21,7 @@
 
 <SplitPane
 	fx:id="visualGraph"
-	dividerPositions="0.7224080267558528"
+	dividerPositions="0.75"
 	BorderPane.alignment="CENTER"
 	xmlns="http://javafx.com/javafx/"
 	xmlns:fx="http://javafx.com/fxml/"
@@ -27,42 +29,104 @@
 	<items>
 		<AnchorPane>
 			<children>
-				<VBox
+				<JFXTabPane
+					fx:id="tabPane"
+					tabClosingPolicy="UNAVAILABLE"
 					AnchorPane.bottomAnchor="0.0"
 					AnchorPane.leftAnchor="0.0"
 					AnchorPane.rightAnchor="0.0"
 					AnchorPane.topAnchor="0.0">
-					<children>
-						<AnchorPane>
-							<children>
-								<Label
-									alignment="CENTER"
-									text="%graphvisual.header"
-									textAlignment="CENTER"
-									AnchorPane.bottomAnchor="0.0"
-									AnchorPane.leftAnchor="0.0"
-									AnchorPane.rightAnchor="0.0"
-									AnchorPane.topAnchor="0.0">
-									<font>
-										<Font
-											name="System Bold Italic"
-											size="14.0" />
-									</font>
-								</Label>
-							</children>
-							<padding>
-								<Insets
-									bottom="7.0"
-									left="7.0"
-									right="7.0"
-									top="7.0" />
-							</padding>
-						</AnchorPane>
-						<AnchorPane
-							fx:id="container"
-							VBox.vgrow="ALWAYS" />
-					</children>
-				</VBox>
+					<tabs>
+						<Tab
+							closable="false"
+							text="%graphvisual.tab1">
+							<content>
+								<AnchorPane>
+									<VBox
+										AnchorPane.bottomAnchor="0.0"
+										AnchorPane.leftAnchor="0.0"
+										AnchorPane.rightAnchor="0.0"
+										AnchorPane.topAnchor="0.0">
+										<children>
+											<AnchorPane>
+												<children>
+													<Label
+														alignment="CENTER"
+														text="%graphvisual.header1"
+														textAlignment="CENTER"
+														AnchorPane.bottomAnchor="0.0"
+														AnchorPane.leftAnchor="0.0"
+														AnchorPane.rightAnchor="0.0"
+														AnchorPane.topAnchor="0.0">
+														<font>
+															<Font
+																name="System Bold Italic"
+																size="14.0" />
+														</font>
+													</Label>
+												</children>
+												<padding>
+													<Insets
+														bottom="7.0"
+														left="7.0"
+														right="7.0"
+														top="7.0" />
+												</padding>
+											</AnchorPane>
+											<AnchorPane
+												fx:id="containerGraph"
+												VBox.vgrow="ALWAYS" />
+										</children>
+									</VBox>
+								</AnchorPane>
+							</content>
+						</Tab>
+						<Tab
+							closable="false"
+							text="%graphvisual.tab2">
+							<content>
+								<AnchorPane>
+									<VBox
+										AnchorPane.bottomAnchor="0.0"
+										AnchorPane.leftAnchor="0.0"
+										AnchorPane.rightAnchor="0.0"
+										AnchorPane.topAnchor="0.0">
+										<children>
+											<AnchorPane>
+												<children>
+													<Label
+														alignment="CENTER"
+														text="%graphvisual.header2"
+														textAlignment="CENTER"
+														AnchorPane.bottomAnchor="0.0"
+														AnchorPane.leftAnchor="0.0"
+														AnchorPane.rightAnchor="0.0"
+														AnchorPane.topAnchor="0.0">
+														<font>
+															<Font
+																name="System Bold Italic"
+																size="14.0" />
+														</font>
+													</Label>
+												</children>
+												<padding>
+													<Insets
+														bottom="7.0"
+														left="7.0"
+														right="7.0"
+														top="7.0" />
+												</padding>
+											</AnchorPane>
+											<AnchorPane
+												fx:id="containerCluster"
+												VBox.vgrow="ALWAYS" />
+										</children>
+									</VBox>
+								</AnchorPane>
+							</content>
+						</Tab>
+					</tabs>
+				</JFXTabPane>
 			</children>
 		</AnchorPane>
 		<AnchorPane>
@@ -190,6 +254,7 @@
 												<AnchorPane HBox.hgrow="ALWAYS">
 													<children>
 														<JFXButton
+															fx:id="debugPrevious"
 															text="%graphvisual.debug.previous"
 															buttonType="RAISED"
 															AnchorPane.bottomAnchor="0.0"
@@ -197,13 +262,15 @@
 															AnchorPane.rightAnchor="0.0"
 															AnchorPane.topAnchor="0.0"
 															ripplerFill="#0037ff"
-															styleClass="custom-jfx-button-raised2" />
+															onAction="#executeDebugPreviousAction"
+															styleClass="jfx-button-raised, jfx-button-raised-small, jfx-button-raised-blue" />
 													</children>
 												</AnchorPane>
 												<Pane HBox.hgrow="ALWAYS" />
 												<AnchorPane HBox.hgrow="ALWAYS">
 													<children>
 														<JFXButton
+															fx:id="debugNext"
 															text="%graphvisual.debug.next"
 															buttonType="RAISED"
 															AnchorPane.bottomAnchor="0.0"
@@ -211,7 +278,8 @@
 															AnchorPane.rightAnchor="0.0"
 															AnchorPane.topAnchor="0.0"
 															ripplerFill="#0037ff"
-															styleClass="custom-jfx-button-raised2" />
+															onAction="#executeDebugNextAction"
+															styleClass="jfx-button-raised, jfx-button-raised-small, jfx-button-raised-blue" />
 													</children>
 												</AnchorPane>
 											</children>
@@ -235,6 +303,7 @@
 										<AnchorPane>
 											<children>
 												<JFXButton
+													fx:id="save"
 													text="%graphvisual.save"
 													buttonType="RAISED"
 													AnchorPane.bottomAnchor="0.0"
@@ -242,7 +311,8 @@
 													AnchorPane.rightAnchor="0.0"
 													AnchorPane.topAnchor="0.0"
 													ripplerFill="#0037ff"
-													styleClass="custom-jfx-button-raised" />
+													onAction="#executeSaveAction"
+													styleClass="jfx-button-raised" />
 											</children>
 										</AnchorPane>
 									</children>

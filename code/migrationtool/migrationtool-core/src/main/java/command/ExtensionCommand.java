@@ -1,10 +1,9 @@
 package command;
 
-import java.util.Map;
+import java.util.List;
 
 import exceptions.MigrationToolInitException;
 import operations.CommandExtension;
-import operations.CommandStep;
 
 /**
  * Wrapper class for a user defined comannd
@@ -27,7 +26,7 @@ public class ExtensionCommand extends AbstractCommand {
 	}
 
 	@Override
-	public void defineSteps(Map<String, Class<? extends CommandStep>> definedSteps) {
+	public void defineSteps(List<String> definedSteps) {
 		this.commandExtension.defineSteps(definedSteps);
 	}
 

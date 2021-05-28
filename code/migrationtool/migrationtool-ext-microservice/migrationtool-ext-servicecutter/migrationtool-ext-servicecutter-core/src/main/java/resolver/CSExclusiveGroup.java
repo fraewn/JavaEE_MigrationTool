@@ -10,7 +10,8 @@ public class CSExclusiveGroup extends CriteriaScorerWrapper {
 
 	@Override
 	public double getScore(Edge currentEdge, CouplingGroup relatedGroup) {
-		addPenalityToEdges(Scores.getScore(MIN_SCORE), currentEdge, relatedGroup.getRelatedEdges());
+		addPenalityToEdges(Scores.getScore(MIN_SCORE), currentEdge, relatedGroup.getRelatedEdges(),
+				relatedGroup.getCriteria());
 		return Scores.getScore(MAX_SCORE);
 	}
 }

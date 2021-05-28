@@ -2,28 +2,25 @@ package operations;
 
 import org.apache.log4j.Logger;
 
-import operations.dto.GenericDTO;
-
 /**
  * Interpreter Service of the migration tool. Post processing of the saved meta
  * model
  */
-public abstract class InterpreterService implements CommandStep {
+public abstract class InterpreterService<I, O> implements ProcessingStep<I, O> {
 
 	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(InterpreterService.class);
 
 	@Override
-	public GenericDTO<?> execute(GenericDTO<?> dto) {
-		setDTO(dto);
+	public O process(I input) {
 		LOG.info("...start interpreting...");
-		run();
+		O res = run(input);
 		LOG.info("...finish interpreting...");
-		return buildDTO();
+		return res;
 	}
 
 	/**
 	 * Execute task on defined repository
 	 */
-	public abstract void run();
+	public abstract O run(I input);
 }

@@ -1,5 +1,7 @@
 package core;
 
+import java.util.List;
+
 public class Edge {
 
 	private Node firstNode;
@@ -7,6 +9,8 @@ public class Edge {
 	private Node secondNode;
 
 	private EdgeWeight weight;
+
+	private List<EdgeAttribute> attributes;
 
 	/**
 	 * @return the weight
@@ -71,5 +75,24 @@ public class Edge {
 		hash = (53 * hash) + (this.firstNode != null ? this.firstNode.hashCode() : 0);
 		hash = (53 * hash) + (this.secondNode != null ? this.secondNode.hashCode() : 0);
 		return hash;
+	}
+
+	@Override
+	public String toString() {
+		return this.firstNode.toString() + "<-- " + this.weight + " -->" + this.secondNode.toString();
+	}
+
+	/**
+	 * @return the attributes
+	 */
+	public List<EdgeAttribute> getAttributes() {
+		return this.attributes;
+	}
+
+	/**
+	 * @param attributes the attributes to set
+	 */
+	public void setAttributes(List<EdgeAttribute> attributes) {
+		this.attributes = attributes;
 	}
 }

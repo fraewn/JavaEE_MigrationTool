@@ -54,4 +54,9 @@ public class Node implements Comparator<Node>, Comparable<Node> {
 	public int compareTo(Node i) {
 		return this.instance.compareTo(i.instance);
 	}
+
+	@Override
+	public String toString() {
+		return this.instance.getQualifiedName();
+	}
 }

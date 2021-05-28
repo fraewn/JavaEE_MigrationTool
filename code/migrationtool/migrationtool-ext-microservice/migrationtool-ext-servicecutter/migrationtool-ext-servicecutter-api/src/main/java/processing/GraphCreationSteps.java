@@ -167,4 +167,9 @@ public enum GraphCreationSteps implements ProcessAutomate<GraphCreationSteps> {
 			return null;
 		}
 	};
+
+	@Override
+	public GraphCreationSteps previousStep() {
+		return null;
+	}
 }

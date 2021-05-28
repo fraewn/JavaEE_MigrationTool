@@ -1,9 +1,7 @@
 package command;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineParser;
@@ -12,8 +10,8 @@ import cmd.CommandLineParser;
 import cmd.CommandLineSplitter;
 import exceptions.MigrationToolInitException;
 import operations.CommandExtension;
-import operations.CommandStep;
-import operations.dto.GenericDTO;
+import operations.Pipeline;
+import operations.ProcessingStep;
 import utils.PluginManager;
 
 /**
@@ -25,17 +23,17 @@ public abstract class AbstractCommand extends CommandExtension {
 	private static final Logger LOG = Logger.getLogger(AbstractCommand.class);
 
 	/** List of the operations */
-	private List<CommandStep> steps;
+	private List<ProcessingStep<?, ?>> steps;
 
 	/** Map of the defined operations */
-	private Map<String, Class<? extends CommandStep>> definedSteps;
+	private List<String> definedSteps;
 
 	/** Temp var, save unknown arguments */
 	protected String[] arguments;
 
 	public AbstractCommand() {
 		this.steps = new ArrayList<>();
-		this.definedSteps = new LinkedHashMap<>();
+		this.definedSteps = new ArrayList<>();
 	}
 
 	/**
@@ -53,18 +51,17 @@ public abstract class AbstractCommand extends CommandExtension {
 	 */
 	private void loadSteps() {
 		defineSteps(this.definedSteps);
-		for (Map.Entry<String, Class<? extends CommandStep>> step : this.definedSteps.entrySet()) {
+		for (String step : this.definedSteps) {
 			if (step == null) {
 				throw new MigrationToolInitException("No Implementation declared");
 			}
 			int foundImpl = this.steps.size();
-			CommandStep tmp = PluginManager.findPluginService(step.getValue(), step.getKey());
+			ProcessingStep<?, ?> tmp = PluginManager.findPluginService(step);
 			if (tmp != null) {
 				this.steps.add(tmp);
 			}
 			if (foundImpl == this.steps.size()) {
-				throw new MigrationToolInitException(
-						"No Implementation found for " + step.getValue() + " <-> " + step.getKey());
+				throw new MigrationToolInitException("No Implementation found for " + step);
 			}
 		}
 	}
@@ -74,6 +71,7 @@ public abstract class AbstractCommand extends CommandExtension {
 	 *
 	 * @param args command arguments
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void run(String[] args) {
 		LOG.info("Execute command " + getName());
 		LOG.info("Initialize...");
@@ -82,16 +80,17 @@ public abstract class AbstractCommand extends CommandExtension {
 		loadSteps();
 		afterInitialization();
 		LOG.info("Defined ExecutionOrder");
-		for (CommandStep commandStep : this.steps) {
+		for (ProcessingStep<?, ?> commandStep : this.steps) {
 			LOG.info(">" + commandStep.getClass().getSimpleName());
 		}
 		LOG.info("Execute...");
-		GenericDTO<?> dto = null;
-		for (CommandStep commandStep : this.steps) {
+		Pipeline pipeline = new Pipeline<>();
+		for (ProcessingStep<?, ?> commandStep : this.steps) {
 			// push unknown arguments to service definition
 			commandStep.setCommandLineArguments(this.arguments);
-			dto = commandStep.execute(dto);
+			pipeline = pipeline.addHandler(commandStep);
 		}
+		pipeline.execute(null);
 		afterExecution();
 		LOG.info("Done...");
 	}

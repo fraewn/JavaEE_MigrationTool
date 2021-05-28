@@ -2,13 +2,15 @@ package model.service;
 
 import java.util.Set;
 
+import model.data.Instance;
+
 public class ServiceRelation {
 
 	private String serviceIdA;
 
 	private String serviceIdB;
 
-	private Set<String> sharedEntities;
+	private Set<Instance> sharedEntities;
 
 	private Direction direction;
 
@@ -43,14 +45,14 @@ public class ServiceRelation {
 	/**
 	 * @return the sharedEntities
 	 */
-	public Set<String> getSharedEntities() {
+	public Set<Instance> getSharedEntities() {
 		return this.sharedEntities;
 	}
 
 	/**
 	 * @param sharedEntities the sharedEntities to set
 	 */
-	public void setSharedEntities(Set<String> sharedEntities) {
+	public void setSharedEntities(Set<Instance> sharedEntities) {
 		this.sharedEntities = sharedEntities;
 	}
 

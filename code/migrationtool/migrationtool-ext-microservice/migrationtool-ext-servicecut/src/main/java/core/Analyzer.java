@@ -40,7 +40,7 @@ public class Analyzer {
 	public Analyzer(List<ClassDTO> classes) {
 		this.classes = classes;
 		this.props = new PropertiesLoader(FILE_NAME);
-		this.props.loadProps();
+		this.props.loadProps(false);
 		this.rep = new ModelRepresentation();
 	}
 

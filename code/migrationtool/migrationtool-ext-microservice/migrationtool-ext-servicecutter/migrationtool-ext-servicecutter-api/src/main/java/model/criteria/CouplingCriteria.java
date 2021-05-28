@@ -17,7 +17,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * {@link Instance} that belong to the same identity and therefore share a
 	 * common lifecycle.
 	 */
-	IDENTITY_LIFECYCLE("CC-01", COHESIVENESS) {
+	IDENTITY_LIFECYCLE("CC_01", COHESIVENESS) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return SEMANTIC_PROXIMITY;
@@ -27,7 +27,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * Two {@link Instance} are semantically proximate when they have a semantic
 	 * connection given by the business domain. {@link UseCase}
 	 */
-	SEMANTIC_PROXIMITY("CC-02", COHESIVENESS) {
+	SEMANTIC_PROXIMITY("CC_02", COHESIVENESS) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return SHARED_OWNER;
@@ -39,7 +39,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * together while not mixing entities with different responsible instances in
 	 * one service.
 	 */
-	SHARED_OWNER("CC-03", COHESIVENESS) {
+	SHARED_OWNER("CC_03", COHESIVENESS) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return STRUCTURAL_VOLATILITY;
@@ -48,7 +48,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	/**
 	 * How often change requests need to be implemented affecting {@link Instance}.
 	 */
-	STRUCTURAL_VOLATILITY("CC-04", COMPATIBILITY) {
+	STRUCTURAL_VOLATILITY("CC_04", COMPATIBILITY) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return LATENCY;
@@ -59,7 +59,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * user request. These {@link Instance} should be modelled in the same service
 	 * to avoid remote calls.
 	 */
-	LATENCY("CC-05", COHESIVENESS) {
+	LATENCY("CC_05", COHESIVENESS) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return CONSISTENCY_CRITICALITY;
@@ -69,7 +69,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * Some data such as financial records loses its value in case of
 	 * inconsistencies while other data is more tolerant to inconsistencies.
 	 */
-	CONSISTENCY_CRITICALITY("CC-06", COMPATIBILITY) {
+	CONSISTENCY_CRITICALITY("CC_06", COMPATIBILITY) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return AVAILABILITY_CRITICALITY;
@@ -81,7 +81,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * comes at a cost, {@link Instance} classified with different characteristics
 	 * should not be composed in the same service
 	 */
-	AVAILABILITY_CRITICALITY("CC-07", COMPATIBILITY) {
+	AVAILABILITY_CRITICALITY("CC_07", COMPATIBILITY) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return CONTENT_VOLATILITY;
@@ -92,7 +92,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * frequent it is updated. Highly volatile and more stable {@link Instance}
 	 * should be composed in different services.
 	 */
-	CONTENT_VOLATILITY("CC-08", COMPATIBILITY) {
+	CONTENT_VOLATILITY("CC_08", COMPATIBILITY) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return CONSISTENCY_CONSTRAINT;
@@ -102,14 +102,14 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * A group of {@link Instance} that have a dependent state and therefore need to
 	 * be kept consistent to each other.
 	 */
-	CONSISTENCY_CONSTRAINT("CC-09", CONSTRAINTS) {
+	CONSISTENCY_CONSTRAINT("CC_09", CONSTRAINTS) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return STORAGE_SIMILARITY;
 		}
 	},
 	/** Storage that is required to persist all instances of a {@link Instance}. */
-	STORAGE_SIMILARITY("CC-10", COMPATIBILITY) {
+	STORAGE_SIMILARITY("CC_10", COMPATIBILITY) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return PREDEFINED_SERVICE_CONSTRAINT;
@@ -120,7 +120,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * need to be modelled in the same service: Technological optimizations or
 	 * Legacy systems
 	 */
-	PREDEFINED_SERVICE_CONSTRAINT("CC-11", CONSTRAINTS) {
+	PREDEFINED_SERVICE_CONSTRAINT("CC_11", CONSTRAINTS) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return SECURITY_CONTEXUALITY;
@@ -131,7 +131,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * Mixing security contexts in one service complicates authentication and
 	 * authorization implementations.
 	 */
-	SECURITY_CONTEXUALITY("CC-12", COHESIVENESS) {
+	SECURITY_CONTEXUALITY("CC_12", COHESIVENESS) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return SECURITY_CRITICALITY;
@@ -144,7 +144,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * criticality comes at a cost, {@link Instance} classified with different
 	 * characteristics should not be composed in the same service.
 	 */
-	SECURITY_CRITICALITY("CC-13", COMPATIBILITY) {
+	SECURITY_CRITICALITY("CC_13", COMPATIBILITY) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return SECURITY_CONSTRAINT;
@@ -156,7 +156,7 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 * restriction can be established by an external party such as a certification
 	 * authority or an internal design team.
 	 */
-	SECURITY_CONSTRAINT("CC-14", CONSTRAINTS) {
+	SECURITY_CONSTRAINT("CC_14", CONSTRAINTS) {
 		@Override
 		public CouplingCriteria nextStep() {
 			return null;
@@ -184,5 +184,10 @@ public enum CouplingCriteria implements ProcessAutomate<CouplingCriteria> {
 	 */
 	public CouplingGroup getGroup() {
 		return this.group;
+	}
+
+	@Override
+	public CouplingCriteria previousStep() {
+		return null;
 	}
 }

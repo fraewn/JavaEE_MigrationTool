@@ -3,12 +3,13 @@ package operations;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.Option;
 
-import operations.dto.GenericDTO;
-
 /**
  * Load Service of the migration tool. Find and load a external java project
+ * 
+ * @param <I>
+ * @param <O>
  */
-public abstract class LoaderService implements CommandStep {
+public abstract class LoaderService<I, O> implements ProcessingStep<I, O> {
 
 	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(LoaderService.class);
@@ -17,16 +18,15 @@ public abstract class LoaderService implements CommandStep {
 	protected String path;
 
 	@Override
-	public GenericDTO<?> execute(GenericDTO<?> dto) {
-		setDTO(dto);
+	public O process(I input) {
 		LOG.info("...start parsing...");
-		loadProject();
+		O res = loadProject(input);
 		LOG.info("...finish parsing...");
-		return buildDTO();
+		return res;
 	}
 
 	/**
 	 * Load all classes of a defined path
 	 */
-	public abstract void loadProject();
+	public abstract O loadProject(I input);
 }

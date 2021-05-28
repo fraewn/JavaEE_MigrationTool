@@ -18,7 +18,8 @@ public class CSSeparatedGroup extends CriteriaScorerWrapper {
 		for (CouplingGroup group : otherGroups) {
 			otherEdges.addAll(group.getRelatedEdges());
 		}
-		addPenalityToEdges(Scores.getScore(MIN_SCORE), currentEdge, relatedGroup.getRelatedEdges(), otherEdges);
+		addPenalityToEdges(Scores.getScore(MIN_SCORE), currentEdge, relatedGroup.getRelatedEdges(), otherEdges,
+				relatedGroup.getCriteria());
 		return 0;
 	}
 

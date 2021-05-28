@@ -52,15 +52,15 @@
 		"useCases": [
 			{
 				"name": "HelloWorld",
-				"input": "User.name",
-				"persistenceChanges": ""
+				"input": "Customer.name",
+				"persistenceChanges": "Customer.name"
 			}
 		],
 		"criteria": {
 			"SECURITY_CONSTRAINT": [
 				{
 					"name": null,
-					"instances": "User.name"
+					"instances": "Customer.name"
 				}
 			]
 		},
@@ -68,7 +68,7 @@
 			"CONSISTENCY_CONSTRAINT": [
 				{
 					"compabilityCharacteristics": "Normal(CC_7_NORMAL)",
-					"instances": "User.name"
+					"instances": "Customer.name"
 				}
 			]
 		}

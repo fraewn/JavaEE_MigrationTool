@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -8,8 +9,9 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>migrationtool-core</module>
-		<module>migrationtool-deploy-commander</module>
 		<module>migrationtool-api</module>
+		<module>migrationtool-deploy-commander</module>
+		<module>migrationtool-deploy-javafx</module>
 	</modules>
 
 	<properties>
@@ -26,6 +28,10 @@
 		<migrationtool-nodejs-version>0.0.1-SNAPSHOT</migrationtool-nodejs-version>
 
 		<!-- Library versions -->
+		<javaFX-version>13</javaFX-version>
+		<jfoenix-version>9.0.10</jfoenix-version>
+		<ikonly-javafx-version>12.2.0</ikonly-javafx-version>
+
 		<log4j-version>1.2.17</log4j-version>
 		<args4j-version>2.33</args4j-version>
 		<freemaker-version>2.3.31</freemaker-version>
@@ -84,6 +90,30 @@
 				<groupId>com.github.javaparser</groupId>
 				<artifactId>javaparser-symbol-solver-core</artifactId>
 				<version>${javaparser-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-fxml</artifactId>
+				<version>${javaFX-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.jfoenix</groupId>
+				<artifactId>jfoenix</artifactId>
+				<version>${jfoenix-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.kordamp.ikonli</groupId>
+				<artifactId>ikonli-javafx</artifactId>
+				<version>${ikonly-javafx-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.kordamp.ikonli</groupId>
+				<artifactId>ikonli-fontawesome5-pack</artifactId>
+				<version>${ikonly-javafx-version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

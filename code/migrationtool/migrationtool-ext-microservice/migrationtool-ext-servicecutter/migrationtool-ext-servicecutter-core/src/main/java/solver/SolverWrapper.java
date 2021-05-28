@@ -1,149 +1,89 @@
 package solver;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import core.Edge;
+import core.Graph;
+import core.Node;
+import model.Result;
+import model.criteria.CouplingCriteria;
+import model.data.Instance;
+import model.data.Priorities;
+import model.service.Service;
+import model.service.ServiceCut;
+
 /**
- * Implement this class to support an algorithm in the Service Cutter.
- *
- * This class utilizes the Template Method pattern.
- *
- * @param <N> the class for a Node
- * @param <E> the class for an Edge
+ * Implement this class to support an cluster algorithm.
  */
 public abstract class SolverWrapper<N, E> implements Solver {
 
-//	private Map<EntityPair, Map<String, Score>> scores;
-//
-//	public SolverWrapper(final UserSystem userSystem, final Map<EntityPair, Map<String, Score>> scores) {
-//		this.userSystem = userSystem;
-//		this.scores = scores;
-//		log.info("Created solver of type {}", getClass());
-//	}
-//
-//	/**
-//	 * Create a new node on the graph
-//	 *
-//	 * @param name the name of the node
-//	 */
-//	protected abstract void createNode(String name);
-//
-//	/**
-//	 * Get a node from the graph
-//	 *
-//	 * @param nanoentity the originating nanoentity
-//	 * @return
-//	 */
-//	protected N getNode(final Instance nanoentity) {
-//		return getNode(createNodeIdentifier(nanoentity));
-//	}
-//
-//	/**
-//	 * Get a node from the graph
-//	 *
-//	 * @param name the given name of a nanoentity
-//	 * @return
-//	 */
-//	protected abstract N getNode(String name);
-//
-//	/**
-//	 * Create a new edge and set a weight on it
-//	 *
-//	 * @param first  the first side of the edge
-//	 * @param second the second side of the edge
-//	 * @param weight a weight that is used to persist the score
-//	 */
-//	protected abstract void createEdgeAndSetWeight(Instance first, Instance second, double weight);
-//
-//	/**
-//	 * Remove an edge from the graph
-//	 *
-//	 * @param edge the edge to be removed
-//	 */
-//	protected abstract void removeEdge(E edge);
-//
-//	/**
-//	 * Get an existing edge from the graph
-//	 *
-//	 * @param first  the first side of the edge
-//	 * @param second the second side of the edge
-//	 * @return the edge
-//	 */
-//	protected abstract E getEdge(final Nanoentity first, final Nanoentity second);
-//
-//	/**
-//	 * @return all edges in the graph
-//	 */
-//	protected abstract Iterable<E> getEdges();
-//
-//	/**
-//	 * @param edge
-//	 * @return the weight representing the score
-//	 */
-//	protected abstract double getWeight(E edge);
-//
-//	/**
-//	 * Set a weight representing the score
-//	 *
-//	 * @see #getWeight(Object)
-//	 * @see #createEdgeAndSetWeight(Nanoentity, Nanoentity, double)
-//	 * @param edge
-//	 * @param weight weight representing the score
-//	 */
-//	protected abstract void setWeight(E edge, double weight);
-//
-//	protected void buildNodes() {
-//		// create nodes
-////		for (Instance nanoentity : userSystem.getNanoentities()) {
-////			createNode(createNodeIdentifier(nanoentity));
-////		}
-//	}
-//
-//	protected void buildEdges() {
-//		for (Entry<EntityPair, Map<String, Score>> entry : this.scores.entrySet()) {
-//			setWeight(entry.getKey().nanoentityA, entry.getKey().nanoentityB,
-//					entry.getValue().values().stream().mapToDouble(Score::getPrioritizedScore).sum());
-//			// Logging
-//			log.info("Score for nanoentity tuple {}", entry.getKey());
-//			for (Entry<String, Score> criteriaScores : entry.getValue().entrySet()) {
-//				log.info("{}: {} with priority {} results in {}", criteriaScores.getKey(),
-//						criteriaScores.getValue().getScore(), criteriaScores.getValue().getPriority(),
-//						criteriaScores.getValue().getPrioritizedScore());
-//			}
-//			log.info("---------------------------------------------------");
-//		}
-//
-//		deleteNegativeEdges();
-//	}
-//
-//	protected String createNodeIdentifier(final Instance nanoentity) {
-//		return nanoentity.getContext();
-//	}
-//
-//	private void deleteNegativeEdges() {
-//		List<E> edgesToRemove = new ArrayList<>();
-//
-//		for (E edge : getEdges()) {
-//			if (getWeight(edge) <= 0) {
-//				edgesToRemove.add(edge);
-//			}
-//		}
-//		log.info("Deleting {} edges with zero or negative weight", edgesToRemove.size());
-//		for (E edge : edgesToRemove) {
-//			removeEdge(edge);
-//
-//		}
-//	}
-//
-//	protected void setWeight(final Instance first, final Instance second, final double weight) {
-//		N nodeA = getNode(first);
-//		N nodeB = getNode(second);
-//		E existingEdge = getEdge(first, second);
-//		if (existingEdge != null) {
-//			log.info("add {} to weight of edge from node {} to {}", weight, nodeA, nodeB);
-//			setWeight(existingEdge, weight);
-//		} else {
-//			log.info("create edge with weight {} from node {} to {}", weight, nodeA, nodeB);
-//			createEdgeAndSetWeight(first, second, weight);
-//		}
-//
-//	}
+	private Graph originGraph;
+	private Map<CouplingCriteria, Priorities> priorities;
 
+	public SolverWrapper(Graph originGraph, Map<CouplingCriteria, Priorities> priorities) {
+		this.originGraph = originGraph;
+		this.priorities = priorities;
+		convertGraph();
+	}
+
+	private void convertGraph() {
+		// create nodes
+		for (Node nodes : this.originGraph.getNodes()) {
+			createNode(nodes);
+		}
+		// create edges
+		for (Entry<Edge, Map<CouplingCriteria, Double>> entry : this.originGraph.getEdges().entrySet()) {
+			// calc weight
+			double sum = 0;
+			for (Entry<CouplingCriteria, Double> values : entry.getValue().entrySet()) {
+				Priorities prio = this.priorities.get(values.getKey());
+				sum += values.getValue() * prio.getValue();
+			}
+			if (sum >= 0) {
+				// positive edge
+				createEdge(entry.getKey(), sum);
+			} else {
+				// negative edge
+				treatNegativeScore();
+			}
+		}
+	}
+
+	protected void treatNegativeScore() {
+		// negative scores are removed
+	}
+
+	/**
+	 * Create a new node on the graph
+	 *
+	 * @param node the node
+	 */
+	protected abstract void createNode(Node node);
+
+	/**
+	 * Create a new edge on the graph
+	 *
+	 * @param edge   the edge
+	 * @param weight the weight
+	 */
+	protected abstract void createEdge(Edge edge, double weight);
+
+	/**
+	 * @param families
+	 */
+	protected Result createResult(Map<String, List<String>> families) {
+		Result res = new Result();
+		ServiceCut cut = new ServiceCut();
+		for (List<String> service : families.values()) {
+			Service s = new Service();
+			for (String instance : service) {
+				s.getInstances().add(new Instance(instance));
+			}
+			cut.getServices().add(s);
+		}
+		res.setIsolatedServices(cut);
+		return Analyzer.analyseResult(res, this.originGraph, this.priorities);
+	}
 }

@@ -36,4 +36,21 @@ public class CommandLineParser {
 		}
 		return parser;
 	}
+
+	/**
+	 * Parse the arguments of the program
+	 *
+	 * @param args list of arguments
+	 * @param o    Class with arguments
+	 * @return used CmdLineParser
+	 */
+	public static CmdLineParser parseIgnoreErrors(String[] args, Object o) {
+		CmdLineParser parser = null;
+		try {
+			parser = parse(args, o);
+		} catch (Exception e) {
+			// handle exception
+		}
+		return parser;
+	}
 }

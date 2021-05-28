@@ -11,6 +11,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import exceptions.MigrationToolInitException;
+
 /**
  * General class for loading a properties file, intern or extern
  */
@@ -32,7 +34,7 @@ public class PropertiesLoader {
 	/**
 	 * Loads the specified properties file
 	 */
-	public void loadProps() {
+	public void loadProps(boolean optional) {
 		try (InputStream input = new FileInputStream(this.fileName)) {
 			Properties prop = new Properties();
 			prop.load(input);
@@ -40,7 +42,19 @@ public class PropertiesLoader {
 				this.cache.put(e.getKey().toString(), e.getValue().toString());
 			}
 		} catch (IOException ex) {
-			LOG.info("No properties file found");
+			LOG.info("No properties file found, try local");
+			try (InputStream inputLocal = PropertiesLoader.class.getResourceAsStream(this.fileName)) {
+				Properties prop = new Properties();
+				prop.load(inputLocal);
+				for (Map.Entry<Object, Object> e : prop.entrySet()) {
+					this.cache.put(e.getKey().toString(), e.getValue().toString());
+				}
+			} catch (IOException | NullPointerException e) {
+				if (!optional) {
+					LOG.error("No properties file found, " + e.getMessage());
+					throw new MigrationToolInitException(e.getMessage());
+				}
+			}
 		}
 	}
 

@@ -23,10 +23,13 @@ import static model.criteria.CouplingCriteria.SHARED_OWNER;
 import static model.criteria.CouplingCriteria.STORAGE_SIMILARITY;
 import static model.criteria.CouplingCriteria.STRUCTURAL_VOLATILITY;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import core.Edge;
+import core.EdgeAttribute;
 import model.ModelRepresentation;
 import model.erm.RelationType;
 import processing.GraphCreationSteps;
@@ -90,6 +93,11 @@ public enum ProcessSteps {
 		public StepInformation execute(ModelRepresentation rep) {
 			Map<String, Set<Edge>> edges = Processor.createEdgesRelationship(rep.getEntityDiagram(),
 					RelationType.AGGREGATION);
+			for (Entry<String, Set<Edge>> element : edges.entrySet()) {
+				for (Edge edge : element.getValue()) {
+					edge.setAttributes(Collections.singletonList(EdgeAttribute.AGGREGATION));
+				}
+			}
 			return new StepInformation(edges, RELATIONSHIPS, SEMANTIC_PROXIMITY, CSSemanticProximity.class);
 		}
 	},

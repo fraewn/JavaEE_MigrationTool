@@ -5,15 +5,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import model.criteria.CouplingCriteria;
 import ui.AdjacencyMatrix;
 
 public class Graph {
 
 	private Set<Node> nodes;
 
-	private Map<Edge, List<Double>> edges;
+	private Map<Edge, Map<CouplingCriteria, Double>> edges;
 
 	private List<CouplingGroup> relatedGroups;
 
@@ -25,13 +27,22 @@ public class Graph {
 
 	public void addNewEdge(Edge edge) {
 		if (!this.edges.containsKey(edge)) {
-			this.edges.put(edge, new ArrayList<>());
+			this.edges.put(edge, new HashMap<>());
+		} else if (edge.getAttributes() != null) {
+			for (Edge e : this.edges.keySet()) {
+				if (e.equals(edge)) {
+					if (e.getAttributes() == null) {
+						e.setAttributes(new ArrayList<>());
+					}
+					e.getAttributes().addAll(edge.getAttributes());
+				}
+			}
 		}
 	}
 
-	public void addNewScore(Edge edge, Double value) {
+	public void addNewScore(Edge edge, CouplingCriteria criteria, Double value) {
 		if (this.edges.containsKey(edge)) {
-			this.edges.get(edge).add(value);
+			this.edges.get(edge).put(criteria, value);
 		}
 	}
 
@@ -52,14 +63,14 @@ public class Graph {
 	/**
 	 * @return the edges
 	 */
-	public Map<Edge, List<Double>> getEdges() {
+	public Map<Edge, Map<CouplingCriteria, Double>> getEdges() {
 		return this.edges;
 	}
 
 	/**
 	 * @param edges the edges to set
 	 */
-	public void setEdges(Map<Edge, List<Double>> edges) {
+	public void setEdges(Map<Edge, Map<CouplingCriteria, Double>> edges) {
 		this.edges = edges;
 	}
 
@@ -89,18 +100,13 @@ public class Graph {
 		for (Node node : this.nodes) {
 			labelNodes.add(node.getInstance().getQualifiedName());
 		}
-		for (Edge edge : this.edges.keySet()) {
-			String origin = edge.getFirstNode().getInstance().getQualifiedName();
+		for (Entry<Edge, Map<CouplingCriteria, Double>> edge : this.edges.entrySet()) {
+			String origin = edge.getKey().getFirstNode().getInstance().getQualifiedName();
 			int indexOrigin = labelNodes.indexOf(origin);
-			String destination = edge.getSecondNode().getInstance().getQualifiedName();
+			String destination = edge.getKey().getSecondNode().getInstance().getQualifiedName();
 			int indexDestination = labelNodes.indexOf(destination);
-			double value = this.edges.size() == 0 ? 0 : this.edges.values().stream().mapToDouble(x -> {
-				double sum = 0;
-				for (double y : x) {
-					sum += y;
-				}
-				return sum;
-			}).sum();
+			double value = edge.getValue().size() == 0 ? 0
+					: edge.getValue().values().stream().mapToDouble(x -> x).sum();
 			matrix[indexOrigin][indexDestination] = value;
 		}
 		adjMatrix.setLabelNodes(labelNodes);

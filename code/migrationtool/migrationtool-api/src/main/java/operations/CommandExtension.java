@@ -1,6 +1,6 @@
 package operations;
 
-import java.util.Map;
+import java.util.List;
 
 import org.kohsuke.args4j.Option;
 
@@ -30,7 +30,7 @@ public abstract class CommandExtension {
 	 *
 	 * @param definedSteps sorted list
 	 */
-	public abstract void defineSteps(Map<String, Class<? extends CommandStep>> definedSteps);
+	public abstract void defineSteps(List<String> definedSteps);
 
 	/**
 	 * Process before Initialization

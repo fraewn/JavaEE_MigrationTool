@@ -77,6 +77,11 @@ public enum GraphProcessingSteps implements ProcessAutomate<GraphProcessingSteps
 
 	FINISHED {
 		@Override
+		public GraphProcessingSteps previousStep() {
+			return SOLVE_CLUSTER;
+		}
+
+		@Override
 		public GraphProcessingSteps nextStep() {
 			return null;
 		}
@@ -108,6 +113,11 @@ public enum GraphProcessingSteps implements ProcessAutomate<GraphProcessingSteps
 
 	@Override
 	public ProcessAutomate<?> startState() {
+		return null;
+	}
+
+	@Override
+	public GraphProcessingSteps previousStep() {
 		return null;
 	}
 

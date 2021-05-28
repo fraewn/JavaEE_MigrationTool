@@ -6,15 +6,15 @@ import org.kohsuke.args4j.Option;
 
 import cmd.CommandLineParser;
 import cmd.CommandLineSplitter;
+import cmd.CommandLineValidator;
 import command.AbstractCommand;
-import command.DefaultCommand;
 import command.ExtensionCommand;
+import command.extension.DefaultCommand;
 import exceptions.MigrationToolArgumentException;
 import exceptions.MigrationToolInitException;
 import exceptions.MigrationToolRuntimeException;
 import operations.CommandExtension;
 import utils.PluginManager;
-import validator.CommandLineValidator;
 
 /**
  * Entry Class; Read the command argument and select the corresponding operation
@@ -22,6 +22,10 @@ import validator.CommandLineValidator;
 public class Runner {
 	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(Runner.class);
+
+	/** value for defining global parent gui; only internal */
+	@Option(name = "-localGUI", hidden = true, usage = "value for defining global parent gui")
+	private boolean localGUI;
 
 	/** value for defining the executed method */
 	@Option(name = "-command", usage = "value for defining the executed method")
@@ -66,7 +70,7 @@ public class Runner {
 		CmdLineParser parser = CommandLineParser.parse(args, this);
 		if (this.help) {
 			LOG.info("List all arguments");
-			CommandLineValidator.listAllPossibleArguments();
+			HelpFunction.listAllPossibleArguments();
 		} else {
 			this.commandExtension = PluginManager.findPluginCommand(CommandExtension.class, this.command);
 			AbstractCommand runnableCommand = null;

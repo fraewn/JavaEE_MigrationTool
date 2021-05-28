@@ -11,10 +11,9 @@ import core.Analyzer;
 import model.ModelRepresentation;
 import operations.ModelService;
 import operations.dto.ClassDTO;
-import operations.dto.GenericDTO;
 import utils.JsonConverter;
 
-public class ServiceCutterModel extends ModelService {
+public class ServiceCutterModel extends ModelService<List<ClassDTO>, String> {
 
 	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(ServiceCutterModel.class);
@@ -29,23 +28,9 @@ public class ServiceCutterModel extends ModelService {
 
 	private File resultFile;
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void setDTO(GenericDTO<?> dto) {
-		GenericDTO<List<ClassDTO>> classes = (GenericDTO<List<ClassDTO>>) dto;
-		this.analyzer = new Analyzer(classes.getObject());
-	}
-
-	@Override
-	public GenericDTO<?> buildDTO() {
-		if (this.resultFile == null) {
-			return null;
-		}
-		return new GenericDTO<>(this.resultFile.getAbsolutePath());
-	}
-
-	@Override
-	public void save() {
+	public String save(List<ClassDTO> input) {
+		this.analyzer = new Analyzer(input);
 		this.analyzer.convertInput();
 		ModelRepresentation rep = this.analyzer.getOutput();
 		this.modelName = this.modelName == null ? "servicecut_model" : this.modelName;
@@ -61,5 +46,6 @@ public class ServiceCutterModel extends ModelService {
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}
+		return this.resultFile == null ? null : this.resultFile.getAbsolutePath();
 	}
 }

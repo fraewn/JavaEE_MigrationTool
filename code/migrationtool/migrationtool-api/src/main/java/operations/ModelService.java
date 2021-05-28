@@ -2,28 +2,25 @@ package operations;
 
 import org.apache.log4j.Logger;
 
-import operations.dto.GenericDTO;
-
 /**
  * Model Service of the migration tool. Save the meta definitions of a external
  * java project
  */
-public abstract class ModelService implements CommandStep {
+public abstract class ModelService<I, O> implements ProcessingStep<I, O> {
 
 	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(ModelService.class);
 
 	@Override
-	public GenericDTO<?> execute(GenericDTO<?> dto) {
-		setDTO(dto);
+	public O process(I input) {
 		LOG.info("...start saving...");
-		save();
+		O res = save(input);
 		LOG.info("...finish saving...");
-		return buildDTO();
+		return res;
 	}
 
 	/**
 	 * Save to a defined path
 	 */
-	public abstract void save();
+	public abstract O save(I input);
 }

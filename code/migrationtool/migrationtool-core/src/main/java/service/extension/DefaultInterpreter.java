@@ -3,28 +3,17 @@ package service.extension;
 import org.apache.log4j.Logger;
 
 import operations.InterpreterService;
-import operations.dto.GenericDTO;
 
 /**
  * Dummy class for the service interpeter
  */
-public class DefaultInterpreter extends InterpreterService {
+public class DefaultInterpreter extends InterpreterService<Object, Object> {
 	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(DefaultInterpreter.class);
 
 	@Override
-	public void setDTO(GenericDTO<?> dto) {
-		// Nothing
-	}
-
-	@Override
-	public GenericDTO<?> buildDTO() {
-		// Nothing
-		return null;
-	}
-
-	@Override
-	public void run() {
+	public Object run(Object input) {
 		LOG.info("Run DefaultInterpreter, implement your own variant");
+		return null;
 	}
 }

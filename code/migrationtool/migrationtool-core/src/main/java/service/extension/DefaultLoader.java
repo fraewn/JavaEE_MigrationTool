@@ -2,24 +2,17 @@ package service.extension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import org.apache.log4j.Logger;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import com.github.javaparser.ast.type.TypeParameter;
 
 import operations.LoaderService;
 import operations.dto.ClassDTO;
-import operations.dto.GenericDTO;
 import parser.LoadSourcesService;
 import parser.LoadSourcesServiceImpl;
 
@@ -27,7 +20,7 @@ import parser.LoadSourcesServiceImpl;
  * Default method to load a defined project. Convert all classes to a
  * {@link ClassDTO}
  */
-public class DefaultLoader extends LoaderService {
+public class DefaultLoader extends LoaderService<Object, List<ClassDTO>> {
 
 	private static final Logger LOG = Logger.getLogger(DefaultLoader.class);
 
@@ -38,91 +31,54 @@ public class DefaultLoader extends LoaderService {
 	}
 
 	@Override
-	public void setDTO(GenericDTO<?> dto) {
-		// Nothing
-	}
-
-	@Override
-	public GenericDTO<?> buildDTO() {
-		return new GenericDTO<>(this.classes);
-	}
-
-	@Override
-	public void loadProject() {
+	public List<ClassDTO> loadProject(Object dto) {
 		LoadSourcesService service = new LoadSourcesServiceImpl();
 		service.loadSources(this.path);
 		List<CompilationUnit> units = service.getAllCompilationUnits();
 		units.forEach(unit -> {
-			ClassDTO classDTO = new ClassDTO();
-
-			// read package and module declaration from unit (same for all classes in unit)
-			String packageDeclaration = unit.getPackageDeclaration().get().getNameAsString();
-			String moduleDeclaration;
-			try{
-				moduleDeclaration = unit.getModule().get().getNameAsString();
-			}
-			catch(NoSuchElementException ex){
-				moduleDeclaration = null; 
-			}
-			List<ImportDeclaration> imports = unit.getImports();
-
 			// Find all classes in file
 			List<ClassOrInterfaceDeclaration> classList = unit.findAll(ClassOrInterfaceDeclaration.class);
 			// if the file has no classes, skip further work
-			if (classList.size() == 0) {
+			if (classList.isEmpty()) {
 				return;
 			}
-
 			// iterate all classes in file
 			for (ClassOrInterfaceDeclaration decl : classList) {
 				String classPath = decl.getFullyQualifiedName().get().toString();
 				LOG.debug("Inspect class: " + classPath);
-
 				// ignore the class if it is nested (inner class)
 				if (decl.isInnerClass()) {
 					LOG.debug("Ignoring class " + classPath + " since it's nested");
-					break;
+					continue;
 				}
-
-				// save package and module declaration as well as whole path
+				ClassDTO classDTO = new ClassDTO();
 				classDTO.setFullName(classPath);
-				classDTO.setPackageDeclaration(packageDeclaration);
-				classDTO.setModuleDeclaration(moduleDeclaration);
-
+				// read package and module declaration from unit (same for all classes in unit)
+				unit.getPackageDeclaration().ifPresent(v -> classDTO.setPackageDeclaration(v.getNameAsString()));
+				unit.getModule().ifPresent(v -> classDTO.setModuleDeclaration(v.getNameAsString()));
 				// save imports
-				classDTO.setImports(imports);
-
+				classDTO.setImports(unit.getImports());
 				// save class
 				classDTO.setJavaClass(decl);
-
 				// add interfaces the class implements
-				List<ClassOrInterfaceType> implementsList = decl.getImplementedTypes();
-				classDTO.setImplementations(implementsList);
+				classDTO.setImplementations(decl.getImplementedTypes());
 				// add classes the class extends from
-				List<ClassOrInterfaceType> extendsList = decl.getExtendedTypes();
-				classDTO.setExtensions(extendsList);
-
+				classDTO.setExtensions(decl.getExtendedTypes());
 				// add fields of class
-				List<FieldDeclaration> fields = decl.findAll(FieldDeclaration.class);
-				classDTO.setFields(fields);
+				classDTO.setFields(decl.findAll(FieldDeclaration.class));
 				// add constructors of class
-				List<ConstructorDeclaration> constructors = decl.findAll(ConstructorDeclaration.class);
-				classDTO.setConstructors(constructors);
+				classDTO.setConstructors(decl.findAll(ConstructorDeclaration.class));
 				// add methods of class
-				List<MethodDeclaration> methods = decl.findAll(MethodDeclaration.class);
-				classDTO.setMethods(methods);
-
+				classDTO.setMethods(decl.findAll(MethodDeclaration.class));
 				// collect all annotations for a class
-				List<AnnotationExpr> annotationExprs = decl.getAnnotations();
-				classDTO.setAnnotationDeclarationList(annotationExprs);
+				classDTO.setAnnotationDeclarationList(decl.getAnnotations());
 				// collect all type parameters
-				List<TypeParameter> typeParameterList = decl.getTypeParameters();
-				classDTO.setTypeParameters(typeParameterList);
-
+				classDTO.setTypeParameters(decl.getTypeParameters());
 				// add dto to the collection
 				this.classes.add(classDTO);
 			}
 		});
+		return this.classes;
 	}
 
 }

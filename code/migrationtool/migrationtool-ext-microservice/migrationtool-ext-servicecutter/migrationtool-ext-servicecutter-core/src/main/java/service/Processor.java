@@ -1,6 +1,7 @@
 package service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import core.Edge;
+import core.EdgeAttribute;
 import core.Node;
 import model.criteria.CouplingCriteria;
 import model.data.ArchitectureInformation;
@@ -67,8 +69,8 @@ public class Processor {
 		}).collect(Collectors.toList());
 		Map<String, Set<Edge>> edges = new HashMap<>();
 		for (UseCase useCase : useCases) {
-			edges.put(useCase.getName(),
-					createEdgesFromSemanticRelation(useCase.getInput(), useCase.getPersistenceChanges()));
+			Set<Edge> tmp = createEdgesFromSemanticRelation(useCase.getInput(), useCase.getPersistenceChanges());
+			edges.put(useCase.getName(), tmp);
 		}
 		return edges;
 	}
@@ -115,11 +117,39 @@ public class Processor {
 
 	private static Set<Edge> createEdgesFromSemanticRelation(List<Instance> origin, List<Instance> destinations) {
 		Set<Edge> edges = new HashSet<>();
+		// READ ACCESS
+		for (Instance attrOrig : origin) {
+			for (Instance attrDest : origin) {
+				if (attrOrig.equals(attrDest)) {
+					continue;
+				}
+				Edge edge = new Edge();
+				edge.setFirstNode(new Node(attrOrig));
+				edge.setSecondNode(new Node(attrDest));
+				edge.setAttributes(Collections.singletonList(EdgeAttribute.READ_ACCESS));
+				edges.add(edge);
+			}
+		}
+		// MIXED ACCESS
 		for (Instance attrOrig : origin) {
 			for (Instance attrDest : destinations) {
 				Edge edge = new Edge();
 				edge.setFirstNode(new Node(attrOrig));
 				edge.setSecondNode(new Node(attrDest));
+				edge.setAttributes(Collections.singletonList(EdgeAttribute.MIXED_ACCESS));
+				edges.add(edge);
+			}
+		}
+		// WRITTEN ACCESS
+		for (Instance attrOrig : origin) {
+			for (Instance attrDest : origin) {
+				if (attrOrig.equals(attrDest)) {
+					continue;
+				}
+				Edge edge = new Edge();
+				edge.setFirstNode(new Node(attrOrig));
+				edge.setSecondNode(new Node(attrDest));
+				edge.setAttributes(Collections.singletonList(EdgeAttribute.WRITE_ACCESS));
 				edges.add(edge);
 			}
 		}

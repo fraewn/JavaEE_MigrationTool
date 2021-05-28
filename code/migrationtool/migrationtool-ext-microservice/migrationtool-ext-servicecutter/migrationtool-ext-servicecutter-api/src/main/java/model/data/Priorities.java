@@ -1,35 +1,37 @@
 package model.data;
 
+import resolver.Scores;
+
 public enum Priorities {
 
 	/**
 	 *
 	 */
-	IGNORE(0d),
+	IGNORE(Scores.getScore(Scores.PRIORITY_IGNORE)),
 	/**
 	 *
 	 */
-	LOW(0.5),
+	LOW(Scores.getScore(Scores.PRIORITY_LOW)),
 	/**
 	 *
 	 */
-	NORMAL(1d),
+	NORMAL(Scores.getScore(Scores.PRIORITY_NORMAL)),
 	/**
 	 *
 	 */
-	RELEVANT(3d),
+	RELEVANT(Scores.getScore(Scores.PRIORITY_RELEVANT)),
 	/**
 	 *
 	 */
-	IMPORTANT(5d),
+	IMPORTANT(Scores.getScore(Scores.PRIORITY_IMPORTANT)),
 	/**
 	 *
 	 */
-	VERY_IMPORTANT(8d),
+	VERY_IMPORTANT(Scores.getScore(Scores.PRIORITY_VERY_IMPORTANT)),
 	/**
 	 *
 	 */
-	CRITICAL(13d);
+	CRITICAL(Scores.getScore(Scores.PRIORITY_CRITICAL));
 
 	private double value;
 
