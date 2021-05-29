@@ -18,7 +18,7 @@ import com.github.javaparser.ast.type.TypeParameter;
  */
 public class ClassDTO {
 
-	/** Full Quailifed class name */
+	/** Full Qualified class name */
 	private String fullName;
 	/** Module declaration used in Java 9+ */
 	private String moduleDeclaration;

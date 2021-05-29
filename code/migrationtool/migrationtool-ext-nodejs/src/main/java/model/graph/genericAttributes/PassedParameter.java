@@ -1,4 +1,4 @@
-package model.entities;
+package model.graph.genericAttributes;
 
 import java.util.List;
 

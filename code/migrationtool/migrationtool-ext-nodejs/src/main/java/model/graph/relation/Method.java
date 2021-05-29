@@ -1,4 +1,6 @@
-package model.entities;
+package model.graph.relation;
+
+import model.graph.genericAttributes.PassedParameter;
 
 public class Method {
 	private String name; 

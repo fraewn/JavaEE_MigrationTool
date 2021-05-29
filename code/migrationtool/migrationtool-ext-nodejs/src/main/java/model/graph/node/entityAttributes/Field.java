@@ -1,7 +1,9 @@
-package model.entities;
+package model.graph.node.entityAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import model.graph.genericAttributes.PassedParameter;
 
 public class Field {
 	private List<String> names = new ArrayList(); 
