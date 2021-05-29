@@ -30,10 +30,10 @@ public class AbstractClassNode extends JavaImplementation {
 			this.className = className;
 		}
 		public String getJavaClassName() {
-			return javaClassName;
+			return javaImplementationName;
 		}
 		public void setJavaClassName(String javaClassName) {
-			this.javaClassName = javaClassName;
+			this.javaImplementationName = javaClassName;
 		}
 		public String getPath() {
 			return path;

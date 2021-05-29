@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class JavaImplementation {
+	
+	// id 
+	protected String javaImplementationName = "";
+	// String attributes 
 	protected String className = "";
-	protected String javaClassName = "";
 	protected String path = "";
 	protected String moduleDeclaration;
 	protected String completeClassCode = "";
-
+	// List<String> attributes 
 	protected List<String> modules;
 	private List<String> constructorsAsJsonObjectStrings;
 	protected List<String> implementedInterfaces; 
@@ -24,10 +27,10 @@ public abstract class JavaImplementation {
 		this.className = className;
 	}
 	public String getJavaClassName() {
-		return javaClassName;
+		return javaImplementationName;
 	}
 	public void setJavaClassName(String javaClassName) {
-		this.javaClassName = javaClassName;
+		this.javaImplementationName = javaClassName;
 	}
 	public String getPath() {
 		return path;

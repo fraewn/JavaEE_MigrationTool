@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClassNode extends JavaImplementation {
-	// variables only used in classes 
+	// variables only necessary in java classes 
 	private List<String> constructorsAsJsonObjectStrings = new ArrayList();
-	
 	private List<String> extensions;
 	
 	public List<String> getConstructorsAsJsonObjectStrings() {
@@ -15,12 +14,6 @@ public class ClassNode extends JavaImplementation {
 	public void setConstructorsAsJsonObjectStrings(List<String> constructorsAsJsonObjectStrings) {
 		this.constructorsAsJsonObjectStrings = constructorsAsJsonObjectStrings;
 	}
-	public List<String> getFieldsAsJsonObjectStrings() {
-		return fieldsAsJsonObjectStrings;
-	}
-	public void setFieldsAsJsonObjectStrings(List<String> fieldsAsJsonObjectStrings) {
-		this.fieldsAsJsonObjectStrings = fieldsAsJsonObjectStrings;
-	}
 	public List<String> getExtensions() {
 		return extensions;
 	}
@@ -28,7 +21,7 @@ public class ClassNode extends JavaImplementation {
 		this.extensions = extensions;
 	}
 	
-
+	// variables used in classes, abstract classes and interfaces
 	@Override
 	public String getClassName() {
 		return null;
@@ -37,10 +30,10 @@ public class ClassNode extends JavaImplementation {
 		this.className = className;
 	}
 	public String getJavaClassName() {
-		return javaClassName;
+		return javaImplementationName;
 	}
 	public void setJavaClassName(String javaClassName) {
-		this.javaClassName = javaClassName;
+		this.javaImplementationName = javaClassName;
 	}
 	public String getPath() {
 		return path;
@@ -77,5 +70,11 @@ public class ClassNode extends JavaImplementation {
 	}
 	public void setImports(List<String> imports) {
 		this.imports = imports;
+	}
+	public List<String> getFieldsAsJsonObjectStrings() {
+		return fieldsAsJsonObjectStrings;
+	}
+	public void setFieldsAsJsonObjectStrings(List<String> fieldsAsJsonObjectStrings) {
+		this.fieldsAsJsonObjectStrings = fieldsAsJsonObjectStrings;
 	}
 }

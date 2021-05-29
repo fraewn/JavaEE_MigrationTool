@@ -9,6 +9,8 @@ import model.graph.node.InterfaceNode;
 import model.graph.node.JavaImplementation;
 import model.graph.node.entityAttributes.Constructor;
 import model.graph.node.entityAttributes.Field;
+import model.graph.relation.MethodCallRelation;
+import model.graph.relation.entityAttributes.Method;
 import operations.ModelService;
 import operations.dto.ClassDTO;
 import parser.visitors.AnnotationVisitor;
@@ -83,6 +85,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	
 	
 	// ++++++++++++++ OUTPUT +++++++++++++++++++++
+	// die variablen sind alle bullshit hier, weil die ja in jeder schleifen iteration (Pro classDTO) neu gesetzt werden 
+	// also kann man machne, aber fehler prone wahrsch 
 	String className = "";
 	String javaClassName = "";
 	String path = "";
@@ -97,62 +101,22 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	List<String> extensions; 
 	List<String> exceptions; 
 	
-	JavaImplementation javaImplementation; 
-	
 	@Override
 	public String save(List<ClassDTO> input) {
 		classDTOList = input;
 		
+		// hier kommt eine liste an dtos rein 
+		// für jedes dto wird zunächst ein klassen knoten erstellt (=javaImplementation)
+		// danach wird geprüft ob es irgendwelche methoden/interface/extends abhängigkeiten gibt und die entsprechenden Kanten und fehlenden Knoten werden ebenfalls eingefügt 
+		// danach wird auf entitäten und funktionalitäten geprüft und diese mittels Knoten und Kanten eingefügt 
 		System.out.println("----------starting reading from dto");
 		for(ClassDTO classDTO: classDTOList){
-			System.out.println("\nClassname: " + classDTO.getFullName());
-			
-			// sind auch relations quasi schon 
-			
-			
 			// true, wenn die Annotation "javax.persistence.Entity" da drin ist, ansonsten false
-			System.out.print("\nHas Javax.Persistence.Entity: ");
-			System.out.println(Optional.ofNullable(classDTO.getJavaClass().accept(annotationVisitor, null)).orElse(false));
-			
-			 methods = classDTO.getMethods();  
-			 System.out.println("\nMethods:");
-			 for(MethodDeclaration method : methods){
-				 methodAnnotations = method.getAnnotations(); 
-				 for(AnnotationExpr methodAnnotation : methodAnnotations){
-				 		System.out.println("Method Annotation: " + methodAnnotation.getNameAsString());
-				 }
-				 methodModifiers = method.getModifiers(); 
-				 for(Modifier methodModifier : methodModifiers){
-				 		System.out.println("Method Modifier: " + methodModifier);
-				 }
+			/*System.out.print("\nHas Javax.Persistence.Entity: ");
+			System.out.println(Optional.ofNullable(classDTO.getJavaClass().accept(annotationVisitor, null)).orElse(false));*/
+		
+			 for(MethodDeclaration method : classDTO.getMethods()){
 				 
-				 returnType = method.getTypeAsString();
-				 System.out.println("Return Type: " + returnType.toString());
-				 
-				 methodName = method.getNameAsString();
-				 System.out.println("Method name: " + methodName);
-				 
-				 parameterList = method.getParameters(); 
-				 for(Parameter parameter : parameterList){
-					 System.out.println("Paramter complete: " + parameter.toString());
-					 methodParameterAnnotations = parameter.getAnnotations(); 
-					 for(AnnotationExpr methodParameterAnnotation : methodParameterAnnotations){
-						 System.out.println("Parameter Annotation: " + methodParameterAnnotation);
-					 }
-					 System.out.println("Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());
-				 }
-				 
-				 exceptionList = method.getThrownExceptions(); 
-				 for(ReferenceType exception : exceptionList){
-					 System.out.println("Thrown Exception: " + exception.toString());
-				 }
-				 
-				 try{
-					 body = method.getBody().get().toString();
-				 }
-				 catch(Exception ex){
-					 body = null; 
-				 }
 				 //System.out.println("Body: " + body);
 				 //System.out.println(method.toString());
 				 //manageClassPersistence("Test.zwei.drei", fieldsAsJsonObjects); 
@@ -162,7 +126,78 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		return null;
 	}
 	
+	public MethodCallRelation extractMethodRelation(List<MethodDeclaration> methodDeclarationList){
+		MethodCallRelation methodCallRelation = new MethodCallRelation(); 
+		//methodCallRelation.setProvidingJavaImplementation(methodDeclaration.getClass().getName().toString());
+		for(MethodDeclaration methodDeclaration : methodDeclarationList){
+			methodCallRelation.setMethod(transformDeclarationToMethod(methodDeclaration));
+		}
+		
+		return methodCallRelation; 
+	}
+	
+	public Method transformDeclarationToMethod(MethodDeclaration methodDeclaration) {
+		Method method = new Method();
+		method.setType(methodDeclaration.getTypeAsString());
+		method.setName(methodDeclaration.getNameAsString());
+		method.setModifiers(convertGenericListToString(methodDeclaration.getModifiers()));
+		method.setAnnotations(convertAnnotationListToString(methodDeclaration.getAnnotations()));
+		method.setParameters(extractParameters(methodDeclaration.getParameters()));
+		method.setExceptions(convertGenericListToString(methodDeclaration.getThrownExceptions()));
+		
+		/*parameterList = methodDeclaration.getParameters();
+		for (Parameter parameter : parameterList) {
+			System.out.println("Paramter complete: " + parameter.toString());
+			methodParameterAnnotations = parameter.getAnnotations();
+			for (AnnotationExpr methodParameterAnnotation : methodParameterAnnotations) {
+				System.out.println("Parameter Annotation: " + methodParameterAnnotation);
+			}
+			
+			System.out.println(
+					"Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());
+		}*/
+
+		/*exceptionList = methodDeclaration.getThrownExceptions();
+		for (ReferenceType exception : exceptionList) {
+			System.out.println("Thrown Exception: " + exception.toString());
+		}*/
+		
+		String body; 
+		try {
+			body = methodDeclaration.getBody().get().toString();
+		} catch (Exception ex) {
+			body = null;
+		}
+		method.setBody(body);
+
+		return method;
+	}
+	
+	public List<PassedParameter> extractParameters(List<Parameter> parameterList){
+		List<PassedParameter> passedParameterList = new ArrayList(); 
+		for (Parameter parameter : parameterList) {
+			PassedParameter passedParameter = new PassedParameter(); 
+			passedParameter.setName(parameter.getName().toString());
+			passedParameter.setType(parameter.getType().toString());
+			passedParameter.setAnnotations(convertAnnotationListToString(parameter.getAnnotations()));
+			passedParameter.setModifiers(convertGenericListToString(parameter.getModifiers()));
+			passedParameterList.add(passedParameter);
+			/*
+			System.out.println("Paramter complete: " + parameter.toString());
+			methodParameterAnnotations = parameter.getAnnotations();
+			for (AnnotationExpr methodParameterAnnotation : methodParameterAnnotations) {
+				System.out.println("Parameter Annotation: " + methodParameterAnnotation);
+			}
+			
+			System.out.println(
+					"Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());*/
+		}
+		return passedParameterList; 
+	}
+	
 	public JavaImplementation transformClassDTOtoJavaImplementation(ClassDTO classDTO) {
+		JavaImplementation javaImplementation; 
+		
 		// extract and set implementation type (class, interface, abstract class)
 		if(classDTO.getJavaClass().isInterface()){
 			javaImplementation = new InterfaceNode(); 
@@ -216,13 +251,12 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		return javaImplementation; 
 	}
 
-	public void manageClassPersistence(JavaImplementation javaImplementation) {
+	public void processPersistence(JavaImplementation javaImplementation) {
 		try {
 			String url = getEnvironment("remote", "ip", "port", "portType"); 
 			String username = getCredential("remote", "username");
 			String password = getCredential("remote", "password");
 			System.out.println(url + username + password);
-
 			
 			GraphFoundationDAO graphFoundationDAO = GraphFoundationDAO.getInstance();
 			graphFoundationDAO.initConnection(url, username, password);
@@ -239,6 +273,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			System.out.println(e.getStackTrace());
 		}
 	}
+	
+	
 	
 	public List<String> getConstructorsAsJSONStringList(List<ConstructorDeclaration> constructors) {
 		for (ConstructorDeclaration constructor : constructors) {
@@ -262,8 +298,9 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			}
 			constructorEntity.setBody(body);
 			
+			constructorEntity.setParameters(extractParameters(constructor.getParameters()));
 			// creating a nested object for each parameter and adding it to constructor object
-			List<PassedParameter> parameters = constructorEntity.getParameters(); 
+			/*List<PassedParameter> parameters = constructorEntity.getParameters(); 
 			for (Parameter parameter : constructor.getParameters()) {
 				// create Parameter object 
 				PassedParameter parameterAsJsonObject = new PassedParameter(); 
@@ -276,7 +313,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				// add parameter object to parameter list 
 				parameters.add(parameterAsJsonObject); 
 			}
-			constructorEntity.setParameters(parameters);
+			constructorEntity.setParameters(parameters);*/
 			
 			// create constructor json objects and add to string list 
 			constructorAsJsonObject = new Gson().toJson(constructorEntity);

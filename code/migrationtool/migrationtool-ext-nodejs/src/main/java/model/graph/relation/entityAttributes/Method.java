@@ -1,4 +1,6 @@
-package model.graph.relation;
+package model.graph.relation.entityAttributes;
+
+import java.util.List;
 
 import model.graph.genericAttributes.PassedParameter;
 
@@ -6,10 +8,10 @@ public class Method {
 	private String name; 
 	private String type; 
 	private String body; 
-	private String[] modifiers; 
-	private String[] annotations;
-	private String[] exceptions; 
-	private PassedParameter[] parameters; 
+	private List<String> modifiers; 
+	private List<String> annotations;
+	private List<String> exceptions; 
+	private List<PassedParameter> parameters; 
 	
 	public String getName() {
 		return name;
@@ -29,28 +31,29 @@ public class Method {
 	public void setBody(String body) {
 		this.body = body;
 	}
-	public String[] getModifiers() {
+	public List<String> getModifiers() {
 		return modifiers;
 	}
-	public void setModifiers(String[] modifiers) {
+	public void setModifiers(List<String> modifiers) {
 		this.modifiers = modifiers;
 	}
-	public String[] getAnnotations() {
+	public List<String> getAnnotations() {
 		return annotations;
 	}
-	public void setAnnotations(String[] annotations) {
+	public void setAnnotations(List<String> annotations) {
 		this.annotations = annotations;
 	}
-	public String[] getExceptions() {
+	public List<String> getExceptions() {
 		return exceptions;
 	}
-	public void setExceptions(String[] exceptions) {
+	public void setExceptions(List<String> exceptions) {
 		this.exceptions = exceptions;
 	}
-	public PassedParameter[] getParameters() {
+	public List<PassedParameter> getParameters() {
 		return parameters;
 	}
-	public void setParameters(PassedParameter[] parameters) {
+	public void setParameters(List<PassedParameter> parameters) {
 		this.parameters = parameters;
 	}
+	
 }
