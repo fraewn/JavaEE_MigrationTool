@@ -2,7 +2,11 @@ package model.graph.node;
 
 import java.util.List;
 
+import model.graph.genericAttributes.NodeType;
+
 public class InterfaceNode extends JavaImplementation {
+	protected final NodeType nodeType = NodeType.Interface; 
+	
 	public String getClassName(){
 		return className; 
 	};
@@ -14,6 +18,9 @@ public class InterfaceNode extends JavaImplementation {
 	}
 	public void setJavaClassName(String javaClassName) {
 		this.javaImplementationName = javaClassName;
+	}
+	public NodeType getNodeType() {
+		return nodeType;
 	}
 	public String getPath() {
 		return path;

@@ -3,10 +3,13 @@ package model.graph.node;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.graph.genericAttributes.NodeType;
+
 public class AbstractClassNode extends JavaImplementation {
-	// variables only necessary in java classes 
-		private List<String> constructorsAsJsonObjectStrings = new ArrayList();
-		private List<String> extensions;
+		protected final NodeType nodeType = NodeType.AbstractClass; 
+		// variables only necessary in java classes 
+		private List<String> constructorsAsJsonObjectStrings = new ArrayList<String>();
+		private List<String> extensions = new ArrayList<String>();
 		
 		public List<String> getConstructorsAsJsonObjectStrings() {
 			return constructorsAsJsonObjectStrings;
@@ -34,6 +37,9 @@ public class AbstractClassNode extends JavaImplementation {
 		}
 		public void setJavaClassName(String javaClassName) {
 			this.javaImplementationName = javaClassName;
+		}
+		public NodeType getNodeType() {
+			return nodeType;
 		}
 		public String getPath() {
 			return path;

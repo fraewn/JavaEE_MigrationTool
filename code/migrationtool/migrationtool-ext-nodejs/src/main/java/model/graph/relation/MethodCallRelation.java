@@ -1,5 +1,6 @@
 package model.graph.relation;
 
+import model.graph.genericAttributes.NodeType;
 import model.graph.node.ClassNode;
 import model.graph.node.JavaImplementation;
 import model.graph.relation.entityAttributes.Method;
@@ -8,8 +9,13 @@ public class MethodCallRelation {
 	// the method entity contains all attributes (annotations, parameters...) 
 	private Method method; 
 	// Methods can be provided and invoked by classes, interfaces or abstract classes
-	private JavaImplementation callingClass;
-	private JavaImplementation providingClass; 
+	// die hab ich aber dann noch nicht deshalb STring
+	// außerdem muss ich mir hier noch die Typen merken (Klasse, Interface, Abstract class)
+	private String callingJavaImplementationName;
+	private String providingJavaImplementationName; 
+	
+	private NodeType callingJavaImplementationType;
+	private NodeType providingJavaImplementationType; 
 	
 	public Method getMethod() {
 		return method;
@@ -17,17 +23,28 @@ public class MethodCallRelation {
 	public void setMethod(Method method) {
 		this.method = method;
 	}
-	public JavaImplementation getCallingClass() {
-		return callingClass;
+	public String getCallingJavaImplementation() {
+		return callingJavaImplementationName;
 	}
-	public void setCallingClass(JavaImplementation callingClass) {
-		this.callingClass = callingClass;
+	public void setCallingJavaImplementation(String callingJavaImplementation) {
+		this.callingJavaImplementationName = callingJavaImplementation;
 	}
-	public JavaImplementation getProvidingClass() {
-		return providingClass;
+	public String getProvidingJavaImplementation() {
+		return providingJavaImplementationName;
 	}
-	public void setProvidingClass(JavaImplementation providingClass) {
-		this.providingClass = providingClass;
+	public void setProvidingJavaImplementation(String providingJavaImplementation) {
+		this.providingJavaImplementationName = providingJavaImplementation;
 	}
-	
+	public NodeType getCallingJavaImplementationType() {
+		return callingJavaImplementationType;
+	}
+	public void setCallingJavaImplementationType(NodeType callingJavaImplementationType) {
+		this.callingJavaImplementationType = callingJavaImplementationType;
+	}
+	public NodeType getProvidingJavaImplementationType() {
+		return providingJavaImplementationType;
+	}
+	public void setProvidingJavaImplementationType(NodeType providingJavaImplementationType) {
+		this.providingJavaImplementationType = providingJavaImplementationType;
+	}
 }

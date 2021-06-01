@@ -3,7 +3,11 @@ package model.graph.node;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.graph.genericAttributes.NodeType;
+
 public class ClassNode extends JavaImplementation {
+	protected final NodeType nodeType = NodeType.Class; 
+	
 	// variables only necessary in java classes 
 	private List<String> constructorsAsJsonObjectStrings = new ArrayList();
 	private List<String> extensions;
@@ -28,6 +32,9 @@ public class ClassNode extends JavaImplementation {
 	} 
 	public void setClassName(String className) {
 		this.className = className;
+	}
+	public NodeType getNodeType() {
+		return nodeType;
 	}
 	public String getJavaClassName() {
 		return javaImplementationName;

@@ -3,6 +3,8 @@ package model.graph.node;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.graph.genericAttributes.NodeType;
+
 public abstract class JavaImplementation {
 	
 	// id 
@@ -10,7 +12,7 @@ public abstract class JavaImplementation {
 	// String attributes 
 	protected String className = "";
 	protected String path = "";
-	protected String moduleDeclaration;
+	protected String moduleDeclaration = "";
 	protected String completeClassCode = "";
 	// List<String> attributes 
 	protected List<String> modules;
@@ -19,6 +21,8 @@ public abstract class JavaImplementation {
 	protected List<String> extensions; 
 	protected List<String> imports;
 	protected List<String> fieldsAsJsonObjectStrings;
+	
+	
 	
 	public String getClassName(){
 		return className; 
@@ -86,4 +90,6 @@ public abstract class JavaImplementation {
 	public void setConstructorsAsJsonObjectStrings(List<String> constructorsAsJsonObjectStrings) {
 		this.constructorsAsJsonObjectStrings = constructorsAsJsonObjectStrings;
 	}
+	
+	
 }

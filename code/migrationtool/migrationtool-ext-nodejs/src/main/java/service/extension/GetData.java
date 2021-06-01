@@ -18,7 +18,6 @@ import parser.visitors.AnnotationVisitor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import com.github.javaparser.ast.ImportDeclaration;
@@ -29,7 +28,6 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.nodeTypes.NodeWithName;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.TypeParameter;
@@ -42,7 +40,7 @@ import java.io.File;
 // TODO rename class to transformIntoGraphModel or something like that 
 public class GetData extends ModelService<List<ClassDTO>, String> {
 	
-	List<ClassDTO> classDTOList = new ArrayList(); 
+	List<ClassDTO> classDTOList = new ArrayList<ClassDTO>(); 
 			
 	// Type means class - jetzt sucht der am Klassenkopf die Annotation und sagt dann ob er da eine gefunden hat
 	AnnotationVisitor annotationVisitor = new AnnotationVisitor("javax.persistence.Entity", TargetTypes.TYPE);
@@ -87,23 +85,15 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	// ++++++++++++++ OUTPUT +++++++++++++++++++++
 	// die variablen sind alle bullshit hier, weil die ja in jeder schleifen iteration (Pro classDTO) neu gesetzt werden 
 	// also kann man machne, aber fehler prone wahrsch 
-	String className = "";
-	String javaClassName = "";
-	String path = "";
-	String moduleDeclaration;
-	String completeClassCode = "";
 	
-	List<String> modules;
-	List<String> constructorsAsJsonObjectStrings = new ArrayList();
-	List<String> fieldsAsJsonObjectStrings = new ArrayList(); 
-	List<String> implementedInterfaces; 
-	List<String> imports;
-	List<String> extensions; 
-	List<String> exceptions; 
 	
+	
+	
+	// method that inits the ETL and persistence processes 
 	@Override
 	public String save(List<ClassDTO> input) {
 		classDTOList = input;
+		List<JavaImplementation> javaImplementationsList; 
 		
 		// hier kommt eine liste an dtos rein 
 		// für jedes dto wird zunächst ein klassen knoten erstellt (=javaImplementation)
@@ -111,31 +101,122 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		// danach wird auf entitäten und funktionalitäten geprüft und diese mittels Knoten und Kanten eingefügt 
 		System.out.println("----------starting reading from dto");
 		for(ClassDTO classDTO: classDTOList){
+			JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
 			// true, wenn die Annotation "javax.persistence.Entity" da drin ist, ansonsten false
 			/*System.out.print("\nHas Javax.Persistence.Entity: ");
 			System.out.println(Optional.ofNullable(classDTO.getJavaClass().accept(annotationVisitor, null)).orElse(false));*/
-		
-			 for(MethodDeclaration method : classDTO.getMethods()){
-				 
+			System.out.println(javaImplementation.toString());
+			 //for(MethodDeclaration method : classDTO.getMethods()){
 				 //System.out.println("Body: " + body);
 				 //System.out.println(method.toString());
 				 //manageClassPersistence("Test.zwei.drei", fieldsAsJsonObjects); 
-			 } 
+			 //} 
 		}
 		System.out.println("----------stopping reading from dto");
 		return null;
 	}
 	
+	
+	// GRAPH_NODES: Class, Abstract Class or Interface 
+	public JavaImplementation transformClassDTOtoJavaImplementation(ClassDTO classDTO) {
+		JavaImplementation javaImplementation; 
+		
+		// extract and set implementation type (class, interface, abstract class)
+		if(classDTO.getJavaClass().isInterface()){
+			javaImplementation = new InterfaceNode(); 
+			System.out.println("Is Interface: " + classDTO.getJavaClass().isInterface());
+		}
+		else if(classDTO.getJavaClass().isAbstract()){
+			javaImplementation = new AbstractClassNode(); 
+			System.out.println("Is Abstract: " + classDTO.getJavaClass().isAbstract());
+		}
+		else {
+			javaImplementation = new ClassNode(); 
+		}
+		
+		// set String variables 
+		javaImplementation.setPath(classDTO.getFullName());
+		javaImplementation.setModules(extractPathStructure(javaImplementation.getPath()));
+		javaImplementation.setClassName(javaImplementation.getModules().get(javaImplementation.getModules().size() - 1));
+		javaImplementation.setJavaClassName(javaImplementation.getClassName() + ".java");
+		javaImplementation.setCompleteClassCode(classDTO.getClass().toString());
+		
+		String moduleDeclaration = classDTO.getModuleDeclaration() == null ? "" : classDTO.getModuleDeclaration();
+		javaImplementation.setModuleDeclaration(moduleDeclaration);
+		
+		/*path = classDTO.getFullName(); 
+		modules = extractPathStructure(path);
+		className = modules.get(modules.size() - 1);
+		javaClassName = className + ".java";
+		completeClassCode = classDTO.getClass().toString(); 
+		String moduleDeclaration = classDTO.getModuleDeclaration() == null ? "" : classDTO.getModuleDeclaration(); */
+		
+		// set List<String> variables 
+		List<String> constructorsAsJsonObjectStrings = new ArrayList<String>();
+		List<String> fieldsAsJsonObjectStrings = new ArrayList<String>(); 
+		List<String> implementedInterfaces = new ArrayList<String>(); 
+		List<String> imports = new ArrayList<String>(); 
+		List<String> extensions = new ArrayList<String>(); 
+		for(ImportDeclaration importDeclaration : classDTO.getImports()){
+			imports.add(importDeclaration.getNameAsString());
+		}
+		javaImplementation.setImports(imports);
+		for (ClassOrInterfaceType implementedInterface : classDTO.getImplementations()) {
+			implementedInterfaces.add(implementedInterface.getNameAsString());
+		}
+		javaImplementation.setImplementedInterfaces(implementedInterfaces);
+		for (ClassOrInterfaceType extendedClass : classDTO.getExtensions()) {
+			extensions.add(extendedClass.getNameAsString());
+		}
+		javaImplementation.setExtensions(extensions);
+		
+		// set List<String> variables containing JSON Objects which were converted to Strings
+		fieldsAsJsonObjectStrings = getFieldsAsJSONStringList(classDTO.getFields()); 
+		javaImplementation.setFieldsAsJsonObjectStrings(fieldsAsJsonObjectStrings);
+		constructorsAsJsonObjectStrings = getConstructorsAsJSONStringList(classDTO.getConstructors());
+		javaImplementation.setConstructorsAsJsonObjectStrings(constructorsAsJsonObjectStrings);
+		
+		return javaImplementation; 
+	}
+	
+	
+	// GRAPH_RELATION: MethodCall between Class, Interface and AbstractClass Nodes 
 	public MethodCallRelation extractMethodRelation(List<MethodDeclaration> methodDeclarationList){
 		MethodCallRelation methodCallRelation = new MethodCallRelation(); 
 		//methodCallRelation.setProvidingJavaImplementation(methodDeclaration.getClass().getName().toString());
 		for(MethodDeclaration methodDeclaration : methodDeclarationList){
 			methodCallRelation.setMethod(transformDeclarationToMethod(methodDeclaration));
 		}
-		
 		return methodCallRelation; 
 	}
+
+	// Persistence Management 
+	// TODO: move to specific class for that 
+	public void processPersistence(JavaImplementation javaImplementation) {
+		try {
+			String url = getEnvironment("remote", "ip", "port", "portType"); 
+			String username = getCredential("remote", "username");
+			String password = getCredential("remote", "password");
+			System.out.println(url + username + password);
+			
+			GraphFoundationDAO graphFoundationDAO = GraphFoundationDAO.getInstance();
+			graphFoundationDAO.initConnection(url, username, password);
+			
+			//graphFoundationDAO.getClassNode("BatchServiceImpl.java");
+			//boolean test = graphFoundationDAO.persistClassNode("TestClass", "TestClass.java");
+			//boolean test2 = graphFoundationDAO.setListAttributeInClassNode(className, javaClassName, "field",
+					//fieldsAsJsonObjects);
+			//System.out.println(test);
+			
+			graphFoundationDAO.close();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			System.out.println(e.getStackTrace());
+		}
+	}
 	
+	// // ++++++++++++++++++++ Transformation Methods ++++++++++++++++++++++++++++++++
+	// TODO: move to Transformator.java 
 	public Method transformDeclarationToMethod(MethodDeclaration methodDeclaration) {
 		Method method = new Method();
 		method.setType(methodDeclaration.getTypeAsString());
@@ -172,111 +253,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 
 		return method;
 	}
-	
-	public List<PassedParameter> extractParameters(List<Parameter> parameterList){
-		List<PassedParameter> passedParameterList = new ArrayList(); 
-		for (Parameter parameter : parameterList) {
-			PassedParameter passedParameter = new PassedParameter(); 
-			passedParameter.setName(parameter.getName().toString());
-			passedParameter.setType(parameter.getType().toString());
-			passedParameter.setAnnotations(convertAnnotationListToString(parameter.getAnnotations()));
-			passedParameter.setModifiers(convertGenericListToString(parameter.getModifiers()));
-			passedParameterList.add(passedParameter);
-			/*
-			System.out.println("Paramter complete: " + parameter.toString());
-			methodParameterAnnotations = parameter.getAnnotations();
-			for (AnnotationExpr methodParameterAnnotation : methodParameterAnnotations) {
-				System.out.println("Parameter Annotation: " + methodParameterAnnotation);
-			}
-			
-			System.out.println(
-					"Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());*/
-		}
-		return passedParameterList; 
-	}
-	
-	public JavaImplementation transformClassDTOtoJavaImplementation(ClassDTO classDTO) {
-		JavaImplementation javaImplementation; 
-		
-		// extract and set implementation type (class, interface, abstract class)
-		if(classDTO.getJavaClass().isInterface()){
-			javaImplementation = new InterfaceNode(); 
-			System.out.println("Is Interface: " + classDTO.getJavaClass().isInterface());
-		}
-		if(classDTO.getJavaClass().isAbstract()){
-			javaImplementation = new AbstractClassNode(); 
-			System.out.println("Is Abstract: " + classDTO.getJavaClass().isAbstract());
-		}
-		else {
-			javaImplementation = new ClassNode(); 
-		}
-		
-		// set String variables 
-		javaImplementation.setPath(classDTO.getFullName());
-		javaImplementation.setModules(extractPathStructure(path));
-		javaImplementation.setClassName(modules.get(modules.size() - 1));
-		javaImplementation.setJavaClassName(className + ".java");
-		javaImplementation.setCompleteClassCode(classDTO.getClass().toString());
-		
-		String moduleDeclaration = classDTO.getModuleDeclaration() == null ? "" : classDTO.getModuleDeclaration();
-		javaImplementation.setModuleDeclaration(moduleDeclaration);
-		
-		/*path = classDTO.getFullName(); 
-		modules = extractPathStructure(path);
-		className = modules.get(modules.size() - 1);
-		javaClassName = className + ".java";
-		completeClassCode = classDTO.getClass().toString(); 
-		String moduleDeclaration = classDTO.getModuleDeclaration() == null ? "" : classDTO.getModuleDeclaration(); */
-		
-		// set List<String> variables 
-		for(ImportDeclaration importDeclaration : classDTO.getImports()){
-			imports.add(importDeclaration.getNameAsString());
-		}
-		javaImplementation.setImports(imports);
-		for (ClassOrInterfaceType implementedInterface : classDTO.getImplementations()) {
-			implementedInterfaces.add(implementedInterface.getNameAsString());
-		}
-		javaImplementation.setImplementedInterfaces(implementedInterfaces);
-		for (ClassOrInterfaceType extendedClass : classDTO.getExtensions()) {
-			extensions.add(extendedClass.getNameAsString());
-		}
-		javaImplementation.setExtensions(extensions);
-		
-		// set List<String> variables containing JSON Objects which were converted to Strings
-		fieldsAsJsonObjectStrings = saveFieldsAsJsonObjects(classDTO.getFields()); 
-		javaImplementation.setFieldsAsJsonObjectStrings(fieldsAsJsonObjectStrings);
-		constructorsAsJsonObjectStrings = getConstructorsAsJSONStringList(classDTO.getConstructors());
-		javaImplementation.setConstructorsAsJsonObjectStrings(constructorsAsJsonObjectStrings);
-		
-		return javaImplementation; 
-	}
-
-	public void processPersistence(JavaImplementation javaImplementation) {
-		try {
-			String url = getEnvironment("remote", "ip", "port", "portType"); 
-			String username = getCredential("remote", "username");
-			String password = getCredential("remote", "password");
-			System.out.println(url + username + password);
-			
-			GraphFoundationDAO graphFoundationDAO = GraphFoundationDAO.getInstance();
-			graphFoundationDAO.initConnection(url, username, password);
-			
-			//graphFoundationDAO.getClassNode("BatchServiceImpl.java");
-			//boolean test = graphFoundationDAO.persistClassNode("TestClass", "TestClass.java");
-			//boolean test2 = graphFoundationDAO.setListAttributeInClassNode(className, javaClassName, "field",
-					//fieldsAsJsonObjects);
-			//System.out.println(test);
-			
-			graphFoundationDAO.close();
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			System.out.println(e.getStackTrace());
-		}
-	}
-	
-	
-	
 	public List<String> getConstructorsAsJSONStringList(List<ConstructorDeclaration> constructors) {
+		List<String> constructorsAsJsonObjectStrings = new ArrayList<String>();
 		for (ConstructorDeclaration constructor : constructors) {
 			// empty json object
 			String constructorAsJsonObject = ""; 
@@ -323,7 +301,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		return constructorsAsJsonObjectStrings;
 	}
 	
-	public List<String> saveFieldsAsJsonObjects(List<FieldDeclaration> fields){
+	public List<String> getFieldsAsJSONStringList(List<FieldDeclaration> fields){
+		List<String> fieldsAsJsonObjectStrings = new ArrayList<String>(); 
 		for (FieldDeclaration field : fields) {
 			// create empty json string for one field 
 			String fieldAsJsonObject = "";
@@ -357,13 +336,35 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		return fieldsAsJsonObjectStrings;
 	}
 	
+	public List<PassedParameter> extractParameters(List<Parameter> parameterList){
+		List<PassedParameter> passedParameterList = new ArrayList<PassedParameter>(); 
+		for (Parameter parameter : parameterList) {
+			PassedParameter passedParameter = new PassedParameter(); 
+			passedParameter.setName(parameter.getName().toString());
+			passedParameter.setType(parameter.getType().toString());
+			passedParameter.setAnnotations(convertAnnotationListToString(parameter.getAnnotations()));
+			passedParameter.setModifiers(convertGenericListToString(parameter.getModifiers()));
+			passedParameterList.add(passedParameter);
+			/*
+			System.out.println("Paramter complete: " + parameter.toString());
+			methodParameterAnnotations = parameter.getAnnotations();
+			for (AnnotationExpr methodParameterAnnotation : methodParameterAnnotations) {
+				System.out.println("Parameter Annotation: " + methodParameterAnnotation);
+			}
+			
+			System.out.println(
+					"Parameter type: " + parameter.getType() + "   Parameter name: " + parameter.getName().toString());*/
+		}
+		return passedParameterList; 
+	}
 	
 	// ++++++++++++++++++++ Helper Methods ++++++++++++++++++++++++++++++++
+	// TODO: move to EnvironmentUtils.java Class 
 	public String getCredential(String infrastructure, String key) throws Exception{
 		Ini ini = new Ini(new File("src/main/resources/neo4j_conf.ini"));
 		return ini.get(infrastructure, key);
 	}
-	
+	// TODO: move to EnvironmentUtils.java Class 
 	public String getEnvironment(String environment, String key_ip, String key_port, String key_portType) throws Exception{
 		Ini ini = new Ini(new File("src/main/resources/neo4j_conf.ini"));
 		String portType = ini.get(environment, key_portType);
@@ -372,30 +373,30 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		return portType + "://" + ip + ":" + port;
 	}
 	
+	// TODO: move to ConverterUtils.java class (converts a path to a list of strings) (path is not Env but is necessary for process)
 	public List<String> extractPathStructure(String fullPath){
-		List<String> modules = new ArrayList(); 
+		List<String> modules = new ArrayList<String>(); 
 		if(fullPath.contains(".")){
 			modules = Arrays.asList(fullPath.split(Pattern.quote(".")));
 		}
 		else {
 			modules.add(fullPath);
 		}
-		for(String s : modules){
-			System.out.println(s);
-		}
 		return modules; 
 	}
 	
+	// TODO: move to ConverterUtils.java class
 	public List<String> convertGenericListToString(List list){
-		List<String> convertedObjects = new ArrayList();
+		List<String> convertedObjects = new ArrayList<String>();
 		for(Object obj : list){
 			convertedObjects.add(obj.toString());
 		}
 		return convertedObjects; 
 	}
 	
+	// TODO: move to Converter.java class
 	public List<String> convertAnnotationListToString(List<AnnotationExpr> list){
-		List<String> convertedObjects = new ArrayList();
+		List<String> convertedObjects = new ArrayList<String>();
 		for(AnnotationExpr annotationExpr : list){
 			convertedObjects.add(annotationExpr.getNameAsString()); 
 		}
