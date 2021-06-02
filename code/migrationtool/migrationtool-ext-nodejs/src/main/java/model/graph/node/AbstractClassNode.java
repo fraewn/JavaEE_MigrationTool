@@ -11,6 +11,11 @@ public class AbstractClassNode extends JavaImplementation {
 		private List<String> constructorsAsJsonObjectStrings = new ArrayList<String>();
 		private List<String> extensions = new ArrayList<String>();
 		
+		public String toString(){
+			return "javaImplementationName: " + javaImplementationName + " className: " + className + " Type: " + nodeType.toString() + " Path: " + path + " moduleDeclaration: " + moduleDeclaration
+					+ "modules: " + modules.toString() + " Annotations: " + annotations + " constructors: " + constructorsAsJsonObjectStrings.toString() + " implemented Interfaces: " + implementedInterfaces.toString()
+					+ " Extensions: " + extensions + " Imports:" + imports.toString() + " Fields:" + fieldsAsJsonObjectStrings.toString() + "\nbody: " + completeClassCode;
+		}
 		public List<String> getConstructorsAsJsonObjectStrings() {
 			return constructorsAsJsonObjectStrings;
 		}
@@ -27,7 +32,7 @@ public class AbstractClassNode extends JavaImplementation {
 		// variables used in classes, abstract classes and interfaces
 		@Override
 		public String getClassName() {
-			return null;
+			return this.className; 
 		} 
 		public void setClassName(String className) {
 			this.className = className;
@@ -82,5 +87,12 @@ public class AbstractClassNode extends JavaImplementation {
 		}
 		public void setFieldsAsJsonObjectStrings(List<String> fieldsAsJsonObjectStrings) {
 			this.fieldsAsJsonObjectStrings = fieldsAsJsonObjectStrings;
+		}
+		public List<String> getAnnotations() {
+			return annotations;
+		}
+
+		public void setAnnotations(List<String> annotations) {
+			this.annotations = annotations;
 		}
 }

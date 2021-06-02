@@ -7,6 +7,12 @@ import model.graph.genericAttributes.NodeType;
 public class InterfaceNode extends JavaImplementation {
 	protected final NodeType nodeType = NodeType.Interface; 
 	
+	public String toString(){
+		return "javaImplementationName: " + javaImplementationName + " className: " + className + " Type: " + nodeType.toString() + " Path: " + path + " moduleDeclaration: " + moduleDeclaration
+				+ "modules: " + modules.toString() + " Annotations: " + annotations + " implemented Interfaces: " + implementedInterfaces.toString()
+				+ " Extensions: " + extensions + " Imports:" + imports.toString() + " Fields:" + fieldsAsJsonObjectStrings.toString() + "\nbody: " + completeClassCode;
+	}
+	
 	public String getClassName(){
 		return className; 
 	};
@@ -63,5 +69,11 @@ public class InterfaceNode extends JavaImplementation {
 	}
 	public void setFieldsAsJsonObjectStrings(List<String> fieldsAsJsonObjectStrings) {
 		this.fieldsAsJsonObjectStrings = fieldsAsJsonObjectStrings;
+	}
+	public List<String> getAnnotations() {
+		return annotations;
+	}
+	public void setAnnotations(List<String> annotations) {
+		this.annotations = annotations;
 	}
 }

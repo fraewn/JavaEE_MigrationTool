@@ -15,14 +15,19 @@ public abstract class JavaImplementation {
 	protected String moduleDeclaration = "";
 	protected String completeClassCode = "";
 	// List<String> attributes 
-	protected List<String> modules;
-	private List<String> constructorsAsJsonObjectStrings;
-	protected List<String> implementedInterfaces; 
-	protected List<String> extensions; 
-	protected List<String> imports;
-	protected List<String> fieldsAsJsonObjectStrings;
+	protected List<String> modules = new ArrayList<String>();
+	private List<String> constructorsAsJsonObjectStrings = new ArrayList<String>();
+	protected List<String> implementedInterfaces = new ArrayList<String>(); 
+	protected List<String> extensions = new ArrayList<String>(); 
+	protected List<String> imports = new ArrayList<String>();
+	protected List<String> fieldsAsJsonObjectStrings = new ArrayList<String>();
+	protected List<String> annotations = new ArrayList<String>(); 
 	
-	
+	public String toString(){
+		return "javaImplementationName: " + javaImplementationName + " className: " + className + " path: " + path + " moduleDeclaration: " + moduleDeclaration
+				+ "modules: " + modules.toString() + " constructors: " + constructorsAsJsonObjectStrings.toString() + " implemented Interfaces: " + implementedInterfaces.toString()
+				+ " Extensions: " + extensions + " Imports:" + imports.toString() + " Fields:" + fieldsAsJsonObjectStrings.toString() + "\nbody: " + completeClassCode;
+	}
 	
 	public String getClassName(){
 		return className; 
@@ -90,6 +95,15 @@ public abstract class JavaImplementation {
 	public void setConstructorsAsJsonObjectStrings(List<String> constructorsAsJsonObjectStrings) {
 		this.constructorsAsJsonObjectStrings = constructorsAsJsonObjectStrings;
 	}
+
+	public List<String> getAnnotations() {
+		return annotations;
+	}
+
+	public void setAnnotations(List<String> annotations) {
+		this.annotations = annotations;
+	}
+	
 	
 	
 }

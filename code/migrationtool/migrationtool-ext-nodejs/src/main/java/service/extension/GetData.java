@@ -9,10 +9,13 @@ import model.graph.node.InterfaceNode;
 import model.graph.node.JavaImplementation;
 import model.graph.node.entityAttributes.Constructor;
 import model.graph.node.entityAttributes.Field;
+import model.graph.node.entityAttributes.Annotation;
+import model.graph.node.entityAttributes.AnnotationNameValuePair;
 import model.graph.relation.MethodCallRelation;
 import model.graph.relation.entityAttributes.Method;
 import operations.ModelService;
 import operations.dto.ClassDTO;
+import parser.utils.AnnotationResolver;
 import parser.visitors.AnnotationVisitor;
 
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.TypeParameter;
@@ -35,6 +39,7 @@ import com.google.gson.Gson;
 
 import org.ini4j.Ini;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 
 // TODO rename class to transformIntoGraphModel or something like that 
@@ -124,11 +129,9 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		// extract and set implementation type (class, interface, abstract class)
 		if(classDTO.getJavaClass().isInterface()){
 			javaImplementation = new InterfaceNode(); 
-			System.out.println("Is Interface: " + classDTO.getJavaClass().isInterface());
 		}
 		else if(classDTO.getJavaClass().isAbstract()){
 			javaImplementation = new AbstractClassNode(); 
-			System.out.println("Is Abstract: " + classDTO.getJavaClass().isAbstract());
 		}
 		else {
 			javaImplementation = new ClassNode(); 
@@ -139,17 +142,10 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		javaImplementation.setModules(extractPathStructure(javaImplementation.getPath()));
 		javaImplementation.setClassName(javaImplementation.getModules().get(javaImplementation.getModules().size() - 1));
 		javaImplementation.setJavaClassName(javaImplementation.getClassName() + ".java");
-		javaImplementation.setCompleteClassCode(classDTO.getClass().toString());
+		javaImplementation.setCompleteClassCode(classDTO.getJavaClass().toString());
 		
 		String moduleDeclaration = classDTO.getModuleDeclaration() == null ? "" : classDTO.getModuleDeclaration();
 		javaImplementation.setModuleDeclaration(moduleDeclaration);
-		
-		/*path = classDTO.getFullName(); 
-		modules = extractPathStructure(path);
-		className = modules.get(modules.size() - 1);
-		javaClassName = className + ".java";
-		completeClassCode = classDTO.getClass().toString(); 
-		String moduleDeclaration = classDTO.getModuleDeclaration() == null ? "" : classDTO.getModuleDeclaration(); */
 		
 		// set List<String> variables 
 		List<String> constructorsAsJsonObjectStrings = new ArrayList<String>();
@@ -157,6 +153,9 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		List<String> implementedInterfaces = new ArrayList<String>(); 
 		List<String> imports = new ArrayList<String>(); 
 		List<String> extensions = new ArrayList<String>(); 
+		List<String> annotations = new ArrayList<String>(); 
+		
+		// set List<String> variables containing plain Strings
 		for(ImportDeclaration importDeclaration : classDTO.getImports()){
 			imports.add(importDeclaration.getNameAsString());
 		}
@@ -169,12 +168,15 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			extensions.add(extendedClass.getNameAsString());
 		}
 		javaImplementation.setExtensions(extensions);
-		
+
 		// set List<String> variables containing JSON Objects which were converted to Strings
 		fieldsAsJsonObjectStrings = getFieldsAsJSONStringList(classDTO.getFields()); 
 		javaImplementation.setFieldsAsJsonObjectStrings(fieldsAsJsonObjectStrings);
+		
 		constructorsAsJsonObjectStrings = getConstructorsAsJSONStringList(classDTO.getConstructors());
 		javaImplementation.setConstructorsAsJsonObjectStrings(constructorsAsJsonObjectStrings);
+		
+		javaImplementation.setAnnotations(getAnnotations(classDTO.getAnnotationDeclarationList()));
 		
 		return javaImplementation; 
 	}
@@ -253,6 +255,27 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 
 		return method;
 	}
+	
+	public List<String> getAnnotations(List<AnnotationExpr> annotationExpressions){
+		List<String> annotationsAsJsonObjectStrings = new ArrayList<String>(); 
+		for(AnnotationExpr annotationExpr : annotationExpressions){
+			Annotation annotation = new Annotation(); 
+			annotation.setAnnotation(annotationExpr.getNameAsString()); 
+			List<AnnotationNameValuePair> parameterList = new ArrayList<AnnotationNameValuePair>(); 
+			for(MemberValuePair pair : AnnotationResolver.getParamaterList(annotationExpr)){
+				AnnotationNameValuePair annoPair = new AnnotationNameValuePair(); 
+				annoPair.setName(pair.getNameAsString());
+				annoPair.setValue(pair.getValue().toString());
+				parameterList.add(annoPair);
+			}
+			annotation.setParameters(parameterList);
+			String annotationAsJsonObject = new Gson().toJson(annotation);
+			annotationsAsJsonObjectStrings.add("'" + annotationAsJsonObject + "'");
+		}
+		return annotationsAsJsonObjectStrings ; 
+	}
+	
+	
 	public List<String> getConstructorsAsJSONStringList(List<ConstructorDeclaration> constructors) {
 		List<String> constructorsAsJsonObjectStrings = new ArrayList<String>();
 		for (ConstructorDeclaration constructor : constructors) {
@@ -265,7 +288,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			// name, modifiers and annotations
 			constructorEntity.setName(constructor.getNameAsString());
 			constructorEntity.setModifiers(convertGenericListToString(constructor.getModifiers()));
-			constructorEntity.setAnnotations(convertAnnotationListToString(constructor.getAnnotations()));
+			constructorEntity.setAnnotations(getAnnotations(constructor.getAnnotations()));
 			
 			// body 
 			String body = constructorEntity.getBody();
@@ -295,7 +318,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			
 			// create constructor json objects and add to string list 
 			constructorAsJsonObject = new Gson().toJson(constructorEntity);
-			System.out.println("Constructor JSON++++++++++++++++ " + constructorAsJsonObject);
+			//System.out.println("Constructor JSON++++++++++++++++ " + constructorAsJsonObject);
 			constructorsAsJsonObjectStrings.add("'" + constructorAsJsonObject + "'");
 		}
 		return constructorsAsJsonObjectStrings;
@@ -313,7 +336,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 
 			// names and initializer
 			for (VariableDeclarator fieldVariable : field.getVariables()) {
-				System.out.println("Field variable: " + fieldVariable.getNameAsString());
+				//System.out.println("Field variable: " + fieldVariable.getNameAsString());
 				names.add(fieldVariable.getNameAsString());
 				fieldVariable.getInitializer().ifPresent((init) -> {
 					// System.out.println("Field Initializer: " + init);
@@ -326,12 +349,13 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			// type, modifiers and annotations
 			fieldEntity.setType(field.getElementType().asString());
 			fieldEntity.setModifiers(convertGenericListToString(field.getModifiers()));
-			fieldEntity.setAnnotations(convertAnnotationListToString(field.getAnnotations()));
+			fieldEntity.setAnnotations(getAnnotations(field.getAnnotations()));
 			
 			// create JsonObject from Field
 			fieldAsJsonObject = new Gson().toJson(fieldEntity);
+			//fieldAsJsonObject.replace("\\u0027", "'");
 			fieldsAsJsonObjectStrings.add("'" + fieldAsJsonObject + "'");
-			System.out.println("JSON++++++++++++++++ " + fieldAsJsonObject);
+			//System.out.println("JSON++++++++++++++++ " + fieldAsJsonObject);
 		}
 		return fieldsAsJsonObjectStrings;
 	}
