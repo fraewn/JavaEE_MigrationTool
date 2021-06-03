@@ -3,15 +3,12 @@ package model.graph.node.entityAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.graph.genericAttributes.PassedParameter;
-
 public class Field {
-	private List<String> names = new ArrayList(); 
+	private List<String> names = new ArrayList<String>(); 
 	private String type = ""; 
 	private String initializer = ""; 
-	private List<String> modifiers = new ArrayList(); 
-	private List<String> annotations = new ArrayList(); 
-	private List<PassedParameter> parameters = new ArrayList(); 
+	private List<String> modifiers = new ArrayList<String>(); 
+	private List<Annotation> annotations = new ArrayList<Annotation>(); 
 	
 	public List<String> getNames() {
 		return names;
@@ -37,17 +34,11 @@ public class Field {
 	public void setModifiers(List<String> modifiers) {
 		this.modifiers = modifiers;
 	}
-	public List<String> getAnnotations() {
+	public List<Annotation> getAnnotations() {
 		return annotations;
 	}
-	public void setAnnotations(List<String> annotations) {
+	public void setAnnotations(List<Annotation> annotations) {
 		this.annotations = annotations;
-	}
-	public List<PassedParameter> getParameters() {
-		return parameters;
-	}
-	public void setParameters(List<PassedParameter> parameters) {
-		this.parameters = parameters;
 	}
 	
 }

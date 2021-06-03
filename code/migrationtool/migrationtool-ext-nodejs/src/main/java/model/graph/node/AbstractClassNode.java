@@ -13,7 +13,7 @@ public class AbstractClassNode extends JavaImplementation {
 		
 		public String toString(){
 			return "javaImplementationName: " + javaImplementationName + " className: " + className + " Type: " + nodeType.toString() + " Path: " + path + " moduleDeclaration: " + moduleDeclaration
-					+ "modules: " + modules.toString() + " Annotations: " + annotations + " constructors: " + constructorsAsJsonObjectStrings.toString() + " implemented Interfaces: " + implementedInterfaces.toString()
+					+ "modules: " + modules.toString() + " Annotations: " + annotationsAsJsonObjectStrings + " constructors: " + constructorsAsJsonObjectStrings.toString() + " implemented Interfaces: " + implementedInterfaces.toString()
 					+ " Extensions: " + extensions + " Imports:" + imports.toString() + " Fields:" + fieldsAsJsonObjectStrings.toString() + "\nbody: " + completeClassCode;
 		}
 		public List<String> getConstructorsAsJsonObjectStrings() {
@@ -88,11 +88,11 @@ public class AbstractClassNode extends JavaImplementation {
 		public void setFieldsAsJsonObjectStrings(List<String> fieldsAsJsonObjectStrings) {
 			this.fieldsAsJsonObjectStrings = fieldsAsJsonObjectStrings;
 		}
-		public List<String> getAnnotations() {
-			return annotations;
+		public List<String> getAnnotationsAsJsonObjectStrings() {
+			return annotationsAsJsonObjectStrings;
 		}
 
-		public void setAnnotations(List<String> annotations) {
-			this.annotations = annotations;
+		public void setAnnotationsAsJsonObjectStrings(List<String> annotations) {
+			this.annotationsAsJsonObjectStrings = annotations;
 		}
 }

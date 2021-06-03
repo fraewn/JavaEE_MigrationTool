@@ -2,11 +2,13 @@ package model.graph.genericAttributes;
 
 import java.util.List;
 
+import model.graph.node.entityAttributes.Annotation;
+
 public class PassedParameter {
 	private String name; 
 	private String type; 
 	private List<String> modifiers; 
-	private List<String> annotations; 
+	private List<Annotation> annotations; 
 	
 	public String getName() {
 		return name;
@@ -26,10 +28,10 @@ public class PassedParameter {
 	public void setModifiers(List<String> modifiers) {
 		this.modifiers = modifiers;
 	}
-	public List<String> getAnnotations() {
+	public List<Annotation> getAnnotations() {
 		return annotations;
 	}
-	public void setAnnotations(List<String> annotations) {
+	public void setAnnotations(List<Annotation> annotations) {
 		this.annotations = annotations;
 	}
 	

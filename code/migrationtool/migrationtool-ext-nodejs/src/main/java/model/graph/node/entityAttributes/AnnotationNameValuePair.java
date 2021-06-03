@@ -16,4 +16,7 @@ public class AnnotationNameValuePair {
 	public void setValue(String value) {
 		this.value = value;
 	} 
+	public void clear(){
+		this.value = this.value.replaceAll("\"", "'");
+	}
 }

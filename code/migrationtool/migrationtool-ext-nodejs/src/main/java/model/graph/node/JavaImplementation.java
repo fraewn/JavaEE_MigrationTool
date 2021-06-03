@@ -9,6 +9,8 @@ public abstract class JavaImplementation {
 	
 	// id 
 	protected String javaImplementationName = "";
+	// Type 
+	protected NodeType nodeType;
 	// String attributes 
 	protected String className = "";
 	protected String path = "";
@@ -21,7 +23,7 @@ public abstract class JavaImplementation {
 	protected List<String> extensions = new ArrayList<String>(); 
 	protected List<String> imports = new ArrayList<String>();
 	protected List<String> fieldsAsJsonObjectStrings = new ArrayList<String>();
-	protected List<String> annotations = new ArrayList<String>(); 
+	protected List<String> annotationsAsJsonObjectStrings = new ArrayList<String>(); 
 	
 	public String toString(){
 		return "javaImplementationName: " + javaImplementationName + " className: " + className + " path: " + path + " moduleDeclaration: " + moduleDeclaration
@@ -96,13 +98,22 @@ public abstract class JavaImplementation {
 		this.constructorsAsJsonObjectStrings = constructorsAsJsonObjectStrings;
 	}
 
-	public List<String> getAnnotations() {
-		return annotations;
+	public List<String> getAnnotationsAsJsonObjectStrings() {
+		return annotationsAsJsonObjectStrings;
 	}
 
-	public void setAnnotations(List<String> annotations) {
-		this.annotations = annotations;
+	public void setAnnotationsAsJsonObjectStrings(List<String> annotations) {
+		this.annotationsAsJsonObjectStrings = annotations;
 	}
+
+	public NodeType getNodeType() {
+		return nodeType;
+	}
+
+	public void setNodeType(NodeType nodeType) {
+		this.nodeType = nodeType;
+	}
+	
 	
 	
 	

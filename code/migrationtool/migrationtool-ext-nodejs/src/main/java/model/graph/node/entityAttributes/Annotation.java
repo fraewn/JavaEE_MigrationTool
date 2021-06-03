@@ -3,14 +3,14 @@ package model.graph.node.entityAttributes;
 import java.util.List;
 
 public class Annotation {
-	private String annotation; 
+	private String name; 
 	private List<AnnotationNameValuePair> parameters;
 	
 	public String getAnnotation() {
-		return annotation;
+		return name;
 	}
 	public void setAnnotation(String annotation) {
-		this.annotation = annotation;
+		this.name = annotation;
 	}
 	public List<AnnotationNameValuePair> getParameters() {
 		return parameters;
