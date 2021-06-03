@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.neo4j.driver.v1.*;
 
-import model.graph.genericAttributes.NodeType;
 import model.graph.node.ClassNode;
 import model.graph.node.JavaImplementation;
+import model.graph.relation.MethodCallRelation;
+import model.graph.types.NodeType;
+import model.graph.types.RelationType;
 
 // create class nodes in neo4j graph 
 public class GraphFoundationDAO implements AutoCloseable {
@@ -75,21 +77,6 @@ public class GraphFoundationDAO implements AutoCloseable {
 		return false; 
 	}
 	public boolean persistFullClassNode(JavaImplementation impl) throws Exception {
-		/*// id 
-		protected String javaImplementationName = "";
-		// String attributes 
-		protected String className = "";
-		protected String path = "";
-		protected String moduleDeclaration = "";
-		protected String completeClassCode = "";
-		// List<String> attributes 
-		protected List<String> modules = new ArrayList<String>();
-		private List<String> constructorsAsJsonObjectStrings = new ArrayList<String>();
-		protected List<String> implementedInterfaces = new ArrayList<String>(); 
-		protected List<String> extensions = new ArrayList<String>(); 
-		protected List<String> imports = new ArrayList<String>();
-		protected List<String> fieldsAsJsonObjectStrings = new ArrayList<String>();
-		protected List<String> annotationsAsJsonObjectStrings = new ArrayList<String>(); */
 		String mergeQuery = "MERGE (n:" + impl.getNodeType().toString() + " {name:'" + impl.getJavaClassName() + "'})";
 		String setQueryBegin = "SET n += { ";
 		String setQueryEnd = "}";
@@ -112,11 +99,27 @@ public class GraphFoundationDAO implements AutoCloseable {
 		}
 		return false; 
 	}
+	
 	// TODO refactor to generic method to write string array node property 
 	public boolean setListAttributeInClassNode(String className, String javaClassName, String nodeAttribute, List<String> jsonObjectListAsString) throws Exception {
 		System.out.println(jsonObjectListAsString.get(0));
 		System.out.println(jsonObjectListAsString.get(1));
 		query = "MATCH (c:Class {name:'" + javaClassName + "'}) SET c." + nodeAttribute + "= " + jsonObjectListAsString;
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+	}
+	
+	public boolean persistMethodCallRelation(MethodCallRelation methodCallRelation){
+		String relationType = RelationType.CALLS_METHOD.toString(); 
+		String callingJavaImplementation = methodCallRelation.getCallingJavaImplementation();
+		String callingJavaImplementationType = methodCallRelation.getCallingJavaImplementationType().toString(); 
+		String providingJavaImplementation = methodCallRelation.getProvidingJavaImplementation(); 
+		query = "MATCH (callingClass:" + callingJavaImplementationType + " {name:'" + callingJavaImplementation + "'}) "
+				+ "MATCH (providingClass {name:'" + providingJavaImplementation + "'}) "
+				+ "CREATE (callingClass)-[:" + relationType + "]->(providingClass)";
 		result = session.run(query);
 		if(result.summary() != null){
 			return true;

@@ -3,7 +3,7 @@ package model.graph.node;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.graph.genericAttributes.NodeType;
+import model.graph.types.NodeType;
 
 public abstract class JavaImplementation {
 	

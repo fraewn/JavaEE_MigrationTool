@@ -12,6 +12,7 @@ import model.graph.node.entityAttributes.Annotation;
 import model.graph.node.entityAttributes.AnnotationNameValuePair;
 import model.graph.relation.MethodCallRelation;
 import model.graph.relation.entityAttributes.Method;
+import model.graph.types.NodeType;
 import operations.ModelService;
 import operations.dto.ClassDTO;
 import parser.utils.AnnotationResolver;
@@ -29,6 +30,7 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.google.gson.Gson;
 
@@ -40,45 +42,23 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	List<ClassDTO> classDTOList = new ArrayList<ClassDTO>();
 
 	// method that inits the ETL and persistence processes
+	// hier kommt eine liste an dtos rein
+	// für jedes dto wird zunächst ein klassen knoten erstellt
+	// (=javaImplementation)
+	// danach wird geprüft ob es irgendwelche methoden/interface/extends
+	// abhängigkeiten gibt und die entsprechenden Kanten und fehlenden
+	// Knoten werden ebenfalls eingefügt
+	// danach wird auf entitäten und funktionalitäten geprüft und diese
+	// mittels Knoten und Kanten eingefügt
 	@Override
 	public String save(List<ClassDTO> input) {
+		System.out.println("----------starting reading from dto");
 		classDTOList = input;
 		List<JavaImplementation> javaImplementationsList = new ArrayList<JavaImplementation>();
-		
-		// hier kommt eine liste an dtos rein
-		// für jedes dto wird zunächst ein klassen knoten erstellt
-		// (=javaImplementation)
-		// danach wird geprüft ob es irgendwelche methoden/interface/extends
-		// abhängigkeiten gibt und die entsprechenden Kanten und fehlenden
-		// Knoten werden ebenfalls eingefügt
-		// danach wird auf entitäten und funktionalitäten geprüft und diese
-		// mittels Knoten und Kanten eingefügt
-		System.out.println("----------starting reading from dto");
 		for (ClassDTO classDTO : classDTOList) {
 			JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
-
-			// true, wenn die Annotation "javax.persistence.Entity" da drin ist,
-			// ansonsten false
-			// Type means class - jetzt sucht der am Klassenkopf die Annotation
-			// und sagt dann ob er da eine gefunden hat
-			// AnnotationVisitor annotationVisitor = new
-			// AnnotationVisitor("javax.persistence.Entity", TargetTypes.TYPE);
-			/*
-			 * System.out.print("\nHas Javax.Persistence.Entity: ");
-			 * System.out.println(Optional.ofNullable(classDTO.getJavaClass().
-			 * accept(annotationVisitor, null)).orElse(false));
-			 */
-			System.out.println(javaImplementation.toString());
-			// for(MethodDeclaration method : classDTO.getMethods()){
-			// System.out.println("Body: " + body);
-			// System.out.println(method.toString());
-			// manageClassPersistence("Test.zwei.drei", fieldsAsJsonObjects);
-			// }
 			javaImplementationsList.add(javaImplementation);
-		}
-		for(JavaImplementation javaImplementation: javaImplementationsList){
-		System.out.println(javaImplementation);
-			processPersistence(javaImplementation);
+			
 		}
 		System.out.println("----------stopping reading from dto");
 		return null;
@@ -86,7 +66,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 
 	// Persistence Management
 	// TODO: move to specific class for that
-	public void processPersistence(JavaImplementation javaImplementation) {
+	public void processPersistence(List<JavaImplementation> javaImplementationList) {
+
 		try {
 			String url = getEnvironment("remote", "ip", "port", "portType");
 			String username = getCredential("remote", "username");
@@ -95,8 +76,13 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 
 			GraphFoundationDAO graphFoundationDAO = GraphFoundationDAO.getInstance();
 			graphFoundationDAO.initConnection(url, username, password);
-			
-			graphFoundationDAO.persistFullClassNode(javaImplementation); 
+
+			// for(JavaImplementation javaImplementation:
+			// javaImplementationsList){
+			// System.out.println(javaImplementation);
+			// graphFoundationDAO.persistFullClassNode(javaImplementation);
+			// }
+
 			// graphFoundationDAO.getClassNode("BatchServiceImpl.java");
 			// boolean test = graphFoundationDAO.persistClassNode("TestClass",
 			// "TestClass.java");
@@ -112,6 +98,32 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			System.out.println(e.getStackTrace());
 		}
 	}
+	
+	public boolean persistAll(List<ClassDTO> classDTOList){
+		List<JavaImplementation> javaImplementationsList = new ArrayList<JavaImplementation>();
+		for (ClassDTO classDTO : classDTOList) {
+			// enthält den javaImplementation knoten (Class/AbstractClass/Interface) mit allen Attributen
+			
+			// 
+			JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
+			
+			// enthält alle ausgehenden Kanten des javaImplementation Knotens
+			List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
+			
+			
+			// persist sceleton node 
+			String type = javaImplementation.getNodeType().toString(); 
+			String javaClassName = javaImplementation.getJavaClassName(); 
+			
+			// 
+			javaImplementationsList.add(javaImplementation);
+		}
+		
+		return false; 
+		
+	}
+
+	
 
 	// GRAPH_NODES: Class, Abstract Class or Interface
 	public JavaImplementation transformClassDTOtoJavaImplementation(ClassDTO classDTO) {
@@ -126,16 +138,17 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		} else {
 			javaImplementation = new ClassNode();
 		}
-
+		
 		// set String variables
 		javaImplementation.setPath(classDTO.getFullName());
 		javaImplementation.setModules(convertGenericListToString(extractPathStructure(javaImplementation.getPath())));
-		javaImplementation.setClassName(extractPathStructure(javaImplementation.getPath()).get(javaImplementation.getModules().size() - 1));
+		javaImplementation.setClassName(
+				extractPathStructure(javaImplementation.getPath()).get(javaImplementation.getModules().size() - 1));
 		javaImplementation.setJavaClassName(javaImplementation.getClassName() + ".java");
 		javaImplementation.setCompleteClassCode(classDTO.getJavaClass().toString());
 		String moduleDeclaration = classDTO.getModuleDeclaration() == null ? "" : classDTO.getModuleDeclaration();
 		javaImplementation.setModuleDeclaration(moduleDeclaration);
-
+		
 		// set List<String> variables containing plain Strings
 		List<String> implementedInterfaces = new ArrayList<String>();
 		List<String> imports = new ArrayList<String>();
@@ -165,14 +178,38 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	}
 
 	// GRAPH_RELATION: MethodCall between Class, Interface and AbstractClass
-	// Nodes
-	public MethodCallRelation extractMethodRelation(List<MethodDeclaration> methodDeclarationList) {
-		MethodCallRelation methodCallRelation = new MethodCallRelation();
+	public List<MethodCallRelation> getMethodCallRelationList(ClassDTO classDTO) {
+		List<MethodCallRelation> methodCallRelationList = new ArrayList<MethodCallRelation>(); 
 		// methodCallRelation.setProvidingJavaImplementation(methodDeclaration.getClass().getName().toString());
-		for (MethodDeclaration methodDeclaration : methodDeclarationList) {
-			methodCallRelation.setMethod(transformDeclarationToMethod(methodDeclaration));
+		List<MethodCallExpr> methodCallExprs = classDTO.getJavaClass().findAll(MethodCallExpr.class);
+		List<String> modules = convertGenericListToString(extractPathStructure(classDTO.getFullName()));
+		String className = modules.get(modules.size()-1) + ".java";
+		NodeType implementationType; 
+		if (classDTO.getJavaClass().isInterface()) {
+			implementationType = NodeType.Interface; 
+		} else if (classDTO.getJavaClass().isAbstract()) {
+			implementationType = NodeType.AbstractClass; 
+		} else {
+			implementationType = NodeType.Class; 
 		}
-		return methodCallRelation;
+		for(MethodCallExpr n : methodCallExprs){
+			MethodCallRelation methodCallRelation = new MethodCallRelation();
+			methodCallRelation.setCallingJavaImplementation(className);
+			methodCallRelation.setCallingJavaImplementationType(implementationType);
+			try{
+			String method = n.getNameAsString();
+			//String callingClass = javaImplementation.getClassName();
+			methodCallRelation.setProvidingJavaImplementation(n.resolve().getQualifiedSignature() + ".java");
+			// Typ von der providing brauche ich ja eig nicht; name müsste als identifier reichen 
+			System.out.println(methodCallRelation.getCallingJavaImplementation() + " uses " + method  + "from " + methodCallRelation.getProvidingJavaImplementation());
+			}
+			catch(Exception e){
+				//System.out.println("Exception with method: " + n.getNameAsString());
+				//e.printStackTrace();
+				// do nothing
+			}
+		}
+		return methodCallRelationList;
 	}
 
 	// // ++++++++++++++++++++ Transformation Methods
@@ -369,5 +406,18 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			convertedObjects.add(annotationExpr.getNameAsString());
 		}
 		return convertedObjects;
+	}
+	public void visit() {
+		// true, wenn die Annotation "javax.persistence.Entity" da drin ist,
+		// ansonsten false
+		// Type means class - jetzt sucht der am Klassenkopf die Annotation
+		// und sagt dann ob er da eine gefunden hat
+		// AnnotationVisitor annotationVisitor = new
+		// AnnotationVisitor("javax.persistence.Entity", TargetTypes.TYPE);
+		/*
+		 * System.out.print("\nHas Javax.Persistence.Entity: ");
+		 * System.out.println(Optional.ofNullable(classDTO.getJavaClass().
+		 * accept(annotationVisitor, null)).orElse(false));
+		 */
 	}
 }

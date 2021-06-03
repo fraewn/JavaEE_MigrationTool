@@ -2,7 +2,7 @@ package model.graph.node;
 
 import java.util.List;
 
-import model.graph.genericAttributes.NodeType;
+import model.graph.types.NodeType;
 
 public class InterfaceNode extends JavaImplementation {
 	protected final NodeType nodeType = NodeType.Interface; 

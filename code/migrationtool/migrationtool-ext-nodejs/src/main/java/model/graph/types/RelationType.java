@@ -1,4 +1,4 @@
-package model.graph.genericAttributes;
+package model.graph.types;
 
 public enum RelationType {
 	IMPLEMENTS, EXTENDS, INJECTS, USES_FUNCTIONALITY, USES_ENTITY, USES_RESOURCE, USES_LIBRARY, BELONGS_TO, CALLS_METHOD;

@@ -1,15 +1,13 @@
 package model.graph.relation;
 
-import model.graph.genericAttributes.NodeType;
-import model.graph.node.ClassNode;
-import model.graph.node.JavaImplementation;
 import model.graph.relation.entityAttributes.Method;
+import model.graph.types.NodeType;
 
 public class MethodCallRelation {
 	// the method entity contains all attributes (annotations, parameters...) 
 	private Method method; 
 	// Methods can be provided and invoked by classes, interfaces or abstract classes
-	// die hab ich aber dann noch nicht deshalb STring
+	// die hab ich aber dann noch nicht deshalb String
 	// außerdem muss ich mir hier noch die Typen merken (Klasse, Interface, Abstract class)
 	private String callingJavaImplementationName;
 	private String providingJavaImplementationName; 

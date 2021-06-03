@@ -1,4 +1,4 @@
-package model.graph.genericAttributes;
+package model.graph.types;
 
 public enum NodeType {
 	Class("Class"), Interface("Interface"), AbstractClass("AbstractClass"), Entity("Entity"), Functionality("Functionality"), Resource("Resource"), 
