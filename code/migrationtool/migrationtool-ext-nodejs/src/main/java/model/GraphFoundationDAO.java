@@ -29,12 +29,16 @@ public class GraphFoundationDAO implements AutoCloseable {
 	Record record ;
 	String query="" ;
     StatementResult result;
+    
+    public void setSession(Session session){
+    	this.session = session; 
+    }
  
-	public void initConnection(String url, String username, String password){
+	/*public void initConnection(String url, String username, String password){
 		driver = GraphDatabase.driver(url, AuthTokens.basic(username, password));
 		session = driver.session(); 
 		System.out.println("+++++++++++++started connection++++++++");
-	}
+	}*/
 
 	@Override
 	public void close() throws Exception {
@@ -119,7 +123,8 @@ public class GraphFoundationDAO implements AutoCloseable {
 		String providingJavaImplementation = methodCallRelation.getProvidingJavaImplementation(); 
 		query = "MATCH (callingClass:" + callingJavaImplementationType + " {name:'" + callingJavaImplementation + "'}) "
 				+ "MATCH (providingClass {name:'" + providingJavaImplementation + "'}) "
-				+ "CREATE (callingClass)-[:" + relationType + "]->(providingClass)";
+				+ "MERGE (callingClass)-[:" + relationType + " {name:'" + methodCallRelation.getMethod() + "'}]->(providingClass)";
+		System.out.println(query);
 		result = session.run(query);
 		if(result.summary() != null){
 			return true;

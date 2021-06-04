@@ -5,7 +5,7 @@ import model.graph.types.NodeType;
 
 public class MethodCallRelation {
 	// the method entity contains all attributes (annotations, parameters...) 
-	private Method method; 
+	private String methodName; 
 	// Methods can be provided and invoked by classes, interfaces or abstract classes
 	// die hab ich aber dann noch nicht deshalb String
 	// außerdem muss ich mir hier noch die Typen merken (Klasse, Interface, Abstract class)
@@ -15,11 +15,11 @@ public class MethodCallRelation {
 	private NodeType callingJavaImplementationType;
 	private NodeType providingJavaImplementationType; 
 	
-	public Method getMethod() {
-		return method;
+	public String getMethod() {
+		return methodName;
 	}
-	public void setMethod(Method method) {
-		this.method = method;
+	public void setMethod(String methodName) {
+		this.methodName = methodName;
 	}
 	public String getCallingJavaImplementation() {
 		return callingJavaImplementationName;

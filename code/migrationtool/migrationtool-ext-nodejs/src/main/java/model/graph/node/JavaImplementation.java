@@ -114,6 +114,11 @@ public abstract class JavaImplementation {
 		this.nodeType = nodeType;
 	}
 	
+	// Die Methode ist nötig, da die neo4j-Datenbank keine Strings verarbeiten kann, in denen ' im Text vorkommt. Nur " ist erlaubt. 
+	public void cleanBody(){
+		this.completeClassCode = this.completeClassCode.replaceAll("'", "\"");
+	}
+	
 	
 	
 	
