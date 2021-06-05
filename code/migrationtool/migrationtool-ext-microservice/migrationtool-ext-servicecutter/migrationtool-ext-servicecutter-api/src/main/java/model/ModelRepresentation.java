@@ -28,6 +28,8 @@ public class ModelRepresentation {
 	public ModelRepresentation() {
 		this.name = UUID.randomUUID().toString().substring(0, 8);
 		this.generatedDate = new Date();
+		this.entityDiagram = new EntityRelationDiagram();
+		this.information = new ArchitectureInformation();
 	}
 
 	/**

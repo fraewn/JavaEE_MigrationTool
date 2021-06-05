@@ -1,11 +1,13 @@
 package rules;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public enum RuleDefinition {
+	/**
+	 *
+	 */
+	TAUTOLOGY(),
 	/**
 	 *
 	 */
@@ -13,33 +15,52 @@ public enum RuleDefinition {
 	/**
 	 *
 	 */
-	TYPEDEFINITION("type"),
+	INHERITENCE("name"),
 	/**
 	 *
 	 */
-	MODIFIER("type");
+	COMPOSITION("name"),
+	/**
+	 *
+	 */
+	AGGREGATION("name", "type"),
+	/**
+	 *
+	 */
+	MODIFIER("type"),
+	/**
+	 *
+	 */
+	ASSIGN("name"),
+	/**
+	 *
+	 */
+	TYPED_CALL("name", "methods"),
+	/**
+	 *
+	 */
+	METHOD("class", "name"),
+	/**
+	 *
+	 */
+	METHOD_CALL("class", "name", "arg"),
+	/**
+	 *
+	 */
+	METHOD_RETURN("name"),
+	/**
+	 *
+	 */
+	METHOD_ARG("name"),
+	/**
+	 *
+	 */
+	METHOD_CALL_ARG("name");
 
 	private List<String> requiredArgs;
 
-	private Map<String, String> args;
-
-	private RuleDefinition(String... requiredArgs) {
+	RuleDefinition(String... requiredArgs) {
 		this.requiredArgs = Arrays.asList(requiredArgs);
-		this.args = new HashMap<>();
-	}
-
-	/**
-	 * @return the args
-	 */
-	public Map<String, String> getArgs() {
-		return this.args;
-	}
-
-	/**
-	 * @param args the args to set
-	 */
-	public void setArgs(Map<String, String> args) {
-		this.args = args;
 	}
 
 	/**
@@ -51,6 +72,6 @@ public enum RuleDefinition {
 
 	@Override
 	public String toString() {
-		return super.toString().toLowerCase() + this.args.toString();
+		return super.toString().toLowerCase();
 	}
 }

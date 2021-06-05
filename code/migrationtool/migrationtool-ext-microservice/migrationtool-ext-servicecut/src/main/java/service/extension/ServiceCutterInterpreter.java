@@ -1,6 +1,7 @@
 package service.extension;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,23 +9,23 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.Option;
 
+import exceptions.GraphRuntimeException;
 import exceptions.MigrationToolInitException;
-import exceptions.MigrationToolRuntimeException;
+import graph.clustering.ClusterAlgorithms;
+import graph.clustering.SolverConfiguration;
+import graph.model.AdjacencyList;
+import graph.processing.GraphProcessingSteps;
+import graph.processing.ProcessAutomate;
 import model.ModelRepresentation;
 import model.Result;
 import model.criteria.CouplingCriteria;
-import model.data.Priorities;
+import model.priorities.Priorities;
 import operations.InterpreterService;
-import processing.GraphProcessingSteps;
-import processing.ProcessAutomate;
 import service.LocalVisualizer;
 import service.ServiceCutterService;
 import service.ServiceCutterServiceImpl;
-import solver.ClusterAlgorithms;
-import solver.SolverConfiguration;
-import ui.AdjacencyMatrix;
-import ui.Visualizer;
-import ui.VisualizerDummy;
+import service.gui.Visualizer;
+import service.gui.VisualizerAdapter;
 import utils.JsonConverter;
 import utils.PropertiesLoader;
 
@@ -51,6 +52,9 @@ public class ServiceCutterInterpreter extends InterpreterService<String, Object>
 	@Option(name = "-pathResultFile", usage = "path to result file with the solved cluster")
 	private String pathResultFile;
 
+	@Option(name = "-resultFile", usage = "name of the result file")
+	private String resultFile;
+
 	private PropertiesLoader loaderAlgo;
 
 	private PropertiesLoader loaderPrio;
@@ -73,7 +77,7 @@ public class ServiceCutterInterpreter extends InterpreterService<String, Object>
 		try {
 			execute();
 		} catch (Exception e) {
-			throw new MigrationToolRuntimeException(e.getMessage(), e);
+			throw new GraphRuntimeException(e.getMessage(), e);
 		}
 		return null;
 	}
@@ -87,10 +91,11 @@ public class ServiceCutterInterpreter extends InterpreterService<String, Object>
 		}
 		this.file = new File(input);
 		this.imp = new ServiceCutterServiceImpl();
-		this.visual = this.visualization ? new LocalVisualizer() : new VisualizerDummy();
+		this.visual = this.visualization ? new LocalVisualizer() : new VisualizerAdapter();
 		this.currentStep = GraphProcessingSteps.EDIT_MODEL;
 		this.rep = JsonConverter.readJsonFromFile(this.file, ModelRepresentation.class);
 		this.pathResultFile = this.pathResultFile == null ? "" : this.pathResultFile;
+		this.resultFile = this.resultFile == null ? "result" : this.resultFile;
 		if (!this.visualization) {
 			this.loaderPrio = new PropertiesLoader(this.pathToPropertiesFile);
 			this.loaderPrio.loadProps(false);
@@ -118,9 +123,9 @@ public class ServiceCutterInterpreter extends InterpreterService<String, Object>
 				executeWeightCalculation();
 				break;
 			case SOLVE_CLUSTER:
-				executeSolveCluster();
+				executeSolveCluster(true);
 				break;
-			case FINISHED:
+			case SAVE_RESULT:
 				executeFinishedCluster();
 				break;
 			default:
@@ -129,10 +134,8 @@ public class ServiceCutterInterpreter extends InterpreterService<String, Object>
 			LOG.info("Finished Process step: " + this.currentStep.toString());
 			this.currentStep = this.currentStep.nextStep();
 		} while (!this.currentStep.isProcessDone());
-	}
-
-	private void executeFinishedCluster() {
-
+		LOG.info("Finished Process");
+		this.visual.stop();
 	}
 
 	private void executeEditModel() {
@@ -168,8 +171,8 @@ public class ServiceCutterInterpreter extends InterpreterService<String, Object>
 		do {
 			this.imp.process(this.currentStep, substep);
 			if (this.debug) {
-				AdjacencyMatrix matrix = this.imp.getCurrentGraphState();
-				this.visual.visualizeGraph(matrix);
+				AdjacencyList adjList = this.imp.getCurrentGraphState();
+				this.visual.visualizeGraph(adjList);
 				String s = this.currentStep.name() + "/" + substep.name();
 				this.visual.setProgress(s, this.currentStep.getProcentOfProgress(substep.ordinal()));
 				this.visual.awaitApproval(this.currentStep);
@@ -184,8 +187,8 @@ public class ServiceCutterInterpreter extends InterpreterService<String, Object>
 		do {
 			this.imp.process(this.currentStep, substep);
 			if (this.debug) {
-				AdjacencyMatrix matrix = this.imp.getCurrentGraphState();
-				this.visual.visualizeGraph(matrix);
+				AdjacencyList adjList = this.imp.getCurrentGraphState();
+				this.visual.visualizeGraph(adjList);
 				String s = this.currentStep.name() + "/" + substep.name();
 				this.visual.setProgress(s, this.currentStep.getProcentOfProgress(substep.ordinal()));
 				this.visual.awaitApproval(this.currentStep);
@@ -194,16 +197,22 @@ public class ServiceCutterInterpreter extends InterpreterService<String, Object>
 		} while (!this.currentStep.finishedState().equals(substep));
 	}
 
-	private void executeSolveCluster() {
+	private void executeSolveCluster(boolean wait) {
 		LOG.info("Import Priorities from " + (this.visualization ? "GUI" : "File"));
 		Map<CouplingCriteria, Priorities> priorities = new HashMap<>();
 		Map<String, String> settings = new HashMap<>();
 		ClusterAlgorithms algorithmn = null;
 		if (this.visualization) {
+			// first show with no debug
+			if (!this.debug) {
+				this.visual.visualizeGraph(this.imp.getCurrentGraphState());
+			}
 			// Priorities from GUI
 			String s = this.currentStep.name();
 			this.visual.setProgress(s, this.currentStep.getProcentOfProgress());
-			this.visual.awaitApproval(this.currentStep);
+			if (wait) {
+				this.visual.awaitApproval(this.currentStep);
+			}
 			priorities.putAll(this.visual.getPriorities());
 			settings.putAll(this.visual.getSettings());
 			algorithmn = this.visual.getSelectedAlgorithmn();
@@ -222,17 +231,39 @@ public class ServiceCutterInterpreter extends InterpreterService<String, Object>
 			}
 		}
 		if (priorities.size() != CouplingCriteria.values().length) {
-			throw new MigrationToolRuntimeException("Priority list is not complete");
+			throw new GraphRuntimeException("Priority list is not complete");
 		}
 		if (algorithmn == null) {
-			throw new MigrationToolRuntimeException("No Algorithmn selected");
+			throw new GraphRuntimeException("No Algorithmn selected");
 		}
 		SolverConfiguration config = new SolverConfiguration();
 		config.getConfig().putAll(settings);
-		this.imp.solveCluster(algorithmn, config, priorities);
+		this.result = this.imp.solveCluster(algorithmn, config, priorities);
 		LOG.info("Solve cluster successfull");
-		if (this.visualization) {
-			this.visual.visualizeCluster(this.imp.getCurrentGraphState());
+		this.visual.visualizeCluster(this.imp.getCurrentResultGraphState());
+	}
+
+	private void executeFinishedCluster() {
+		String s = this.currentStep.name();
+		this.visual.setProgress(s, this.currentStep.getProcentOfProgress());
+		LOG.info("Wait for completion");
+		boolean undo = this.visual.awaitApproval(this.currentStep);
+		if (undo) {
+			LOG.info("User calculates new cluster");
+			this.currentStep = this.currentStep.previousStep();
+			executeSolveCluster(false);
+		} else {
+			File res = new File(this.pathResultFile + this.resultFile + ".json");
+			if (res.exists()) {
+				LOG.warn("Override: " + res.getName());
+				res.delete();
+			}
+			try {
+				res.createNewFile();
+				JsonConverter.getMapper().writeValue(res, this.result);
+			} catch (IOException e) {
+				LOG.error(e.getMessage(), e);
+			}
 		}
 	}
 }

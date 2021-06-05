@@ -2,9 +2,9 @@ package resolver;
 
 import java.util.List;
 
-import core.CouplingGroup;
-import core.Edge;
-import core.Node;
+import model.CouplingGroup;
+import model.Edge;
+import model.Node;
 import model.criteria.CompabilityCharacteristics;
 import model.criteria.CompabilityMapper;
 import model.data.Characteristic;
@@ -25,7 +25,7 @@ public class CSCharacteristics extends CriteriaScorerWrapper {
 	private void addPenalityToEdges(Edge currentEdge, CouplingGroup relatedGroup,
 			CompabilityCharacteristics currentCC) {
 		Node origin = currentEdge.getFirstNode();
-		for (Edge edge : this.graph.getEdges().keySet()) {
+		for (Edge edge : this.graph.getAllEdges()) {
 			if (edge.getFirstNode().equals(origin)) {
 				// check same group
 				if (!relatedGroup.getRelatedEdges().contains(edge)) {

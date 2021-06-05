@@ -20,6 +20,8 @@ import com.github.javaparser.utils.ParserCollectionStrategy;
 import com.github.javaparser.utils.ProjectRoot;
 import com.github.javaparser.utils.SourceRoot;
 
+import exceptions.MigrationToolRuntimeException;
+
 public class LoadSourcesServiceImpl implements LoadSourcesService {
 	/** LOGGER */
 	private static final Logger LOG = Logger.getLogger(LoadSourcesServiceImpl.class);
@@ -36,24 +38,28 @@ public class LoadSourcesServiceImpl implements LoadSourcesService {
 			CombinedTypeSolver solver = new CombinedTypeSolver();
 			// add java classes
 			solver.add(new ReflectionTypeSolver());
+			LOG.info("Searching for dependency jars in root folder");
 			for (String pathJar : pathsToJars) {
-				LOG.debug("jarFound: " + pathJar);
+				LOG.debug("Found dependency: " + pathJar);
 				// add dependency jars
 				solver.add(new JarTypeSolver(pathJar));
 			}
+			LOG.info(pathsToJars.size() + " dependencies found");
 			JavaSymbolSolver symbolSolver = new JavaSymbolSolver(solver);
 			ParserConfiguration conf = new ParserConfiguration();
 			conf.setSymbolResolver(symbolSolver);
 			// parse classes
 			this.rootDirectory = new ParserCollectionStrategy(conf).collect(new File(path).toPath());
+			LOG.info("Searching for source directories in root folder");
 			for (SourceRoot source : this.rootDirectory.getSourceRoots()) {
 				// add the analyzed project
+				LOG.debug("Found root directory: " + source.getRoot().toString());
 				solver.add(new JavaParserTypeSolver(source.getRoot()));
 				source.tryToParse();
 			}
-			LOG.debug("Parsed all classes");
+			LOG.info("Parsed all classes");
 		} catch (IOException e) {
-			LOG.error(e.getMessage(), e);
+			throw new MigrationToolRuntimeException(e.getMessage());
 		}
 	}
 

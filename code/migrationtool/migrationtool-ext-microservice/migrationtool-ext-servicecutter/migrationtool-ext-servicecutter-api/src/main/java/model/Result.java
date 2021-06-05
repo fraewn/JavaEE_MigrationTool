@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import model.service.ServiceCut;
+import model.serviceDefintion.ServiceCut;
 
 public class Result {
 

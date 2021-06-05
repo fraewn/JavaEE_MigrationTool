@@ -1,0 +1,39 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>thesis.hbrs</groupId>
+		<artifactId>migrationtool-ext-servicecutter</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>migrationtool-ext-servicecutter-core</artifactId>
+
+	<properties>
+		<watset-version>2.6.1</watset-version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>thesis.hbrs</groupId>
+			<artifactId>migrationtool-ext-servicecutter-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.graphstream</groupId>
+			<artifactId>gs-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.graphstream</groupId>
+			<artifactId>gs-algo</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.nlpub</groupId>
+			<artifactId>watset</artifactId>
+			<version>${watset-version}</version>
+		</dependency>
+	</dependencies>
+</project>

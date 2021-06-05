@@ -4,9 +4,9 @@ import static model.criteria.CouplingGroup.COHESIVENESS;
 import static model.criteria.CouplingGroup.COMPATIBILITY;
 import static model.criteria.CouplingGroup.CONSTRAINTS;
 
+import graph.processing.ProcessAutomate;
 import model.data.Instance;
 import model.data.UseCase;
-import processing.ProcessAutomate;
 
 /**
  * Coupling Criteria

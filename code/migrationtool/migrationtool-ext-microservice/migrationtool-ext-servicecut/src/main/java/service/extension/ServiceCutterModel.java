@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.kohsuke.args4j.Option;
 
 import core.Analyzer;
+import exceptions.MigrationToolRuntimeException;
 import model.ModelRepresentation;
 import operations.ModelService;
 import operations.dto.ClassDTO;
@@ -42,9 +43,9 @@ public class ServiceCutterModel extends ModelService<List<ClassDTO>, String> {
 		}
 		try {
 			this.resultFile.createNewFile();
-			JsonConverter.getMapper().writeValue(this.resultFile, rep);
+			JsonConverter.getMapper().writerWithDefaultPrettyPrinter().writeValue(this.resultFile, rep);
 		} catch (IOException e) {
-			LOG.error(e.getMessage(), e);
+			throw new MigrationToolRuntimeException(e.getMessage());
 		}
 		return this.resultFile == null ? null : this.resultFile.getAbsolutePath();
 	}

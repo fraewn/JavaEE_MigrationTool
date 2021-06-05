@@ -2,9 +2,9 @@ package resolver;
 
 import java.util.Map;
 
-import core.CouplingGroup;
-import core.Edge;
-import core.Graph;
+import model.CouplingGroup;
+import model.Edge;
+import model.Graph;
 
 public interface CriteriaScorer {
 

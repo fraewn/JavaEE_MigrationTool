@@ -3,14 +3,14 @@ package service;
 import java.util.Map;
 
 import application.Appl;
+import graph.clustering.ClusterAlgorithms;
+import graph.model.AdjacencyList;
+import graph.processing.GraphProcessingSteps;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import model.criteria.CouplingCriteria;
-import model.data.Priorities;
-import processing.GraphProcessingSteps;
-import solver.ClusterAlgorithms;
-import ui.AdjacencyMatrix;
-import ui.Visualizer;
+import model.priorities.Priorities;
+import service.gui.Visualizer;
 
 public class LocalVisualizer implements Visualizer {
 
@@ -29,9 +29,9 @@ public class LocalVisualizer implements Visualizer {
 	}
 
 	@Override
-	public void visualizeGraph(AdjacencyMatrix matrix) {
+	public void visualizeGraph(AdjacencyList adjList) {
 		try {
-			this.appl.visualizeGraph(matrix);
+			this.appl.visualizeGraph(adjList);
 		} catch (Exception e) {
 			this.appl.shutdown();
 			throw new RuntimeException(e);
@@ -39,9 +39,13 @@ public class LocalVisualizer implements Visualizer {
 	}
 
 	@Override
-	public void visualizeCluster(AdjacencyMatrix matrix) {
-		// TODO Auto-generated method stub
-
+	public void visualizeCluster(AdjacencyList adjList) {
+		try {
+			this.appl.visualizeCluster(adjList);
+		} catch (Exception e) {
+			this.appl.shutdown();
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -66,29 +70,27 @@ public class LocalVisualizer implements Visualizer {
 
 	@Override
 	public Map<String, String> getSettings() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.appl.getSettings();
 	}
 
 	@Override
 	public ClusterAlgorithms getSelectedAlgorithmn() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.appl.getSelectedAlgorithmn();
 	}
 
 	@Override
 	public Map<CouplingCriteria, Priorities> getPriorities() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.appl.getPriorities();
 	}
 
 	@Override
-	public void awaitApproval(GraphProcessingSteps step) {
+	public boolean awaitApproval(GraphProcessingSteps step) {
 		try {
 			this.appl.awaitApproval(step);
 			while (!this.appl.isApproved(step)) {
 				Thread.sleep(500);
 			}
+			return this.appl.isUndo(step);
 		} catch (Exception e) {
 			this.appl.shutdown();
 			throw new RuntimeException(e);
@@ -99,5 +101,10 @@ public class LocalVisualizer implements Visualizer {
 	public void undoStep(GraphProcessingSteps step) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void stop() {
+		this.appl.shutdown();
 	}
 }

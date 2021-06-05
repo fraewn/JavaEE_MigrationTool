@@ -1,15 +1,16 @@
 package resolver;
 
-import static resolver.Scores.MAX_SCORE;
+import static utils.DefinitionDomain.MAX_SCORE;
 
-import core.CouplingGroup;
-import core.Edge;
+import model.CouplingGroup;
+import model.Edge;
+import utils.DefinitionDomain;
 
 public class CSCohesiveGroup extends CriteriaScorerWrapper {
 
 	@Override
 	public double getScore(Edge currentEdge, CouplingGroup relatedGroup) {
-		return Scores.getScore(MAX_SCORE);
+		return DefinitionDomain.getScore(MAX_SCORE);
 	}
 
 }

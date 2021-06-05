@@ -8,19 +8,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import core.CouplingGroup;
-import core.Edge;
-import core.Graph;
-import core.Node;
+import model.CouplingGroup;
+import model.Edge;
+import model.Graph;
+import model.Node;
 import model.Result;
-import model.criteria.ArchitectureArtifact;
+import model.artifacts.ArchitectureArtifact;
 import model.criteria.CouplingCriteria;
 import model.data.Instance;
-import model.data.Priorities;
 import model.data.UseCase;
-import model.service.Direction;
-import model.service.Service;
-import model.service.ServiceRelation;
+import model.priorities.Priorities;
+import model.serviceDefintion.Direction;
+import model.serviceDefintion.Service;
+import model.serviceDefintion.ServiceRelation;
 
 public class Analyzer {
 
@@ -53,6 +53,18 @@ public class Analyzer {
 					responsible = service;
 				}
 			}
+			if (responsible == null) {
+				// Second check, there is no edge only one node
+				for (Service service : services) {
+					long count = service.getInstances().stream().filter(x -> group.getRelatedNodes().contains(x))
+							.count();
+					double score = count;
+					if (score > highestScore) {
+						highestScore = score;
+						responsible = service;
+					}
+				}
+			}
 			Map<Service, List<UseCase>> map = res.getIsolatedServices().getRelatedUseCases();
 			UseCase useCase = new UseCase();
 			useCase.setInput(group.getOrigins().stream().map(Node::getInstance).collect(Collectors.toList()));
@@ -72,7 +84,7 @@ public class Analyzer {
 	private static void findRelatedServices(Result res, Graph graph, Map<CouplingCriteria, Priorities> priorities) {
 		Map<Service, List<UseCase>> useCases = res.getIsolatedServices().getRelatedUseCases();
 		List<Service> serviceList = new ArrayList<>(res.getIsolatedServices().getServices());
-		List<ServiceRelation> relations = new ArrayList<>();
+		List<ServiceRelation> relations = res.getIsolatedServices().getRelations();
 
 		for (int a = 0; a < (serviceList.size() - 1); a++) {
 			for (int b = a + 1; b < serviceList.size(); b++) {
@@ -84,6 +96,7 @@ public class Analyzer {
 				}
 			}
 		}
+
 	}
 
 	private static ServiceRelation createServiceRelation(Service serviceA, Service serviceB,
@@ -131,11 +144,9 @@ public class Analyzer {
 		double score = 0d;
 		for (Instance instanceA : serviceA.getInstances()) {
 			for (Instance instanceB : serviceB.getInstances()) {
-				Edge searchedEdge = new Edge();
-				searchedEdge.setFirstNode(new Node(instanceA));
-				searchedEdge.setSecondNode(new Node(instanceB));
-				if (graph.getEdges().containsKey(searchedEdge)) {
-					Map<CouplingCriteria, Double> scores = graph.getEdges().get(searchedEdge);
+				Edge searchedEdge = new Edge(new Node(instanceA), new Node(instanceB));
+				if (graph.hasEdge(searchedEdge)) {
+					Map<CouplingCriteria, Double> scores = graph.getEdge(searchedEdge).getWeight().getWeight();
 					List<CouplingCriteria> list = Collections.singletonList(CouplingCriteria.SEMANTIC_PROXIMITY);
 					for (CouplingCriteria criteria : list) {
 						if (scores.containsKey(criteria)) {

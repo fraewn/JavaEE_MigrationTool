@@ -4,31 +4,34 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.graphstream.algorithm.community.Leung;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
-import core.Graph;
+import graph.clustering.SolverConfiguration;
 import model.Result;
-import model.criteria.CouplingCriteria;
-import model.data.Priorities;
 
 public class LeungAlgorithmn extends SolverWrapper<Node, Edge> {
 
 	private static final String WEIGHT = "weight";
 	private SingleGraph graph;
 
-	public LeungAlgorithmn(Graph originGraph, Map<CouplingCriteria, Priorities> priorities) {
-		super(originGraph, priorities);
+	private static final String M = "0.1";
+	private static final String DELTA = "0.05";
+
+	@Override
+	protected void initialize() {
 		this.graph = new SingleGraph("ServiceGraph");
 	}
 
 	@Override
 	public Result solve(SolverConfiguration config) {
-		String paramM = config.getConfig().get(SolverConfiguration.LEUNG_PARAM_M);
-		String paramDelta = config.getConfig().get(SolverConfiguration.LEUNG_PARAM_DELTA);
+		String paramM = Optional.ofNullable(config.getConfig().get(SolverConfiguration.LEUNG_PARAM_M)).orElse(M);
+		String paramDelta = Optional.ofNullable(config.getConfig().get(SolverConfiguration.LEUNG_PARAM_DELTA))
+				.orElse(DELTA);
 		Leung leung = new Leung(this.graph, null, WEIGHT);
 		leung.setParameters(Double.valueOf(paramM), Double.valueOf(paramDelta));
 		leung.compute();
@@ -42,15 +45,13 @@ public class LeungAlgorithmn extends SolverWrapper<Node, Edge> {
 	}
 
 	@Override
-	protected void createNode(core.Node node) {
-		this.graph.addNode(node.getInstance().getQualifiedName());
+	protected void createNode(String node) {
+		this.graph.addNode(node);
 	}
 
 	@Override
-	protected void createEdge(core.Edge edge, double weight) {
-		String firstName = edge.getFirstNode().getInstance().getQualifiedName();
-		String secondName = edge.getSecondNode().getInstance().getQualifiedName();
-		Edge res = this.graph.addEdge(firstName + "-" + secondName, firstName, secondName);
+	protected void createEdge(String originVertex, String destinationVertex, double weight) {
+		Edge res = this.graph.addEdge(originVertex + "-" + destinationVertex, originVertex, destinationVertex);
 		res.setAttribute(WEIGHT, weight);
 	}
 }

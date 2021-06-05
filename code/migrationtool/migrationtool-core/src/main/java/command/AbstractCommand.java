@@ -2,6 +2,8 @@ package command;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineParser;
@@ -83,7 +85,9 @@ public abstract class AbstractCommand extends CommandExtension {
 		for (ProcessingStep<?, ?> commandStep : this.steps) {
 			LOG.info(">" + commandStep.getClass().getSimpleName());
 		}
+		String breakLine = IntStream.range(0, 30).boxed().map(x -> "+").collect(Collectors.joining());
 		LOG.info("Execute...");
+		LOG.info(breakLine);
 		Pipeline pipeline = new Pipeline<>();
 		for (ProcessingStep<?, ?> commandStep : this.steps) {
 			// push unknown arguments to service definition
@@ -92,6 +96,7 @@ public abstract class AbstractCommand extends CommandExtension {
 		}
 		pipeline.execute(null);
 		afterExecution();
+		LOG.info(breakLine);
 		LOG.info("Done...");
 	}
 

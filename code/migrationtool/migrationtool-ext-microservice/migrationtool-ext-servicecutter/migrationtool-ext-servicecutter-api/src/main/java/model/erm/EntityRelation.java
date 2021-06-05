@@ -1,9 +1,11 @@
 package model.erm;
 
+import java.util.Comparator;
+
 /**
  * Describes a relation between two entities
  */
-public class EntityRelation {
+public class EntityRelation implements Comparator<EntityRelation>, Comparable<EntityRelation> {
 
 	/** entity origin */
 	private Entity origin;
@@ -62,5 +64,42 @@ public class EntityRelation {
 	 */
 	public void setType(RelationType type) {
 		this.type = type;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ((obj == null) || (obj.getClass() != this.getClass())) {
+			return false;
+		}
+		final EntityRelation other = (EntityRelation) obj;
+		if ((this.origin == null) ? (other.origin != null) : !this.origin.equals(other.origin)) {
+			return false;
+		}
+		if ((this.destination == null) ? (other.destination != null) : !this.destination.equals(other.destination)) {
+			return false;
+		}
+		if ((this.type == null) ? (other.type != null) : !this.type.equals(other.type)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 3;
+		hash = (53 * hash) + (this.origin != null ? this.origin.hashCode() : 0);
+		hash = (53 * hash) + (this.destination != null ? this.destination.hashCode() : 0);
+		hash = (53 * hash) + (this.type != null ? this.type.hashCode() : 0);
+		return hash;
+	}
+
+	@Override
+	public int compare(EntityRelation i1, EntityRelation i2) {
+		return i1.getOrigin().compareTo(i2.getOrigin()) + i1.getDestination().compareTo(i2.getDestination());
+	}
+
+	@Override
+	public int compareTo(EntityRelation o) {
+		return getOrigin().compareTo(o.getOrigin()) + getDestination().compareTo(o.getDestination());
 	}
 }

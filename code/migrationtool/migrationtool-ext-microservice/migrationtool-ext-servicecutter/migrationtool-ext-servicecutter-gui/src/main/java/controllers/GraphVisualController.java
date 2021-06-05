@@ -5,15 +5,15 @@ import org.graphstream.ui.fx_viewer.FxViewPanel;
 import com.jfoenix.controls.JFXButton;
 
 import data.GraphViewer;
+import graph.model.AdjacencyList;
+import graph.processing.GraphProcessingSteps;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
-import processing.GraphProcessingSteps;
-import ui.AdjacencyMatrix;
 import utils.LayoutUtils;
 import visualization.ChildController;
 import visualization.ParentController;
 
-public class GraphVisualController implements ChildController<AdjacencyMatrix> {
+public class GraphVisualController implements ChildController {
 
 	private GraphViewer viewerGraph;
 
@@ -61,8 +61,22 @@ public class GraphVisualController implements ChildController<AdjacencyMatrix> {
 	}
 
 	@Override
-	public void refreshContent(AdjacencyMatrix dto) {
-		this.viewerGraph.update(dto);
+	public <T> void refreshModel(T dto) {
+		if (dto instanceof AdjacencyList) {
+			if ((this.currentStep != null) && (this.currentStep.equals(GraphProcessingSteps.SOLVE_CLUSTER)
+					|| this.currentStep.equals(GraphProcessingSteps.SAVE_RESULT))) {
+				this.viewerCluster.reset();
+				this.viewerCluster.update((AdjacencyList) dto);
+			} else {
+				this.viewerGraph.update((AdjacencyList) dto);
+			}
+		}
+
+	}
+
+	@Override
+	public <T> T getModel() {
+		return null;
 	}
 
 	@Override
@@ -74,7 +88,7 @@ public class GraphVisualController implements ChildController<AdjacencyMatrix> {
 		case CALC_WEIGHT:
 			this.debugNext.setDisable(false);
 			break;
-		case FINISHED:
+		case SAVE_RESULT:
 			this.save.setDisable(false);
 		default:
 			break;
@@ -82,16 +96,18 @@ public class GraphVisualController implements ChildController<AdjacencyMatrix> {
 	}
 
 	public void executeDebugPreviousAction() {
-		this.controller.approve(this.currentStep);
+		this.controller.approve(this.currentStep, true);
+		this.debugPrevious.setDisable(true);
 	}
 
 	public void executeDebugNextAction() {
-		this.controller.approve(this.currentStep);
+		this.controller.approve(this.currentStep, false);
 		this.debugNext.setDisable(true);
 	}
 
 	public void executeSaveAction() {
-
+		this.controller.approve(this.currentStep, false);
+		this.save.setDisable(true);
 	}
 
 }

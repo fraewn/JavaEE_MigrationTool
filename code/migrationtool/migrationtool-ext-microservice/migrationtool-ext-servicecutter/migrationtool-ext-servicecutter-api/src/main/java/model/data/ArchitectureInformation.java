@@ -1,8 +1,11 @@
 package model.data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import model.artifacts.ArchitectureArtifact;
 import model.criteria.CouplingCriteria;
 
 /**
@@ -13,9 +16,15 @@ public class ArchitectureInformation {
 	/** list of use cases alias transactions */
 	private List<UseCase> useCases;
 	/** software system artifacts */
-	private Map<CouplingCriteria, List<ContextGroup>> criteria;
+	private Map<ArchitectureArtifact, List<ContextGroup>> criteria;
 	/** criteria of the group compatibility */
 	private Map<CouplingCriteria, List<Characteristic>> compatibilities;
+
+	public ArchitectureInformation() {
+		this.useCases = new ArrayList<>();
+		this.criteria = new HashMap<>();
+		this.compatibilities = new HashMap<>();
+	}
 
 	/**
 	 * @return the useCases
@@ -34,14 +43,14 @@ public class ArchitectureInformation {
 	/**
 	 * @return the criteria
 	 */
-	public Map<CouplingCriteria, List<ContextGroup>> getCriteria() {
+	public Map<ArchitectureArtifact, List<ContextGroup>> getCriteria() {
 		return this.criteria;
 	}
 
 	/**
 	 * @param criteria the criteria to set
 	 */
-	public void setCriteria(Map<CouplingCriteria, List<ContextGroup>> criteria) {
+	public void setCriteria(Map<ArchitectureArtifact, List<ContextGroup>> criteria) {
 		this.criteria = criteria;
 	}
 

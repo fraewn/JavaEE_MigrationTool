@@ -5,6 +5,18 @@ package data;
  */
 public enum ModifierTypes {
 	/**
+	 * Declaration private
+	 */
+	PRIVATE,
+	/**
+	 * Declaration protected
+	 */
+	PROTECTED,
+	/**
+	 * Declaration public
+	 */
+	PUBLIC,
+	/**
 	 * Declaration final
 	 */
 	FINAL,

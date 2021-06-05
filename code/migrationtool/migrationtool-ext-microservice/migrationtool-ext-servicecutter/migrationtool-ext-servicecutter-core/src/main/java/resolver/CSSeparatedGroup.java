@@ -1,13 +1,14 @@
 package resolver;
 
-import static resolver.Scores.MIN_SCORE;
+import static utils.DefinitionDomain.MIN_SCORE;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import core.CouplingGroup;
-import core.Edge;
+import model.CouplingGroup;
+import model.Edge;
+import utils.DefinitionDomain;
 
 public class CSSeparatedGroup extends CriteriaScorerWrapper {
 
@@ -18,7 +19,7 @@ public class CSSeparatedGroup extends CriteriaScorerWrapper {
 		for (CouplingGroup group : otherGroups) {
 			otherEdges.addAll(group.getRelatedEdges());
 		}
-		addPenalityToEdges(Scores.getScore(MIN_SCORE), currentEdge, relatedGroup.getRelatedEdges(), otherEdges,
+		addPenalityToEdges(DefinitionDomain.getScore(MIN_SCORE), currentEdge, relatedGroup.getRelatedEdges(), otherEdges,
 				relatedGroup.getCriteria());
 		return 0;
 	}
