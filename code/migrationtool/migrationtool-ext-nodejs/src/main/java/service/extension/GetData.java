@@ -16,6 +16,7 @@ import model.graph.types.NodeType;
 import operations.ModelService;
 import operations.dto.ClassDTO;
 import parser.utils.AnnotationResolver;
+import parser.visitors.AnnotationVisitor;
 import service.persistence.Neo4jConnection;
 
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.google.gson.Gson;
+
+import data.TargetTypes;
 
 import org.ini4j.Ini;
 import java.io.File;
@@ -58,10 +61,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		System.out.println("----------starting reading from dto");
 		persistFoundation(classDTOList);
 		/*
-		 * List<JavaImplementation> javaImplementationsList = new
-		 * ArrayList<JavaImplementation>(); for (ClassDTO classDTO :
-		 * classDTOList) { JavaImplementation javaImplementation =
-		 * transformClassDTOtoJavaImplementation(classDTO);
+		 * for (ClassDTO classDTO : classDTOList) { JavaImplementation
+		 * javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
 		 * javaImplementationsList.add(javaImplementation);
 		 * 
 		 * }
@@ -73,77 +74,54 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	// persist javaImplementations (class, Abstract, Interface nodes) and
 	// methods calls (edges)
 	public boolean persistFoundation(List<ClassDTO> classDTOList) {
-		boolean result = true; 
+		boolean result = true;
 		try {
 			Neo4jConnection connection = Neo4jConnection.getInstance();
 			GraphFoundationDAO graphFoundationDAO = GraphFoundationDAO.getInstance();
 			graphFoundationDAO.setSession(connection.initConnection());
-			
+
+			List<JavaImplementation> javaImplementationsList = new ArrayList<JavaImplementation>();
 			// persist java implementations
 			System.out.println("+++++++++Start persisting java implementations +++++++++");
 			for (ClassDTO classDTO : classDTOList) {
 				// enthält den javaImplementation knoten
 				// (Class/AbstractClass/Interface) mit allen Attributen
 				JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
-				graphFoundationDAO.persistFullClassNode(javaImplementation);
+				javaImplementationsList.add(javaImplementation);
+				// graphFoundationDAO.persistFullClassNode(javaImplementation);
+				
+				// check if class is entity 
+				AnnotationVisitor annotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
+						TargetTypes.TYPE);
+				if(Optional.ofNullable(classDTO.getJavaClass().accept(annotationVisitor, null)).orElse(false)){
+					String className = javaImplementation.getJavaClassName(); 
+					String entityName = javaImplementation.getClassName(); 
+					graphFoundationDAO.persistEntity(className, entityName);
+				}
+
 			}
-			
-			// persist method dependencies between java implementations 
+
+			// persist method dependencies between java implementations
 			System.out.println("+++++++++Start persisting method call relations +++++++++");
 			for (ClassDTO classDTO : classDTOList) {
 				// enthält alle ausgehenden Kanten des javaImplementation
 				// Knotens
 				List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
 				for (MethodCallRelation methodCallRelation : methodCallRelationList) {
-					graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
+					// graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
 				}
 			}
-			
-			// im class dto sind jeweils classDTO.getFullName gleich mit javaImplementation.getPath()
-			// d.h. wenn ich mir einen knoten aus der db hole, kann ich ja den path abrufen 
-			// dann such ich in der classDTO liste nach diesem path 
-			// dann durchsuche ich für jede kante des knotens mit dem name attribut, dieses class dto nach passenden methodDeclarations 
-			// dann erstelle ich ein methoden objekt und schreibe das da rein 
-			
-			/*for (ClassDTO classDTO : classDTOList){
-				// calling class 
-				String path = classDTO.getFullName(); 
-				
-				// all incoming method calls 
-				System.out.println("+++ Incoming method calls for: " + path);
-				
-				System.out.println("+++ MethodDeclarations:");
-				
-				// collect all methods as Objects 
-				List<Method> methods = new ArrayList<Method>(); 
-				for(MethodDeclaration methodDeclaration : classDTO.getMethods()){
-					Method method = transformDeclarationToMethod(methodDeclaration);
-					methods.add(method);
-					//System.out.println(method.getName());
-				}
-				
-				// iterate through incoming methods of each nodes and compare to the method declarations
-				List<String> methodCalls = graphFoundationDAO.getAllMethodCallsPerClass(path);
-				// methodCall = deleteMessage(java.lang.String)
-				for(String s : methodCalls){
-					for(Method method : methods){
-						// method.getName() = deleteMessage
-						if(s.contains(method.getName())){
-							// write method in database 
-						}
-					}
-					System.out.println(s);
-				}
-				
-				System.out.println(); 
-			}*/
-			
+
+			for (JavaImplementation javaImplementation : javaImplementationsList) {
+
+			}
+
 			connection.close();
 		} catch (Exception e) {
-			result = false; 
+			result = false;
 			e.printStackTrace();
 		}
-		return result; 
+		return result;
 	}
 
 	// Persistence Management
@@ -206,11 +184,11 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	// GRAPH_RELATION: MethodCall between Class, Interface and AbstractClass
 	public List<MethodCallRelation> getMethodCallRelationList(ClassDTO classDTO) {
 		List<MethodCallRelation> methodCallRelationList = new ArrayList<MethodCallRelation>();
-		
-		// get calling class 
+
+		// get calling class
 		List<String> modules = convertGenericListToString(extractPathStructure(classDTO.getFullName()));
 		String className = modules.get(modules.size() - 1).replaceAll("'", "") + ".java";
-		// get type of calling class 
+		// get type of calling class
 		NodeType implementationType;
 		if (classDTO.getJavaClass().isInterface()) {
 			implementationType = NodeType.Interface;
@@ -219,81 +197,96 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		} else {
 			implementationType = NodeType.Class;
 		}
-		
-		// analyse method call expressions in java implementation 
+
+		// analyse method call expressions in java implementation
+		/*
+		 * example source code from project: private MailEvent
+		 * createMailEvent(User c) { MailEvent event = new MailEvent();
+		 * event.setTitle("New User created");
+		 * event.setMsg("New User created with following settings: " +
+		 * "\n Username: " + c .getUserExtID() + "\n Password: " +
+		 * c.getPassword()); event.setTo(c.getMail()); return event; } used
+		 * methods in this class are: setTitle, setMsg, getUserExtId,
+		 * getPassword, setTo, getMail some of them are nested into each other
+		 * The nesting is ignored and just all edges from this class (calling
+		 * class) to the method providing classes are added:
+		 * service.user.UserMgmtServiceImpl.createMailEvent(beans.user.User)
+		 * UserMgmtServiceImpl.java uses createMailEvent(beans.user.User) from
+		 * UserMgmtServiceImpl service.mail.MailEvent.setTitle(java.lang.String)
+		 * UserMgmtServiceImpl.java uses setTitle(java.lang.String) from
+		 * MailEvent service.mail.MailEvent.setMsg(java.lang.String)
+		 * UserMgmtServiceImpl.java uses setMsg(java.lang.String) from MailEvent
+		 * beans.user.User.getUserExtID() UserMgmtServiceImpl.java uses
+		 * getUserExtID() from User ...
+		 */
 		for (MethodCallExpr n : classDTO.getJavaClass().findAll(MethodCallExpr.class)) {
 			MethodCallRelation methodCallRelation = new MethodCallRelation();
 			methodCallRelation.setCallingJavaImplementation(className);
 			methodCallRelation.setCallingJavaImplementationType(implementationType);
 			try {
-				// get method 
-				String method = resolveMethodFromMethodCall(n.resolve().getQualifiedSignature());
-				// get providing class 
-				String providingClass = resolveClassFromMethodCall(n.resolve().getQualifiedSignature());
+				String resolvedMethodSignature = n.resolve().getQualifiedSignature();
+				// get method and providing class
+				String method = resolveMethodFromMethodCall(resolvedMethodSignature);
+				String providingClass = resolveClassFromMethodCall(resolvedMethodSignature);
+				// save in methodCallRelation object
 				methodCallRelation.setProvidingJavaImplementation(providingClass + ".java");
 				methodCallRelation.setMethod(method);
-				/*
-				 * if(providingClass.equals("null")){ continue; }
-				 */
-				System.out.println( className + " uses " + method + " from " + providingClass);
+				//System.out.println(className + " uses " + method + " from " + providingClass);
 			} catch (Exception e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 			methodCallRelationList.add(methodCallRelation);
 		}
 		return methodCallRelationList;
 	}
-	
-	public String resolveMethodFromMethodCall(String methodCall){
+
+	public String resolveMethodFromMethodCall(String methodCall) {
 		// input: ui.service.data.ReportObject.getCompanyId()
 		// output: getCompanyId()
-		String completeMethod = null; 
-		try{
-		String[] method = methodCall.split(Pattern.quote("("));
-		String methodEnd = "(" + method[1];
-		String[] modules = method[0].split(Pattern.quote("."));
-		String methodBegin = modules[modules.length-1]; 
-		completeMethod = methodBegin + methodEnd; 
-		}
-		catch(Exception e){
+		String completeMethod = null;
+		try {
+			String[] method = methodCall.split(Pattern.quote("("));
+			String methodEnd = "(" + method[1];
+			String[] modules = method[0].split(Pattern.quote("."));
+			String methodBegin = modules[modules.length - 1];
+			completeMethod = methodBegin + methodEnd;
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return completeMethod;
 	}
-	public String resolveClassFromMethodCall(String methodCall){
+
+	public String resolveClassFromMethodCall(String methodCall) {
 		// input: ui.service.data.ReportObject.getCompanyId()
 		// output: ReportObject
 		String method = resolveMethodFromMethodCall(methodCall);
-		System.out.println(method);
 		methodCall = methodCall.replace(method, "");
 		String[] modules = methodCall.split(Pattern.quote("."));
-		System.out.println("class: " + modules[modules.length-1]);
-		return modules[modules.length-1]; 
-		
+		return modules[modules.length - 1];
+
 	}
 
 	// // ++++++++++++++++++++ Transformation Methods
 	// ++++++++++++++++++++++++++++++++
 	// TODO: move to Transformation.java (T in ETL)
-	
-	public List<String> getMethodsAsJSONStringList(List<MethodDeclaration> methodDeclarations){
-		List<String> methodsAsJsonObjectStrings = new ArrayList<String>(); 
-		List<Method> methods = new ArrayList<Method>(); 
-		for(MethodDeclaration methodDeclaration : methodDeclarations){
-			Method method = new Method(); 
+
+	public List<String> getMethodsAsJSONStringList(List<MethodDeclaration> methodDeclarations) {
+
+		List<String> methodsAsJsonObjectStrings = new ArrayList<String>();
+		List<Method> methods = new ArrayList<Method>();
+		for (MethodDeclaration methodDeclaration : methodDeclarations) {
+			Method method = new Method();
 			method = transformDeclarationToMethod(methodDeclaration);
 			methods.add(method);
-			System.out.println(method.getBody());
 		}
-		for (Method method: methods) {
+		for (Method method : methods) {
 			String methodAsJsonObject = new Gson().toJson(method);
 			methodsAsJsonObjectStrings.add("'" + methodAsJsonObject + "'");
-			System.out.println(methodAsJsonObject);
-			System.out.println();
 		}
 		return methodsAsJsonObjectStrings;
-		
+
 	}
+
 	public Method transformDeclarationToMethod(MethodDeclaration methodDeclaration) {
 		Method method = new Method();
 		method.setType(methodDeclaration.getTypeAsString());

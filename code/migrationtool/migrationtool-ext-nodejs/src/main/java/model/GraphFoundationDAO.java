@@ -144,6 +144,16 @@ public class GraphFoundationDAO implements AutoCloseable {
 		return false; 
 	}
 	
+	public boolean persistEntity(String className, String entityName){
+		String relationType = RelationType.IS_ENTITY.toString(); 
+		query = "MATCH (entityClass {name:'" + className + "'}) MERGE (entityClass)-[:" + relationType + "]-(entity:Entity {name:'" + entityName + "'})"; 
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return true; 
+	}
+	
 	
 
 }
