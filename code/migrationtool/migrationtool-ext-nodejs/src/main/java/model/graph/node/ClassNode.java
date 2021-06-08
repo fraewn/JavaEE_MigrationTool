@@ -95,4 +95,10 @@ public class ClassNode extends JavaImplementation {
 	public void setAnnotationsAsJsonObjectStrings(List<String> annotations) {
 		this.annotationsAsJsonObjectStrings = annotations;
 	}
+	public List<String> getMethodsAsJsonObjectStrings() {
+		return methodsAsJsonObjectStrings;
+	}
+	public void setMethodsAsJsonObjectStrings(List<String> methodsAsJsonObjectStrings) {
+		this.methodsAsJsonObjectStrings = methodsAsJsonObjectStrings;
+	}
 }

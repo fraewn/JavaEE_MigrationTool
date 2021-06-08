@@ -84,8 +84,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			for (ClassDTO classDTO : classDTOList) {
 				// enthält den javaImplementation knoten
 				// (Class/AbstractClass/Interface) mit allen Attributen
-				/*JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
-				graphFoundationDAO.persistFullClassNode(javaImplementation);*/
+				JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
+				graphFoundationDAO.persistFullClassNode(javaImplementation);
 			}
 			
 			// persist method dependencies between java implementations 
@@ -93,10 +93,10 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			for (ClassDTO classDTO : classDTOList) {
 				// enthält alle ausgehenden Kanten des javaImplementation
 				// Knotens
-				/*List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
+				List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
 				for (MethodCallRelation methodCallRelation : methodCallRelationList) {
 					graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
-				}*/
+				}
 			}
 			
 			// im class dto sind jeweils classDTO.getFullName gleich mit javaImplementation.getPath()
@@ -105,10 +105,38 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			// dann durchsuche ich für jede kante des knotens mit dem name attribut, dieses class dto nach passenden methodDeclarations 
 			// dann erstelle ich ein methoden objekt und schreibe das da rein 
 			
-			for (ClassDTO classDTO : classDTOList){
+			/*for (ClassDTO classDTO : classDTOList){
+				// calling class 
 				String path = classDTO.getFullName(); 
-				graphFoundationDAO.getAllMethodCallsPerClass(path);
-			}
+				
+				// all incoming method calls 
+				System.out.println("+++ Incoming method calls for: " + path);
+				
+				System.out.println("+++ MethodDeclarations:");
+				
+				// collect all methods as Objects 
+				List<Method> methods = new ArrayList<Method>(); 
+				for(MethodDeclaration methodDeclaration : classDTO.getMethods()){
+					Method method = transformDeclarationToMethod(methodDeclaration);
+					methods.add(method);
+					//System.out.println(method.getName());
+				}
+				
+				// iterate through incoming methods of each nodes and compare to the method declarations
+				List<String> methodCalls = graphFoundationDAO.getAllMethodCallsPerClass(path);
+				// methodCall = deleteMessage(java.lang.String)
+				for(String s : methodCalls){
+					for(Method method : methods){
+						// method.getName() = deleteMessage
+						if(s.contains(method.getName())){
+							// write method in database 
+						}
+					}
+					System.out.println(s);
+				}
+				
+				System.out.println(); 
+			}*/
 			
 			connection.close();
 		} catch (Exception e) {
@@ -171,7 +199,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				.setConstructorsAsJsonObjectStrings(getConstructorsAsJSONStringList(classDTO.getConstructors()));
 		javaImplementation.setAnnotationsAsJsonObjectStrings(
 				getAnnotationsAsJSONStringList(classDTO.getAnnotationDeclarationList()));
-
+		javaImplementation.setMethodsAsJsonObjectStrings(getMethodsAsJSONStringList(classDTO.getMethods()));
 		return javaImplementation;
 	}
 
@@ -247,6 +275,25 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	// // ++++++++++++++++++++ Transformation Methods
 	// ++++++++++++++++++++++++++++++++
 	// TODO: move to Transformation.java (T in ETL)
+	
+	public List<String> getMethodsAsJSONStringList(List<MethodDeclaration> methodDeclarations){
+		List<String> methodsAsJsonObjectStrings = new ArrayList<String>(); 
+		List<Method> methods = new ArrayList<Method>(); 
+		for(MethodDeclaration methodDeclaration : methodDeclarations){
+			Method method = new Method(); 
+			method = transformDeclarationToMethod(methodDeclaration);
+			methods.add(method);
+			System.out.println(method.getBody());
+		}
+		for (Method method: methods) {
+			String methodAsJsonObject = new Gson().toJson(method);
+			methodsAsJsonObjectStrings.add("'" + methodAsJsonObject + "'");
+			System.out.println(methodAsJsonObject);
+			System.out.println();
+		}
+		return methodsAsJsonObjectStrings;
+		
+	}
 	public Method transformDeclarationToMethod(MethodDeclaration methodDeclaration) {
 		Method method = new Method();
 		method.setType(methodDeclaration.getTypeAsString());
@@ -255,6 +302,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		method.setAnnotations(convertAnnotationListToString(methodDeclaration.getAnnotations()));
 		method.setParameters(extractParameters(methodDeclaration.getParameters()));
 		method.setExceptions(convertGenericListToString(methodDeclaration.getThrownExceptions()));
+		method.cleanBody();
 
 		/*
 		 * parameterList = methodDeclaration.getParameters(); for (Parameter
@@ -279,7 +327,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		try {
 			body = methodDeclaration.getBody().get().toString();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			// ex.printStackTrace();
 			body = null;
 		}
 		method.setBody(body);
@@ -323,11 +371,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			List<String> names = field.getNames();
 			// names and initializer
 			for (VariableDeclarator fieldVariable : fieldDeclaration.getVariables()) {
-				// System.out.println("Field variable: " +
-				// fieldVariable.getNameAsString());
 				names.add(fieldVariable.getNameAsString());
 				fieldVariable.getInitializer().ifPresent((init) -> {
-					// System.out.println("Field Initializer: " + init);
 					String initializer = field.getInitializer();
 					initializer = init.toString();
 					field.setInitializer(initializer);

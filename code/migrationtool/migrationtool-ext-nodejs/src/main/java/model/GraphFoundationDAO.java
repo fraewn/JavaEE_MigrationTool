@@ -75,7 +75,7 @@ public class GraphFoundationDAO implements AutoCloseable {
 	public List<String> getAllMethodCallsPerClass(String path) throws Exception{
 		// path = service.SecurityUtils
 		List<String> methodCalls = new ArrayList<String>(); 
-		query = "Match(callingClass {path:'" + path + "'})-[r:CALLS_METHOD]->(providingClass) RETURN r.name";
+		query = "Match(callingClass {path:'" + path + "'})<-[r:CALLS_METHOD]-(providingClass) RETURN r.name";
 		result = session.run(query);
 		while(result.hasNext()){
 			methodCalls.add(result.next().get(0).asString());
@@ -99,7 +99,8 @@ public class GraphFoundationDAO implements AutoCloseable {
 		
 		String attributes = "path:'" + impl.getPath() + "', moduleDeclaration:'" + impl.getModuleDeclaration() + "', body:'" + impl.getCompleteClassCode() 
 		+ "', modules:" + impl.getModules().toString() + ", imports:" + impl.getImports().toString() + ", annotations:" + impl.getAnnotationsAsJsonObjectStrings() 
-		+ ", implementedInterfaces:" + impl.getImplementedInterfaces() + ", extensions:" + impl.getExtensions().toString() + ", fields:" + impl.getFieldsAsJsonObjectStrings(); 
+		+ ", implementedInterfaces:" + impl.getImplementedInterfaces() + ", extensions:" + impl.getExtensions().toString() + ", fields:" + impl.getFieldsAsJsonObjectStrings()
+		+ ", methods: " + impl.getMethodsAsJsonObjectStrings(); 
 		
 		if(impl.getNodeType().equals("Class") || impl.getNodeType().equals("AbstractClass")){
 			String classSpecificAttributes = ", constructors:" + impl.getConstructorsAsJsonObjectStrings().toString(); 

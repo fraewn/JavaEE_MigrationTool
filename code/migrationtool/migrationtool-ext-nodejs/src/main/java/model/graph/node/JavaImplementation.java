@@ -24,6 +24,7 @@ public abstract class JavaImplementation {
 	protected List<String> imports = new ArrayList<String>();
 	protected List<String> fieldsAsJsonObjectStrings = new ArrayList<String>();
 	protected List<String> annotationsAsJsonObjectStrings = new ArrayList<String>(); 
+	protected List<String> methodsAsJsonObjectStrings = new ArrayList<String>(); 
 	
 	public String toString(){
 		return "javaImplementationName: " + javaImplementationName + " className: " + className + " path: " + path + " moduleDeclaration: " + moduleDeclaration
@@ -113,11 +114,19 @@ public abstract class JavaImplementation {
 	public void setNodeType(NodeType nodeType) {
 		this.nodeType = nodeType;
 	}
-	
+	public List<String> getMethodsAsJsonObjectStrings() {
+		return methodsAsJsonObjectStrings;
+	}
+
+	public void setMethodsAsJsonObjectStrings(List<String> methodsAsJsonObjectStrings) {
+		this.methodsAsJsonObjectStrings = methodsAsJsonObjectStrings;
+	}
+
 	// Die Methode ist nötig, da die neo4j-Datenbank keine Strings verarbeiten kann, in denen ' im Text vorkommt. Nur " ist erlaubt. 
 	public void cleanBody(){
 		this.completeClassCode = this.completeClassCode.replaceAll("'", "\"");
 	}
+	
 	
 	
 	

@@ -55,5 +55,11 @@ public class Method {
 	public void setParameters(List<PassedParameter> parameters) {
 		this.parameters = parameters;
 	}
+	// Die Methode ist nötig, da die neo4j-Datenbank keine Strings verarbeiten kann, in denen ' im Text vorkommt. Nur " ist erlaubt. 
+	public void cleanBody(){
+		if(this.body != null){
+		this.body = this.body.replaceAll("'", "\"");
+		}
+	}
 	
 }
