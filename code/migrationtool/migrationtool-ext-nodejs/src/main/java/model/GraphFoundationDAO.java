@@ -116,7 +116,6 @@ public class GraphFoundationDAO implements AutoCloseable {
 		return false; 
 	}
 	
-	// TODO refactor to generic method to write string array node property 
 	public boolean setListAttributeInClassNode(String className, String javaClassName, String nodeAttribute, List<String> jsonObjectListAsString) throws Exception {
 		System.out.println(jsonObjectListAsString.get(0));
 		System.out.println(jsonObjectListAsString.get(1));
@@ -151,7 +150,19 @@ public class GraphFoundationDAO implements AutoCloseable {
 		if(result.summary() != null){
 			return true;
 		}
-		return true; 
+		return false; 
+	}
+	
+	public boolean persistDependencyInjection(String dependentClass, String injectedClass){
+		String relationType = RelationType.INJECTS.toString(); 
+		// TODO if match (injectedClass) is not successfull --> create node with new type (e.g. :Injected) and then merge them. this way the model inludes classes like  private FacesContext facesContext;
+		// change this query, otherwise if no match is found null nodes are created to serve the relationship i think 
+		//query = "MATCH (dependentClass {name:'" + dependentClass + "'}) MATCH(injectedClass {name:'" + injectedClass + "'}) MERGE (dependentClass)-[:" + relationType + "]-(injectedClass)"; 
+		//result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
 	}
 	
 	

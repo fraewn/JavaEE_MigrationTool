@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -91,12 +90,22 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				// graphFoundationDAO.persistFullClassNode(javaImplementation);
 				
 				// check if class is entity 
-				AnnotationVisitor annotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
+				AnnotationVisitor entityAnnotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
 						TargetTypes.TYPE);
-				if(Optional.ofNullable(classDTO.getJavaClass().accept(annotationVisitor, null)).orElse(false)){
+				if(Optional.ofNullable(classDTO.getJavaClass().accept(entityAnnotationVisitor, null)).orElse(false)){
 					String className = javaImplementation.getJavaClassName(); 
 					String entityName = javaImplementation.getClassName(); 
-					graphFoundationDAO.persistEntity(className, entityName);
+					// graphFoundationDAO.persistEntity(className, entityName);
+				}
+				
+				// check all fields in class if they are injected 
+				for(FieldDeclaration fieldDeclaration : classDTO.getFields()){
+					if(fieldDeclaration.toString().contains("@Inject")){
+						String dependentClass = javaImplementation.getJavaClassName(); 
+						String injectedClass = fieldDeclaration.getElementType().asString() + ".java";
+						System.out.println(dependentClass + " is dependant on: " + injectedClass);
+						//graphFoundationDAO.persistDependencyInjection(dependentClass, injectedClass);
+					}
 				}
 
 			}
