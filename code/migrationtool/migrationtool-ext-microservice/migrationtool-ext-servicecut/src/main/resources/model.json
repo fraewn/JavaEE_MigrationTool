@@ -51,24 +51,106 @@
 	"information": {
 		"useCases": [
 			{
-				"name": "HelloWorld",
-				"input": "Customer.name",
-				"persistenceChanges": "Customer.name"
+				"name": "createCustomer",
+				"input": "",
+				"persistenceChanges": "Customer.firstname,Customer.name,Customer.street,Customer.city,Customer.creditCard,Customer.accountNr,Customer.customerIdentifier"
+			},
+			{
+				"name": "createBooking",
+				"input": "",
+				"persistenceChanges": "Booking.bookingDate,Booking.paymentDate,Booking.totalPrice,Booking.bookingState,Booking.bookingIdentifier"
+			},
+			{
+				"name": "createArticle",
+				"input": "",
+				"persistenceChanges": "Article.articleName,Article.price,Article.serial,Article.articleIdentifier"
+			},
+			{
+				"name": "searchArticles",
+				"input": "Article.articleName,Article.price,Article.serial",
+				"persistenceChanges": "",
+				"latencyCritical": "true"
+			},
+			{
+				"name": "test",
+				"input": "Article.articleName",
+				"persistenceChanges": ""
+			},
+			{
+				"name": "payBooking",
+				"input": "Customer.creditCard,Customer.customerIdentifier,Article.articleIdentifier",
+				"persistenceChanges": "Booking.paymentDate,Booking.bookingState",
+				"latencyCritical": "true"
 			}
 		],
 		"criteria": {
-			"SECURITY_CONSTRAINT": [
+			"PREDEFINED_SERVICES": [
 				{
-					"name": null,
-					"instances": "Customer.name"
+					"name": "CRM",
+					"elements": [
+						"Customer.firstname",
+						"Customer.name",
+						"Customer.street",
+						"Customer.city",
+						"Customer.creditCard",
+						"Customer.accountNr",
+						"Customer.customerIdentifier"
+					]
+				}
+			],
+			"SECURITY_ACCESS_GROUPS": [
+				{
+					"name": "adminAccess",
+					"elements": [
+						"Article.articleName",
+						"Article.price",
+						"Article.serial",
+						"Article.articleIdentifier"
+					]
+				},
+				{
+					"name": "userAccess",
+					"elements": [
+						"Customer.firstname",
+						"Customer.name",
+						"Customer.street",
+						"Customer.city",
+						"Customer.creditCard",
+						"Customer.accountNr",
+						"Customer.customerIdentifier"
+					]
+				}
+			],
+			"AGGREGATES": [
+				{
+					"name": "BookingAggregate",
+					"elements": [
+						"Booking.bookingDate",
+						"Booking.paymentDate",
+						"Booking.totalPrice",
+						"Booking.bookingState",
+						"Booking.bookingIdentifier"
+					]
 				}
 			]
 		},
 		"compatibilities": {
-			"CONSISTENCY_CONSTRAINT": [
+			"AVAILABILITY_CRITICALITY": [
 				{
-					"compabilityCharacteristics": "Normal(CC_7_NORMAL)",
-					"instances": "Customer.name"
+					"compabilityCharacteristics": "Low(CC_7_LOW)",
+					"elements": [
+						"Customer.firstname"
+					]
+				},
+				{
+					"compabilityCharacteristics": "Critical(CC_7_HIGH)",
+					"elements": [
+						"Article.articleIdentifier",
+						"Article.articleName",
+						"Article.price",
+						"Article.serial",
+						"Customer.creditCard"
+					]
 				}
 			]
 		}

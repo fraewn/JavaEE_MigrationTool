@@ -1,32 +1,35 @@
 package service;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import core.CouplingGroup;
-import core.Edge;
-import core.Graph;
-import core.Node;
+import graph.clustering.ClusterAlgorithms;
+import graph.clustering.SolverConfiguration;
+import graph.model.AdjacencyList;
+import graph.processing.GraphProcessingSteps;
+import graph.processing.ProcessAutomate;
+import model.CouplingGroup;
+import model.Edge;
+import model.Graph;
 import model.ModelRepresentation;
 import model.Result;
 import model.criteria.CouplingCriteria;
 import model.data.Instance;
-import model.data.Priorities;
 import model.erm.Entity;
 import model.erm.EntityRelationDiagram;
-import processing.GraphProcessingSteps;
-import processing.ProcessAutomate;
+import model.priorities.Priorities;
+import model.serviceDefintion.Service;
+import model.serviceDefintion.ServiceRelation;
+import processing.ProcessSteps;
+import processing.StepInformation;
 import resolver.CriteriaScorer;
-import resolver.Scorer;
-import solver.ClusterAlgorithms;
-import solver.SolverConfiguration;
-import ui.AdjacencyMatrix;
+import resolver.CriteriaScorerFactory;
+import solver.Solver;
+import solver.SolverFactory;
 
 public class ServiceCutterServiceImpl implements ServiceCutterService {
 
@@ -37,6 +40,8 @@ public class ServiceCutterServiceImpl implements ServiceCutterService {
 
 	private ModelRepresentation rep;
 
+	private Result result;
+
 	public ServiceCutterServiceImpl() {
 		this.graph = new Graph();
 	}
@@ -46,7 +51,7 @@ public class ServiceCutterServiceImpl implements ServiceCutterService {
 		this.graph = new Graph();
 		this.rep = rep;
 		EntityRelationDiagram er = rep.getEntityDiagram();
-		this.graph.getNodes().addAll(convertToNodes(er));
+		nodeCreation(er);
 	}
 
 	@Override
@@ -87,7 +92,7 @@ public class ServiceCutterServiceImpl implements ServiceCutterService {
 				LOG.info("Related Group: " + entry.getGroupName());
 				// Scorer and criteria is for all groups in the step the same
 				currentCriteria = entry.getCriteria();
-				currentScorer = Scorer.getScorer(entry.getScorer());
+				currentScorer = CriteriaScorerFactory.getScorer(entry.getScorer());
 				Map<Edge, Double> values = currentScorer.getScores(entry, this.graph);
 				for (Entry<Edge, Double> value : values.entrySet()) {
 					if (resolvedCriteria.containsKey(value.getKey())) {
@@ -108,35 +113,48 @@ public class ServiceCutterServiceImpl implements ServiceCutterService {
 		}
 	}
 
-	private Set<Node> convertToNodes(EntityRelationDiagram er) {
-		Set<Node> nodes = new HashSet<>();
+	private void nodeCreation(EntityRelationDiagram er) {
+		LOG.info("Creating nodes");
 		for (Entity entity : er.getEntities()) {
 			for (String attr : entity.getAttributes()) {
 				Instance n = new Instance(attr, entity.getName());
-				nodes.add(new Node(n));
+				this.graph.addNewNode(n.getQualifiedName());
 			}
 		}
-		return nodes;
 	}
 
 	@Override
-	public AdjacencyMatrix getCurrentGraphState() {
+	public AdjacencyList getCurrentGraphState() {
 		if (this.graph == null) {
 			return null;
 		}
-		return this.graph.convertToMatrix();
+		return this.graph.convert();
 	}
 
 	@Override
 	public Result solveCluster(ClusterAlgorithms algo, SolverConfiguration config,
 			Map<CouplingCriteria, Priorities> priorities) {
-
-		return null;
+		Solver solver = SolverFactory.getSolver(algo);
+		this.result = solver.solve(this.graph, priorities, config);
+		return this.result;
 	}
 
 	@Override
-	public AdjacencyMatrix getCurrentResultGraphState() {
-		// TODO Auto-generated method stub
-		return null;
+	public AdjacencyList getCurrentResultGraphState() {
+		if (this.result == null) {
+			return null;
+		}
+		AdjacencyList adjList = new AdjacencyList();
+		for (Service service : this.result.getIsolatedServices().getServices()) {
+			adjList.addNewVertex(service.getName());
+			for (Instance relatedNode : service.getInstances()) {
+				adjList.addNewVertex(relatedNode.getQualifiedName());
+				adjList.addNewEdge(service.getName(), relatedNode.getQualifiedName(), 0d);
+			}
+		}
+		for (ServiceRelation relation : this.result.getIsolatedServices().getRelations()) {
+			adjList.addNewEdge(relation.getServiceIdA(), relation.getServiceIdB(), 0d);
+		}
+		return adjList;
 	}
 }

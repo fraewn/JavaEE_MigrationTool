@@ -23,8 +23,8 @@ public class PluginManager {
 	 * @param searchedImpl Plugin Implementation
 	 * @return searched service
 	 */
-	public static <I, O> ProcessingStep<I, O> findPluginService(String searchedImpl) {
-		List<ProcessingStep<I, O>> res = new ArrayList<>();
+	public static ProcessingStep<?, ?> findPluginService(String searchedImpl) {
+		List<ProcessingStep<?, ?>> res = new ArrayList<>();
 		ServiceLoader.load(ProcessingStep.class).forEach(p -> {
 			String path = SERVICE_EXTENSION_PACKAGE + "." + searchedImpl;
 			if (path.equals(p.getClass().getName())) {

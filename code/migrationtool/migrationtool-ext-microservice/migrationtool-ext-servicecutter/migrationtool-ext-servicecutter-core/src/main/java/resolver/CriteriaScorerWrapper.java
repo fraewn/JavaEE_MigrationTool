@@ -8,10 +8,10 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import core.CouplingGroup;
-import core.Edge;
-import core.Graph;
-import core.Node;
+import model.CouplingGroup;
+import model.Edge;
+import model.Graph;
+import model.Node;
 import model.criteria.CouplingCriteria;
 
 public abstract class CriteriaScorerWrapper implements CriteriaScorer {
@@ -26,7 +26,7 @@ public abstract class CriteriaScorerWrapper implements CriteriaScorer {
 		this.graph = graph;
 		Map<Edge, Double> values = new HashMap<>();
 		for (Edge edge : relatedGroup.getRelatedEdges()) {
-			if (this.graph.getEdges().containsKey(edge)) {
+			if (this.graph.hasEdge(edge)) {
 				double score = getScore(edge, relatedGroup);
 				values.put(edge, Double.valueOf(score));
 				LOG.info(edge + " new score added " + score + " (" + relatedGroup.getGroupName() + ") ");
@@ -49,15 +49,17 @@ public abstract class CriteriaScorerWrapper implements CriteriaScorer {
 	protected void addPenalityToEdges(double penality, Edge currentEdge, Set<Edge> relatedEdges,
 			Set<Edge> correspondingEdges, CouplingCriteria criteria) {
 		Node origin = currentEdge.getFirstNode();
-		for (Edge edge : this.graph.getEdges().keySet()) {
-			if (edge.getFirstNode().equals(origin)) {
+		for (Edge edge : this.graph.getAllEdges()) {
+			if (edge.getFirstNode().equals(origin) || edge.getSecondNode().equals(origin)) {
 				// check same group
 				if (!relatedEdges.contains(edge)) {
 					if (correspondingEdges == null) {
 						// all edges are relevant
+						LOG.info(edge + " new score added " + penality + " () ");
 						this.graph.addNewScore(edge, criteria, penality);
 					} else if (correspondingEdges.contains(edge)) {
 						// check only specific comparison group
+						LOG.info(edge + " new score added " + penality + " () ");
 						this.graph.addNewScore(edge, criteria, penality);
 					}
 				}

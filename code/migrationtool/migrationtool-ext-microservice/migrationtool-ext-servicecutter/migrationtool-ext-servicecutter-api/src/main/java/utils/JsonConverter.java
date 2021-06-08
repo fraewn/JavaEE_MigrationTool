@@ -28,7 +28,7 @@ public class JsonConverter {
 	public static String toJsonString(Object o) {
 		String res = "";
 		try {
-			res = JsonConverter.getMapper().writeValueAsString(o);
+			res = JsonConverter.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
 		} catch (JsonProcessingException e) {
 			LOG.error(e.getMessage());
 		}

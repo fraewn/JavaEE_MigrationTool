@@ -2,15 +2,15 @@ package service;
 
 import java.util.Map;
 
+import graph.clustering.ClusterAlgorithms;
+import graph.clustering.SolverConfiguration;
+import graph.model.AdjacencyList;
+import graph.processing.GraphProcessingSteps;
+import graph.processing.ProcessAutomate;
 import model.ModelRepresentation;
 import model.Result;
 import model.criteria.CouplingCriteria;
-import model.data.Priorities;
-import processing.GraphProcessingSteps;
-import processing.ProcessAutomate;
-import solver.ClusterAlgorithms;
-import solver.SolverConfiguration;
-import ui.AdjacencyMatrix;
+import model.priorities.Priorities;
 
 public interface ServiceCutterService {
 
@@ -21,7 +21,7 @@ public interface ServiceCutterService {
 	Result solveCluster(ClusterAlgorithms algo, SolverConfiguration config,
 			Map<CouplingCriteria, Priorities> priorities);
 
-	AdjacencyMatrix getCurrentGraphState();
+	AdjacencyList getCurrentGraphState();
 
-	AdjacencyMatrix getCurrentResultGraphState();
+	AdjacencyList getCurrentResultGraphState();
 }

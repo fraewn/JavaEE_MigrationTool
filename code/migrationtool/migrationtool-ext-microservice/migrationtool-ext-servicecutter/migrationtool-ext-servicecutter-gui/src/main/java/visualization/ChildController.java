@@ -1,12 +1,14 @@
 package visualization;
 
-import processing.GraphProcessingSteps;
+import graph.processing.GraphProcessingSteps;
 
-public interface ChildController<T> {
+public interface ChildController {
 
 	void setParentController(ParentController parent);
 
 	void reachedProcessStep(GraphProcessingSteps step);
 
-	void refreshContent(T dto);
+	<T> void refreshModel(T dto);
+
+	<T> T getModel();
 }

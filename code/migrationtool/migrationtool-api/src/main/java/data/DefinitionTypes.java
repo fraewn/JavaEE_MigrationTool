@@ -17,6 +17,10 @@ public enum DefinitionTypes {
 	 */
 	JAVA_CLASSES,
 	/**
+	 * Default Java classes
+	 */
+	CLASS,
+	/**
 	 * Primitive Datatypes
 	 */
 	PRIMITIVE;

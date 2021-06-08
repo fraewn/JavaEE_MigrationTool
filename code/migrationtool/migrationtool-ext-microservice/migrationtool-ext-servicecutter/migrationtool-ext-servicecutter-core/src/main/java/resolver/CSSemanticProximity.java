@@ -6,9 +6,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import core.CouplingGroup;
-import core.Edge;
-import core.EdgeAttribute;
+import model.CouplingGroup;
+import model.Edge;
+import model.EdgeAttribute;
+import utils.DefinitionDomain;
 
 public class CSSemanticProximity extends CriteriaScorerWrapper {
 
@@ -16,16 +17,16 @@ public class CSSemanticProximity extends CriteriaScorerWrapper {
 	public double getScore(Edge currentEdge, CouplingGroup relatedGroup) {
 		double value = 0;
 		if (currentEdge.getAttributes().contains(EdgeAttribute.READ_ACCESS)) {
-			value += Scores.getScore(Scores.SCORE_READ);
+			value += DefinitionDomain.getScore(DefinitionDomain.SCORE_READ);
 		}
 		if (currentEdge.getAttributes().contains(EdgeAttribute.WRITE_ACCESS)) {
-			value += Scores.getScore(Scores.SCORE_WRITE);
+			value += DefinitionDomain.getScore(DefinitionDomain.SCORE_WRITE);
 		}
 		if (currentEdge.getAttributes().contains(EdgeAttribute.MIXED_ACCESS)) {
-			value += Scores.getScore(Scores.SCORE_MIXED);
+			value += DefinitionDomain.getScore(DefinitionDomain.SCORE_MIXED);
 		}
 		if (currentEdge.getAttributes().contains(EdgeAttribute.AGGREGATION)) {
-			value += Scores.getScore(Scores.SCORE_AGGREGATION);
+			value += DefinitionDomain.getScore(DefinitionDomain.SCORE_AGGREGATION);
 		}
 		return value;
 	}
@@ -37,9 +38,10 @@ public class CSSemanticProximity extends CriteriaScorerWrapper {
 		int tenPercent = Math.max(1, (int) (scores.size() * 0.1d));
 		// get corresponding reference value
 		double referenceValue = scores.get(tenPercent - 1);
-		double divisor = referenceValue / Scores.getScore(Scores.MAX_SCORE);
+		double divisor = referenceValue / DefinitionDomain.getScore(DefinitionDomain.MAX_SCORE);
 		for (Entry<Edge, Double> edge : values.entrySet()) {
-			double newScore = Math.min(Scores.getScore(Scores.MAX_SCORE), edge.getValue() / divisor);
+			double newScore = Math.min(DefinitionDomain.getScore(DefinitionDomain.MAX_SCORE),
+					edge.getValue() / divisor);
 			values.put(edge.getKey(), newScore);
 		}
 		return values;

@@ -9,7 +9,8 @@ public enum RelationType {
 	 */
 	AGGREGATION,
 	/**
-	 * use of instance variables that are references to other objects
+	 * use of instance variables that are references to other objects (can't exists
+	 * without)
 	 */
 	COMPOSITION,
 	/**

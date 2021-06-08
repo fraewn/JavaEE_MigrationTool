@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
@@ -13,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public class ContextGroup {
 
 	private String name;
-
+	@JsonIgnore
 	private List<Instance> instances;
 
 	public ContextGroup() {
@@ -49,22 +50,23 @@ public class ContextGroup {
 	}
 
 	/**
-	 * @param instances the instances to set
+	 * @return the instances
 	 */
-	@JsonSetter(value = "instances")
-	public void setInstancesAsString(String input) {
-		String[] cases = input.split(",");
-		this.instances.clear();
-		for (String s : cases) {
-			this.instances.add(new Instance(s));
-		}
+	@JsonGetter(value = "elements")
+	public List<String> getInputAsString() {
+		return this.instances.stream().map(Instance::getQualifiedName).sorted().collect(Collectors.toList());
 	}
 
 	/**
-	 * @return the instances
+	 * @param input the instances to set
 	 */
-	@JsonGetter(value = "instances")
-	public String getInstancesAsString() {
-		return this.instances.stream().map(Instance::getQualifiedName).collect(Collectors.joining(","));
+	@JsonSetter(value = "elements")
+	public void setInputAsString(List<String> input) {
+		if ((input != null) && !input.isEmpty()) {
+			this.instances.clear();
+			for (String s : input) {
+				this.instances.add(new Instance(s));
+			}
+		}
 	}
 }

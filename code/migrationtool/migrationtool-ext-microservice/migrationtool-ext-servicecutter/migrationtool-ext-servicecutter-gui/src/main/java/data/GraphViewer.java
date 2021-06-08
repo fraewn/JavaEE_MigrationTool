@@ -5,6 +5,8 @@ import static org.graphstream.ui.view.util.InteractiveElement.NODE;
 import static org.graphstream.ui.view.util.InteractiveElement.SPRITE;
 
 import java.util.EnumSet;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -15,8 +17,8 @@ import org.graphstream.ui.graphicGraph.GraphicElement;
 import org.graphstream.ui.javafx.FxGraphRenderer;
 import org.graphstream.ui.view.camera.Camera;
 
+import graph.model.AdjacencyList;
 import javafx.scene.input.MouseEvent;
-import ui.AdjacencyMatrix;
 
 public class GraphViewer {
 
@@ -34,7 +36,7 @@ public class GraphViewer {
 		System.setProperty("org.graphstream.debug", "true");
 
 		this.graph = new SingleGraph("ServiceIsolator");
-//		this.graph.setAttribute("ui.stylesheet", "url('file://graphstream/visual_settings.css')");
+		this.graph.setAttribute("ui.stylesheet", "url('file://graphstream/visual_settings.css')");
 		this.graph.setAttribute("layout.quality", 4);
 
 		FxViewer viewer = new FxViewer(this.graph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
@@ -85,40 +87,31 @@ public class GraphViewer {
 		});
 	}
 
-	public void update(AdjacencyMatrix matrix) {
-		if (this.graph.getNodeCount() != matrix.getLabelNodes().size()) {
-			for (String node : matrix.getLabelNodes()) {
-				String id = uniqueId();
-				this.graph.addNode(id);
-				this.graph.getNode(id).setAttribute("ui.label", node);
+	public void update(AdjacencyList adjList) {
+		if (this.graph.getNodeCount() == 0) {
+			for (String node : adjList.getGraph().keySet()) {
+				this.graph.addNode(node);
+				this.graph.getNode(node).setAttribute("ui.label", node);
 			}
 		}
-		for (int i = 0; i < matrix.getMatrix().length; i++) {
-			for (int j = 0; j < matrix.getMatrix()[i].length; j++) {
-				double value = matrix.getMatrix()[i][j];
-				if (value >= 0) {
-					String origin = this.graph.getNode(i).getId();
-					String destination = this.graph.getNode(j).getId();
-					if (this.graph.getEdge(origin + destination) == null) {
-						this.graph.addEdge(origin + destination, origin, destination);
-					}
-					this.graph.getEdge(origin + destination).setAttribute("ui.label", "" + value);
+		for (Entry<String, Map<String, Double>> node : adjList.getGraph().entrySet()) {
+			for (Entry<String, Double> edge : node.getValue().entrySet()) {
+				String id = node.getKey() + edge.getKey();
+				if (this.graph.getEdge(id) == null) {
+					this.graph.addEdge(id, node.getKey(), edge.getKey());
+				}
+				if (edge.getValue() != 0) {
+					this.graph.getEdge(id).setAttribute("ui.label", "" + edge.getValue());
 				}
 			}
 		}
 	}
 
-	public FxViewPanel getViewPanel() {
-		return this.panel;
+	public void reset() {
+		this.graph.clear();
 	}
 
-	private String uniqueId() {
-		String unique = "" + this.counter + "-" + ((char) (this.lexicalCounter + 67));
-		this.lexicalCounter++;
-		if (this.lexicalCounter >= 26) {
-			this.counter++;
-			this.lexicalCounter = 0;
-		}
-		return unique;
+	public FxViewPanel getViewPanel() {
+		return this.panel;
 	}
 }

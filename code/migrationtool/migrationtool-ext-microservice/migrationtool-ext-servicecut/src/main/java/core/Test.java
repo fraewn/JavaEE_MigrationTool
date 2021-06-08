@@ -15,7 +15,13 @@ public class Test {
 		File f = new File("src/main/resources/model.json");
 
 		ServiceCutterInterpreter interpreter = new ServiceCutterInterpreter();
-		interpreter.setCommandLineArguments(new String[] { "-visualization", "-debug" });
+		interpreter.setCommandLineArguments(new String[] { "-visualization" });
 		interpreter.process(f.getAbsolutePath());
+
+//		Runner runner = new Runner();
+//		String[] commands = { "-command=DefaultCommand", "-path=C:\\Users\\Rene\\Desktop\\ratingmgmt-deployable",
+//				"-model=ServiceCutterModel", "-interpreter=ServiceCutterInterpreter", "-visualization" };
+//		runner.run(commands);
+
 	}
 }

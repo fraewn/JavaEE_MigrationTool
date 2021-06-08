@@ -17,7 +17,7 @@
 		</dependency>
 		<dependency>
 			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-api</artifactId>
+			<artifactId>migrationtool-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
