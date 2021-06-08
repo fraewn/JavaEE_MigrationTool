@@ -1,6 +1,5 @@
 package model.graph.relation;
 
-import model.graph.relation.entityAttributes.Method;
 import model.graph.types.NodeType;
 
 public class MethodCallRelation {

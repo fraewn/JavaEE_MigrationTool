@@ -72,6 +72,17 @@ public class GraphFoundationDAO implements AutoCloseable {
 		return true; 
 	}
 	
+	public List<String> getAllMethodCallsPerClass(String path) throws Exception{
+		// path = service.SecurityUtils
+		List<String> methodCalls = new ArrayList<String>(); 
+		query = "Match(callingClass {path:'" + path + "'})-[r:CALLS_METHOD]->(providingClass) RETURN r.name";
+		result = session.run(query);
+		while(result.hasNext()){
+			methodCalls.add(result.next().get(0).asString());
+		}
+		return methodCalls; 
+	}
+	
 	public boolean persistClassNode(ClassNode classNode) throws Exception {
 		query = "MERGE (" + classNode.getClassName() + ":Class {name:'" + classNode.getJavaClassName() + "'})";
 		result = session.run(query);
