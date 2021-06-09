@@ -11,6 +11,9 @@ public abstract class JavaImplementation {
 	protected String javaImplementationName = "";
 	// Type 
 	protected NodeType nodeType;
+	protected final NodeType genericNodeType = NodeType.JavaImplementation; 
+	
+
 	// String attributes 
 	protected String className = "";
 	protected String path = "";
@@ -125,6 +128,9 @@ public abstract class JavaImplementation {
 	// Die Methode ist nötig, da die neo4j-Datenbank keine Strings verarbeiten kann, in denen ' im Text vorkommt. Nur " ist erlaubt. 
 	public void cleanBody(){
 		this.completeClassCode = this.completeClassCode.replaceAll("'", "\"");
+	}
+	public NodeType getGenericNodeType() {
+		return genericNodeType;
 	}
 	
 	

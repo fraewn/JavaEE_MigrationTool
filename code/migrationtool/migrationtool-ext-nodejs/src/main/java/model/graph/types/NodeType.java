@@ -1,8 +1,8 @@
 package model.graph.types;
 
 public enum NodeType {
-	Class("Class"), Interface("Interface"), AbstractClass("AbstractClass"), Entity("Entity"), Functionality("Functionality"), Resource("Resource"), 
-	Layer("Layer"), SpecificLayer("SpecificLayer"), Library("Library");
+	JavaImplementation("JavaImplementation"), Class("Class"), Interface("Interface"), AbstractClass("AbstractClass"), Entity("Entity"), Functionality("Functionality"), Resource("Resource"), 
+	Layer("Layer"), SpecificLayer("SpecificLayer"), Library("Library"), InjectedExternal("InjectedExternal");
 	
 	private final String name; 
 	

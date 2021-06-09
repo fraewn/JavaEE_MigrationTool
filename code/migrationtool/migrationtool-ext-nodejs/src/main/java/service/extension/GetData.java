@@ -87,7 +87,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				// (Class/AbstractClass/Interface) mit allen Attributen
 				JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
 				javaImplementationsList.add(javaImplementation);
-				// graphFoundationDAO.persistFullClassNode(javaImplementation);
+				graphFoundationDAO.persistFullClassNode(javaImplementation);
 				
 				// check if class is entity 
 				AnnotationVisitor entityAnnotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
@@ -95,21 +95,10 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				if(Optional.ofNullable(classDTO.getJavaClass().accept(entityAnnotationVisitor, null)).orElse(false)){
 					String className = javaImplementation.getJavaClassName(); 
 					String entityName = javaImplementation.getClassName(); 
-					// graphFoundationDAO.persistEntity(className, entityName);
+					graphFoundationDAO.persistEntity(className, entityName);
 				}
-				
-				// check all fields in class if they are injected 
-				for(FieldDeclaration fieldDeclaration : classDTO.getFields()){
-					if(fieldDeclaration.toString().contains("@Inject")){
-						String dependentClass = javaImplementation.getJavaClassName(); 
-						String injectedClass = fieldDeclaration.getElementType().asString() + ".java";
-						System.out.println(dependentClass + " is dependant on: " + injectedClass);
-						//graphFoundationDAO.persistDependencyInjection(dependentClass, injectedClass);
-					}
-				}
-
 			}
-
+			
 			// persist method dependencies between java implementations
 			System.out.println("+++++++++Start persisting method call relations +++++++++");
 			for (ClassDTO classDTO : classDTOList) {
@@ -117,13 +106,26 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				// Knotens
 				List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
 				for (MethodCallRelation methodCallRelation : methodCallRelationList) {
-					// graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
+					graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
+				}
+			}
+			
+			for(ClassDTO classDTO : classDTOList){
+				// check all fields in class if they are injected 
+				for(FieldDeclaration fieldDeclaration : classDTO.getFields()){
+					JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
+					if(fieldDeclaration.toString().contains("@Inject")){
+						String dependentClass = javaImplementation.getJavaClassName(); 
+						String injectedClass = fieldDeclaration.getElementType().asString() + ".java";
+						System.out.println(dependentClass + " is dependent on: " + injectedClass);
+						graphFoundationDAO.persistDependencyInjection(dependentClass, injectedClass);
+					}
 				}
 			}
 
-			for (JavaImplementation javaImplementation : javaImplementationsList) {
+			/*for (JavaImplementation javaImplementation : javaImplementationsList) {
 
-			}
+			}*/
 
 			connection.close();
 		} catch (Exception e) {

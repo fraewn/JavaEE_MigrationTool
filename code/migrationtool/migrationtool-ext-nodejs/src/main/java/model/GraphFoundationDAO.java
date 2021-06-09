@@ -92,7 +92,8 @@ public class GraphFoundationDAO implements AutoCloseable {
 		return false; 
 	}
 	public boolean persistFullClassNode(JavaImplementation impl) throws Exception {
-		String mergeQuery = "MERGE (n:" + impl.getNodeType().toString() + " {name:'" + impl.getJavaClassName() + "'})";
+		String genericNodeType = impl.getGenericNodeType().toString(); 
+		String mergeQuery = "MERGE (n:" + impl.getNodeType().toString() + ":" + genericNodeType + " {name:'" + impl.getJavaClassName() + "'})";
 		String setQueryBegin = "SET n += { ";
 		String setQueryEnd = "}";
 		String separator = " ";
@@ -154,13 +155,31 @@ public class GraphFoundationDAO implements AutoCloseable {
 	}
 	
 	public boolean persistDependencyInjection(String dependentClass, String injectedClass){
-		String relationType = RelationType.INJECTS.toString(); 
 		// TODO if match (injectedClass) is not successfull --> create node with new type (e.g. :Injected) and then merge them. this way the model inludes classes like  private FacesContext facesContext;
 		// change this query, otherwise if no match is found null nodes are created to serve the relationship i think 
-		//query = "MATCH (dependentClass {name:'" + dependentClass + "'}) MATCH(injectedClass {name:'" + injectedClass + "'}) MERGE (dependentClass)-[:" + relationType + "]-(injectedClass)"; 
-		//result = session.run(query);
-		if(result.summary() != null){
-			return true;
+		String relationType = RelationType.INJECTS.toString(); 
+		String genericNodeType = NodeType.JavaImplementation.toString(); 
+		// check if injectedClass is part of the project already and exists as JavaImplementaiton node 
+		query = "MATCH(injectedClass {name:'" + injectedClass + "'}) return injectedClass.name";
+		result = session.run(query);
+		if(result.hasNext()){
+			// create a new edge to the class that's already there (with type JavaImplementation)
+			query = "MATCH (dependentClass:" + genericNodeType + " {name:'" + dependentClass + "'}) MATCH(injectedClass {name:'" + injectedClass + "'}) MERGE (dependentClass)-[:" + relationType + "]->(injectedClass)";
+			result = session.run(query);
+			System.out.println("node was already there: " + query); 
+			if(result.summary() != null){
+				return true;
+			}
+		}
+		else {
+			// create a new node and an edge to this node (with type InjectedExternal)
+			String injectedNodeType = NodeType.InjectedExternal.toString(); 
+			query = "MATCH (dependentClass:" + genericNodeType + " {name:'" + dependentClass + "'}) MERGE (dependentClass)-[:" + relationType + "]->(injectedClass:" + injectedNodeType + " {name:'" + injectedClass + "'})";
+			result = session.run(query);
+			System.out.println("added new node: " + query);
+			if(result.summary() != null){
+				return true;
+			}
 		}
 		return false; 
 	}
