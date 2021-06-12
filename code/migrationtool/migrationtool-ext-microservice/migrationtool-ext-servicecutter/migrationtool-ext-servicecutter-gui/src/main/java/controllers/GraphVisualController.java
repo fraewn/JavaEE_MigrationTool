@@ -4,6 +4,7 @@ import org.graphstream.ui.fx_viewer.FxViewPanel;
 
 import com.jfoenix.controls.JFXButton;
 
+import data.GraphView;
 import data.GraphViewer;
 import graph.model.AdjacencyList;
 import graph.processing.GraphProcessingSteps;
@@ -38,14 +39,14 @@ public class GraphVisualController implements ChildController {
 	public void initialize() {
 		// Set graphstream visualizer
 		this.viewerGraph = new GraphViewer();
-		this.viewerGraph.initialize();
+		this.viewerGraph.initialize(GraphView.GRAPH);
 		FxViewPanel panel = this.viewerGraph.getViewPanel();
 		this.containerGraph.getChildren().setAll(panel);
 		LayoutUtils.setAnchorPaneConst(panel);
 
 		// Set graphstream visualizer
 		this.viewerCluster = new GraphViewer();
-		this.viewerCluster.initialize();
+		this.viewerCluster.initialize(GraphView.CLUSTER);
 		FxViewPanel panelCluster = this.viewerCluster.getViewPanel();
 		this.containerCluster.getChildren().setAll(panelCluster);
 		LayoutUtils.setAnchorPaneConst(panelCluster);

@@ -5,10 +5,12 @@ import static org.graphstream.ui.view.util.InteractiveElement.NODE;
 import static org.graphstream.ui.view.util.InteractiveElement.SPRITE;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
@@ -23,21 +25,21 @@ import javafx.scene.input.MouseEvent;
 public class GraphViewer {
 
 	private Graph graph;
+	private GraphView view;
 	private FxViewPanel panel;
 
 	private double zoomLevel = 1.0;
 	private MouseEvent lastDragged;
 
-	private int counter = 1;
-	private int lexicalCounter = 0;
+	private static Map<String, Float> contextColor = new HashMap<>();
 
-	public void initialize() {
+	public void initialize(GraphView view) {
+		this.view = view;
 		System.setProperty("org.graphstream.ui", "javafx");
 		System.setProperty("org.graphstream.debug", "true");
 
 		this.graph = new SingleGraph("ServiceIsolator");
-		this.graph.setAttribute("ui.stylesheet", "url('file://graphstream/visual_settings.css')");
-		this.graph.setAttribute("layout.quality", 4);
+		reset();
 
 		FxViewer viewer = new FxViewer(this.graph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
 		viewer.enableAutoLayout();
@@ -91,7 +93,19 @@ public class GraphViewer {
 		if (this.graph.getNodeCount() == 0) {
 			for (String node : adjList.getGraph().keySet()) {
 				this.graph.addNode(node);
-				this.graph.getNode(node).setAttribute("ui.label", node);
+				Node n = this.graph.getNode(node);
+				n.setAttribute("ui.label", node);
+				n.setAttribute("layout.weight", 5);
+				if (node.matches("[0-9]+-[A-z]+")) {
+					n.setAttribute("ui.class", "service");
+				}
+				if (node.contains(".")) {
+					String context = node.substring(0, node.lastIndexOf("."));
+					if (!contextColor.containsKey(context)) {
+						contextColor.put(context, (float) Math.random());
+					}
+					n.setAttribute("ui.color", GraphViewer.contextColor.get(context));
+				}
 			}
 		}
 		for (Entry<String, Map<String, Double>> node : adjList.getGraph().entrySet()) {
@@ -99,6 +113,7 @@ public class GraphViewer {
 				String id = node.getKey() + edge.getKey();
 				if (this.graph.getEdge(id) == null) {
 					this.graph.addEdge(id, node.getKey(), edge.getKey());
+					this.graph.getEdge(id).setAttribute("layout.weight", 5);
 				}
 				if (edge.getValue() != 0) {
 					this.graph.getEdge(id).setAttribute("ui.label", "" + edge.getValue());
@@ -109,6 +124,8 @@ public class GraphViewer {
 
 	public void reset() {
 		this.graph.clear();
+		this.graph.setAttribute("ui.stylesheet", "url('file://" + this.view.getCssFile() + "')");
+		this.graph.setAttribute("layout.quality", 4);
 	}
 
 	public FxViewPanel getViewPanel() {

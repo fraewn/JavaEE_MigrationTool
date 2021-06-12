@@ -12,7 +12,7 @@ public class Test {
 
 	public static void main(String[] args)
 			throws JsonParseException, JsonMappingException, IOException, InterruptedException {
-		File f = new File("src/main/resources/model.json");
+		File f = new File("model.json");
 
 		ServiceCutterInterpreter interpreter = new ServiceCutterInterpreter();
 		interpreter.setCommandLineArguments(new String[] { "-visualization" });

@@ -97,16 +97,17 @@
 																	AnchorPane.topAnchor="0.0" />
 															</children>
 														</AnchorPane>
-
-														<Label text="%graphconfig.config1.number" />
-														<JFXSlider
-															fx:id="numberClusters"
-															majorTickUnit="5.0"
-															max="30.0"
-															showTickLabels="true"
-															showTickMarks="true"
-															value="1.0"
-															VBox.vgrow="ALWAYS" />
+														<AnchorPane VBox.vgrow="ALWAYS">
+															<children>
+																<VBox
+																	fx:id="algoConfig"
+																	spacing="15.0"
+																	AnchorPane.bottomAnchor="0.0"
+																	AnchorPane.leftAnchor="0.0"
+																	AnchorPane.rightAnchor="0.0"
+																	AnchorPane.topAnchor="0.0"/>
+															</children>
+														</AnchorPane>
 													</children>
 												</VBox>
 											</children>

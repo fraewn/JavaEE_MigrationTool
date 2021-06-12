@@ -3,6 +3,7 @@ package utils;
 import java.util.List;
 
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.IntegerValidator;
 
@@ -61,7 +62,17 @@ public class ComponentFactory {
 		return selection;
 	}
 
-	public static <T> VBox createVerticalForm(String text, String toolTip, Control node) {
+	public static JFXSlider createSlider(double tickUnit, double max, double current) {
+		JFXSlider slider = new JFXSlider();
+		slider.setMajorTickUnit(tickUnit);
+		slider.setMax(max);
+		slider.setValue(current);
+		slider.setShowTickLabels(true);
+		slider.setShowTickMarks(true);
+		return slider;
+	}
+
+	public static VBox createVerticalForm(String text, String toolTip, Control node) {
 		Label label = createLabelAndToolTip(text, toolTip);
 		LayoutUtils.setAnchorPaneConst(node);
 		AnchorPane pane = new AnchorPane(node);

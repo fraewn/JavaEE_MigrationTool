@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -23,6 +24,7 @@
 		<servicecutter-gui-version>0.0.1-SNAPSHOT</servicecutter-gui-version>
 
 		<graphstream-version>2.0</graphstream-version>
+		<watset-version>2.6.1</watset-version>
 	</properties>
 
 	<dependencyManagement>
@@ -55,6 +57,12 @@
 				<groupId>org.graphstream</groupId>
 				<artifactId>gs-algo</artifactId>
 				<version>${graphstream-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.nlpub</groupId>
+				<artifactId>watset</artifactId>
+				<version>${watset-version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
