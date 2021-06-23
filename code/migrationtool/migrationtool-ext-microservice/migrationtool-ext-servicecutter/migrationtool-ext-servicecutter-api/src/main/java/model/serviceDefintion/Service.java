@@ -1,5 +1,6 @@
 package model.serviceDefintion;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import model.data.Instance;
 
-public class Service {
+public class Service implements Comparator<Service>, Comparable<Service> {
 
 	private String name;
 	@JsonIgnore
@@ -73,5 +74,37 @@ public class Service {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ((obj == null) || (obj.getClass() != this.getClass())) {
+			return false;
+		}
+		final Service other = (Service) obj;
+		if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+			return false;
+		}
+		if ((this.instances == null) ? (other.instances != null) : !this.instances.equals(other.instances)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 3;
+		hash = (53 * hash) + (this.name != null ? this.name.hashCode() : 0);
+		return hash;
+	}
+
+	@Override
+	public int compare(Service i1, Service i2) {
+		return i1.getName().compareTo(i2.getName());
+	}
+
+	@Override
+	public int compareTo(Service o) {
+		return getName().compareTo(o.getName());
 	}
 }

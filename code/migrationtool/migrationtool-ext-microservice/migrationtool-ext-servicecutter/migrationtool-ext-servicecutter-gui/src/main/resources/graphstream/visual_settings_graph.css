@@ -6,21 +6,21 @@ graph {
 node {
 	size: 20px;
 	z-index: 1;
-	fill-color: yellow, orange;
-	fill-mode: gradient-horizontal;
+	fill-color: blue, orange, white, green, red, yellow, black;
+	fill-mode: dyn-plain;
 	text-alignment: under;
 	text-color: white;
-	text-style: bold;
+	text-style: italic;
 	text-background-mode: rounded-box;
 	text-background-color: #222C;
-	text-padding: 5px, 4px;
-	text-offset: 0px, 5px;
+	text-padding: 4px, 4px; 
+	text-offset: 3px, 3px;
 }
 
 edge {
 	z-index: 0;
 	fill-color: #333;
-	size: 3px;
+	size: 1px;
 }
 
 sprite {

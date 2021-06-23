@@ -29,8 +29,10 @@ public class LeungAlgorithmn extends SolverWrapper<Node, Edge> {
 
 	@Override
 	public Result solve(SolverConfiguration config) {
-		String paramM = Optional.ofNullable(config.getConfig().get(SolverConfiguration.LEUNG_PARAM_M)).orElse(M);
-		String paramDelta = Optional.ofNullable(config.getConfig().get(SolverConfiguration.LEUNG_PARAM_DELTA))
+		String paramM = Optional
+				.ofNullable(config.getConfig().get(SolverConfiguration.LEUNG_PARAM_M).replaceAll(",", ".")).orElse(M);
+		String paramDelta = Optional
+				.ofNullable(config.getConfig().get(SolverConfiguration.LEUNG_PARAM_DELTA).replaceAll(",", "."))
 				.orElse(DELTA);
 		Leung leung = new Leung(this.graph, null, WEIGHT);
 		leung.setParameters(Double.valueOf(paramM), Double.valueOf(paramDelta));

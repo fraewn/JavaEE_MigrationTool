@@ -45,8 +45,6 @@ public class Appl extends Application {
 		String[] sheets = {
 				JFoenixResources.load("css/jfoenix-fonts.css").toExternalForm(),
 				JFoenixResources.load("css/jfoenix-design.css").toExternalForm(),
-//				Appl.class.getResource("/gui/css/jfoenix-components.css").toExternalForm(),
-//				Appl.class.getResource("/gui/css/jfoenix-main-demo.css").toExternalForm(),
 				Appl.class.getResource("/gui/css/component.css").toExternalForm()
 		};
 		// @formatter:on
