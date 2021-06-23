@@ -8,8 +8,10 @@ import org.neo4j.driver.v1.*;
 import model.graph.node.ClassNode;
 import model.graph.node.JavaImplementation;
 import model.graph.relation.MethodCallRelation;
+import model.graph.types.FirstLevelFunctionality;
 import model.graph.types.NodeType;
 import model.graph.types.RelationType;
+import model.graph.types.SecondLevelFunctionality;
 
 // create class nodes in neo4j graph 
 public class GraphFoundationDAO implements AutoCloseable {
@@ -155,8 +157,6 @@ public class GraphFoundationDAO implements AutoCloseable {
 	}
 	
 	public boolean persistDependencyInjection(String dependentClass, String injectedClass){
-		// TODO if match (injectedClass) is not successfull --> create node with new type (e.g. :Injected) and then merge them. this way the model inludes classes like  private FacesContext facesContext;
-		// change this query, otherwise if no match is found null nodes are created to serve the relationship i think 
 		String relationType = RelationType.INJECTS.toString(); 
 		String genericNodeType = NodeType.JavaImplementation.toString(); 
 		// check if injectedClass is part of the project already and exists as JavaImplementaiton node 
@@ -184,6 +184,42 @@ public class GraphFoundationDAO implements AutoCloseable {
 		return false; 
 	}
 	
+	public boolean persistSecondLevelFunctionality(SecondLevelFunctionality secondLevelFunc){
+		// check for FirstLevelFunc
+		String nodeType = NodeType.Functionality.toString();
+		String query = "MERGE(secondLevel:"  + nodeType + " {name: '" + secondLevelFunc.toString() + "'})";
+		String addFirstLevelQuery = "";
+		for(FirstLevelFunctionality firstLevelFunc : FirstLevelFunctionality.values()){
+			if(secondLevelFunc.contains(firstLevelFunc.toString())){
+				addFirstLevelQuery = " MERGE (firstLevel:" + nodeType + " {name:'" + firstLevelFunc.toString() + "'}) MERGE (secondLevel)-[r:" + RelationType.BELONGS_TO.toString() + "]->(firstLevel)";
+			}
+		}
+		query = query + addFirstLevelQuery; 
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+	}
+	
+	public boolean persistFirstLevelFunctionality(FirstLevelFunctionality firstLevelFunc){
+		String nodeType = NodeType.Functionality.toString();
+		query = "MERGE (firstLevel:" + nodeType + " {name:'" + firstLevelFunc.toString() + "'})";
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+	}
+	
+	public boolean associateJavaImplWithFunctionality(String javaImplementationPath, String functionality, String fullImportPath){
+		query = "MATCH (j:JavaImplementation) WHERE j.path='" + javaImplementationPath + "' MATCH (f:Functionality) WHERE f.name='" + functionality + "' MERGE (j)-[r:" + RelationType.USES_FUNCTIONALITY.toString() + " {name:" + fullImportPath + "}]->(f)"; 
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+	}
 	
 
 }

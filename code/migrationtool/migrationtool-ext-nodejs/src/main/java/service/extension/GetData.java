@@ -12,7 +12,9 @@ import model.graph.node.entityAttributes.Annotation;
 import model.graph.node.entityAttributes.AnnotationNameValuePair;
 import model.graph.relation.MethodCallRelation;
 import model.graph.relation.entityAttributes.Method;
+import model.graph.types.FirstLevelFunctionality;
 import model.graph.types.NodeType;
+import model.graph.types.SecondLevelFunctionality;
 import operations.ModelService;
 import operations.dto.ClassDTO;
 import parser.utils.AnnotationResolver;
@@ -87,7 +89,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				// (Class/AbstractClass/Interface) mit allen Attributen
 				JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
 				javaImplementationsList.add(javaImplementation);
-				graphFoundationDAO.persistFullClassNode(javaImplementation);
+				//graphFoundationDAO.persistFullClassNode(javaImplementation);
 				
 				// check if class is entity 
 				AnnotationVisitor entityAnnotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
@@ -95,7 +97,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				if(Optional.ofNullable(classDTO.getJavaClass().accept(entityAnnotationVisitor, null)).orElse(false)){
 					String className = javaImplementation.getJavaClassName(); 
 					String entityName = javaImplementation.getClassName(); 
-					graphFoundationDAO.persistEntity(className, entityName);
+					//graphFoundationDAO.persistEntity(className, entityName);
 				}
 			}
 			
@@ -106,10 +108,11 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				// Knotens
 				List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
 				for (MethodCallRelation methodCallRelation : methodCallRelationList) {
-					graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
+					//graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
 				}
 			}
 			
+			System.out.println("+++++++++Start persisting dependecy injection relations +++++++++");
 			for(ClassDTO classDTO : classDTOList){
 				// check all fields in class if they are injected 
 				for(FieldDeclaration fieldDeclaration : classDTO.getFields()){
@@ -117,15 +120,48 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 					if(fieldDeclaration.toString().contains("@Inject")){
 						String dependentClass = javaImplementation.getJavaClassName(); 
 						String injectedClass = fieldDeclaration.getElementType().asString() + ".java";
-						System.out.println(dependentClass + " is dependent on: " + injectedClass);
-						graphFoundationDAO.persistDependencyInjection(dependentClass, injectedClass);
+						//System.out.println(dependentClass + " is dependent on: " + injectedClass);
+						//graphFoundationDAO.persistDependencyInjection(dependentClass, injectedClass);
 					}
 				}
 			}
 
-			/*for (JavaImplementation javaImplementation : javaImplementationsList) {
-
-			}*/
+			// TODO functionalities 
+			System.out.println("+++++++++Start persisting functionalities and their relations +++++++++");
+			for (JavaImplementation javaImplementation : javaImplementationsList) {
+				for(String imp : javaImplementation.getImports()){
+					boolean functionalityFound = false; 
+					if (imp.contains("javax")) {
+						System.out.println("imp: " + imp);
+						// first check if we can find a detailed functionality
+						boolean secondLevelFunctionalityFound = false;
+						for (SecondLevelFunctionality func : SecondLevelFunctionality.values()) {
+							if (imp.contains(func.toString())) {
+								System.out.println("imp is the same as second level func: " + imp + " " + func);
+								secondLevelFunctionalityFound = true;
+								functionalityFound = true; 
+								graphFoundationDAO.persistSecondLevelFunctionality(func);
+								graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(), func.toString(), imp);
+							}
+						}
+						// if we could not find a detailed functionality, check
+						// if we match a more generic functionality
+						if (!secondLevelFunctionalityFound) {
+							for (FirstLevelFunctionality func : FirstLevelFunctionality.values()) {
+								if (imp.contains(func.toString())) {
+									System.out.println("imp is the same as First Level func: " + imp + " " + func);
+									functionalityFound = true; 
+									graphFoundationDAO.persistFirstLevelFunctionality(func);
+									graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(), func.toString(), imp);
+								}
+							}
+						}
+						if(!functionalityFound){
+							System.out.println("FUNCTIONALITY WAS NOT FOUND**************************!");
+						}
+					}
+				}
+			}
 
 			connection.close();
 		} catch (Exception e) {
