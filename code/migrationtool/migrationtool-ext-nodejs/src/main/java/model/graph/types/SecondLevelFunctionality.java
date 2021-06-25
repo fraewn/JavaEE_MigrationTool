@@ -2,6 +2,11 @@ package model.graph.types;
 
 public enum SecondLevelFunctionality {
 		// https://docs.oracle.com/javaee/7/api/toc.htm
+		// There could be added a third level/ annotation level where for each second level functionality the used annotation is described. 
+		// e.g. javax.persistence has annotations like EntityManager, TransactionManagement and so on 
+		// currently those are at least saved in the edges between the java impl and the functionality 
+		// however, with adding explicit nodes like "java.persistence.entityManager" advaned filtering for all javaImpl asscociated with this node would be easy 
+		// an iteration over the nodes would be easier than over the edges - or would it? 
 		annotation_security("javax.annotation.security"), annotation_sql("javax.annotation.sql"), 
 		batch_api("javax.batch.api"), batch_operations("javax.batch.operations"),batch_runtime("javax.batch.runtime"), 
 		ejb_embeddable("javax.ejb.embeddable"), ejb_spi("javax.ejb.spi"), 

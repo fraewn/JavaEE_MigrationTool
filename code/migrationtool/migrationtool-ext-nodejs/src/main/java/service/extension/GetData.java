@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -85,6 +86,12 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			// persist java implementations
 			System.out.println("+++++++++Start persisting java implementations +++++++++");
 			for (ClassDTO classDTO : classDTOList) {
+				
+				if(classDTO.getEnumDecl()!=null){
+					for(EnumDeclaration enumDecl : classDTO.getEnums()){
+						System.out.println(enumDecl.toString());
+					}
+				}
 				// enthält den javaImplementation knoten
 				// (Class/AbstractClass/Interface) mit allen Attributen
 				JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
@@ -140,8 +147,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 								System.out.println("imp is the same as second level func: " + imp + " " + func);
 								secondLevelFunctionalityFound = true;
 								functionalityFound = true; 
-								graphFoundationDAO.persistSecondLevelFunctionality(func);
-								graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(), func.toString(), imp);
+								//graphFoundationDAO.persistSecondLevelFunctionality(func);
+								//graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(), func.toString(), imp);
 							}
 						}
 						// if we could not find a detailed functionality, check
@@ -151,8 +158,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 								if (imp.contains(func.toString())) {
 									System.out.println("imp is the same as First Level func: " + imp + " " + func);
 									functionalityFound = true; 
-									graphFoundationDAO.persistFirstLevelFunctionality(func);
-									graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(), func.toString(), imp);
+									//graphFoundationDAO.persistFirstLevelFunctionality(func);
+									//graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(), func.toString(), imp);
 								}
 							}
 						}
@@ -162,6 +169,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 					}
 				}
 			}
+			// TODO: find external resouces in annotations like @Resource(lookup = "java:jboss/DefaultJMSConnectionFactory")
+			// TODO adding them as resource nodes in the graph 
 
 			connection.close();
 		} catch (Exception e) {

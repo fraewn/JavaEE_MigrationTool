@@ -44,6 +44,7 @@ public class ClassDTO {
 	private List<EnumDeclaration> enums;
 	/** all declarated annotations of the class */
 	private List<AnnotationExpr> annotationDeclarationList;
+	private EnumDeclaration enumDecl; 
 
 	/**
 	 * @return the fullName
@@ -226,4 +227,14 @@ public class ClassDTO {
 	public void setAnnotationDeclarationList(List<AnnotationExpr> annotationDeclarationList) {
 		this.annotationDeclarationList = annotationDeclarationList;
 	}
+
+	public EnumDeclaration getEnumDecl() {
+		return enumDecl;
+	}
+
+	public void setEnumDecl(EnumDeclaration enumDecl) {
+		this.enumDecl = enumDecl;
+	}
+	
+	
 }

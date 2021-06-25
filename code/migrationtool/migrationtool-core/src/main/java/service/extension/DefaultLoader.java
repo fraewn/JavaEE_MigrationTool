@@ -8,6 +8,8 @@ import org.apache.log4j.Logger;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.EnumConstantDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 
@@ -38,10 +40,45 @@ public class DefaultLoader extends LoaderService<Object, List<ClassDTO>> {
 		units.forEach(unit -> {
 			// Find all classes in file
 			List<ClassOrInterfaceDeclaration> classList = unit.findAll(ClassOrInterfaceDeclaration.class);
+			List<EnumConstantDeclaration> enumList = unit.findAll(EnumConstantDeclaration.class);
 			// if the file has no classes, skip further work
 			if (classList.isEmpty()) {
 				return;
 			}
+			
+			for(EnumConstantDeclaration decl : enumList){
+				
+				ClassDTO classDTO = new ClassDTO();
+				//String classPath = decl.getFullyQualifiedName().get().toString();
+				LOG.debug("Inspect class: " + "EEEEEEEENUM: " + decl.getNameAsString());
+				//classDTO.setFullName(classPath);
+				System.out.println("Enum: " + classDTO.getFullName());
+				// read package and module declaration from unit (same for all classes in unit)
+				unit.getPackageDeclaration().ifPresent(v -> classDTO.setPackageDeclaration(v.getNameAsString()));
+				unit.getModule().ifPresent(v -> classDTO.setModuleDeclaration(v.getNameAsString()));
+				// save imports
+				classDTO.setImports(unit.getImports());
+				// save class
+				//classDTO.setEnumDecl(decl);
+				// add interfaces the class implements
+				//classDTO.setImplementations(decl.getImplementedTypes());
+				// add classes the class extends from
+				classDTO.setExtensions(null);
+				// add fields of class
+				classDTO.setFields(decl.findAll(FieldDeclaration.class));
+				// add constructors of class
+				classDTO.setConstructors(decl.findAll(ConstructorDeclaration.class));
+				// add methods of class
+				classDTO.setMethods(decl.findAll(MethodDeclaration.class));
+				// collect all annotations for a class
+				classDTO.setAnnotationDeclarationList(decl.getAnnotations());
+				// collect all type parameters
+				classDTO.setTypeParameters(null);
+				// add dto to the collection
+				this.classes.add(classDTO);
+			}
+			
+			
 			// iterate all classes in file
 			for (ClassOrInterfaceDeclaration decl : classList) {
 				String classPath = decl.getFullyQualifiedName().get().toString();
