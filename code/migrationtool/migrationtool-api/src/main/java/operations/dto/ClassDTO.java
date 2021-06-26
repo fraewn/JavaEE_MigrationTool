@@ -28,6 +28,8 @@ public class ClassDTO {
 	private List<ImportDeclaration> imports;
 	/** java class */
 	private ClassOrInterfaceDeclaration javaClass;
+	/** java class */
+	private EnumDeclaration enumClass;
 	/** type parameters of the class */
 	private List<TypeParameter> typeParameters;
 	/** all attributes of the class */
@@ -44,7 +46,6 @@ public class ClassDTO {
 	private List<EnumDeclaration> enums;
 	/** all declarated annotations of the class */
 	private List<AnnotationExpr> annotationDeclarationList;
-	private EnumDeclaration enumDecl; 
 
 	/**
 	 * @return the fullName
@@ -228,13 +229,24 @@ public class ClassDTO {
 		this.annotationDeclarationList = annotationDeclarationList;
 	}
 
-	public EnumDeclaration getEnumDecl() {
-		return enumDecl;
+	/**
+	 * @return the enumClass
+	 */
+	public EnumDeclaration getEnumClass() {
+		return this.enumClass;
 	}
 
-	public void setEnumDecl(EnumDeclaration enumDecl) {
-		this.enumDecl = enumDecl;
+	/**
+	 * @param enumClass the enumClass to set
+	 */
+	public void setEnumClass(EnumDeclaration enumClass) {
+		this.enumClass = enumClass;
 	}
-	
-	
+
+	/**
+	 * @return the enum
+	 */
+	public boolean isEnum() {
+		return this.enumClass != null;
+	}
 }
