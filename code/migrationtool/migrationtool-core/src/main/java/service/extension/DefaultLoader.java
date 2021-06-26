@@ -40,13 +40,15 @@ public class DefaultLoader extends LoaderService<Object, List<ClassDTO>> {
 		units.forEach(unit -> {
 			// Find all classes in file
 			List<ClassOrInterfaceDeclaration> classList = unit.findAll(ClassOrInterfaceDeclaration.class);
-			List<EnumConstantDeclaration> enumList = unit.findAll(EnumConstantDeclaration.class);
+			
 			// if the file has no classes, skip further work
 			if (classList.isEmpty()) {
 				return;
 			}
 			
-			for(EnumConstantDeclaration decl : enumList){
+			// TODO: no enums are found yet 
+			List<EnumDeclaration> enumList = unit.findAll(EnumDeclaration.class);
+			for(EnumDeclaration decl : enumList){
 				
 				ClassDTO classDTO = new ClassDTO();
 				//String classPath = decl.getFullyQualifiedName().get().toString();
