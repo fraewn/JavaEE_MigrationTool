@@ -4,6 +4,7 @@ import model.GraphFoundationDAO;
 import model.graph.genericAttributes.PassedParameter;
 import model.graph.node.AbstractClassNode;
 import model.graph.node.ClassNode;
+import model.graph.node.EnumNode;
 import model.graph.node.InterfaceNode;
 import model.graph.node.JavaImplementation;
 import model.graph.node.entityAttributes.Constructor;
@@ -76,6 +77,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	// persist javaImplementations (class, Abstract, Interface nodes) and
 	// methods calls (edges)
 	public boolean persistFoundation(List<ClassDTO> classDTOList) {
+		List<JavaImplementation> enumList = new ArrayList<JavaImplementation>(); 
 		boolean result = true;
 		try {
 			Neo4jConnection connection = Neo4jConnection.getInstance();
@@ -84,96 +86,131 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 
 			List<JavaImplementation> javaImplementationsList = new ArrayList<JavaImplementation>();
 			// persist java implementations
-			System.out.println("+++++++++Start persisting java implementations +++++++++");
+			System.out.println(
+					"+++++++++Start persisting java implementations (enum OR class/interface/abstractClass) +++++++++");
 			for (ClassDTO classDTO : classDTOList) {
-				
-				if(classDTO.getEnumDecl()!=null){
-					for(EnumDeclaration enumDecl : classDTO.getEnums()){
-						System.out.println(enumDecl.toString());
+				if (classDTO.getEnumClass() != null) {
+					JavaImplementation javaImplementation = transformClassDTOtoEnumJavaImplementation(classDTO);
+					System.out.println(javaImplementation.toString());
+					enumList.add(javaImplementation);
+					graphFoundationDAO.persistFullEnumNode(javaImplementation);
+				} else {
+					JavaImplementation javaImplementation;
+					// enthält den javaImplementation knoten
+					// (Class/AbstractClass/Interface) mit allen Attributen
+					javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
+					javaImplementationsList.add(javaImplementation);
+					// graphFoundationDAO.persistFullClassNode(javaImplementation);
+
+					// check if class is entity
+					AnnotationVisitor entityAnnotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
+							TargetTypes.TYPE);
+					if (Optional.ofNullable(classDTO.getJavaClass().accept(entityAnnotationVisitor, null))
+							.orElse(false)) {
+						String className = javaImplementation.getJavaClassName();
+						String entityName = javaImplementation.getClassName();
+						// graphFoundationDAO.persistEntity(className,
+						// entityName);
 					}
-				}
-				// enthält den javaImplementation knoten
-				// (Class/AbstractClass/Interface) mit allen Attributen
-				JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
-				javaImplementationsList.add(javaImplementation);
-				//graphFoundationDAO.persistFullClassNode(javaImplementation);
-				
-				// check if class is entity 
-				AnnotationVisitor entityAnnotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
-						TargetTypes.TYPE);
-				if(Optional.ofNullable(classDTO.getJavaClass().accept(entityAnnotationVisitor, null)).orElse(false)){
-					String className = javaImplementation.getJavaClassName(); 
-					String entityName = javaImplementation.getClassName(); 
-					//graphFoundationDAO.persistEntity(className, entityName);
+
 				}
 			}
-			
+
 			// persist method dependencies between java implementations
 			System.out.println("+++++++++Start persisting method call relations +++++++++");
 			for (ClassDTO classDTO : classDTOList) {
-				// enthält alle ausgehenden Kanten des javaImplementation
-				// Knotens
-				List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
-				for (MethodCallRelation methodCallRelation : methodCallRelationList) {
-					//graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
-				}
-			}
-			
-			System.out.println("+++++++++Start persisting dependecy injection relations +++++++++");
-			for(ClassDTO classDTO : classDTOList){
-				// check all fields in class if they are injected 
-				for(FieldDeclaration fieldDeclaration : classDTO.getFields()){
-					JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
-					if(fieldDeclaration.toString().contains("@Inject")){
-						String dependentClass = javaImplementation.getJavaClassName(); 
-						String injectedClass = fieldDeclaration.getElementType().asString() + ".java";
-						//System.out.println(dependentClass + " is dependent on: " + injectedClass);
-						//graphFoundationDAO.persistDependencyInjection(dependentClass, injectedClass);
+				if (classDTO.getEnumClass() != null) {
+					JavaImplementation javaImplementation = transformClassDTOtoEnumJavaImplementation(classDTO);
+					List<MethodCallRelation> methodCallRelationList = getEnumMethodCallRelationList(classDTO);
+					
+				} else {
+					// enthält alle ausgehenden Kanten des javaImplementation
+					// Knotens
+					List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
+					for (MethodCallRelation methodCallRelation : methodCallRelationList) {
+						// graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
 					}
 				}
 			}
 
-			// TODO functionalities 
+			System.out.println("+++++++++Start persisting dependecy injection relations +++++++++");
+			for (ClassDTO classDTO : classDTOList) {
+				// check all fields in class if they are injected
+				for (FieldDeclaration fieldDeclaration : classDTO.getFields()) {
+					JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
+					if (fieldDeclaration.toString().contains("@Inject")) {
+						String dependentClass = javaImplementation.getJavaClassName();
+						String injectedClass = fieldDeclaration.getElementType().asString() + ".java";
+						// System.out.println(dependentClass + " is
+						// dependent
+						// on: " + injectedClass);
+						// graphFoundationDAO.persistDependencyInjection(dependentClass,
+						// injectedClass);
+					}
+				}
+			}
+
 			System.out.println("+++++++++Start persisting functionalities and their relations +++++++++");
 			for (JavaImplementation javaImplementation : javaImplementationsList) {
-				for(String imp : javaImplementation.getImports()){
-					boolean functionalityFound = false; 
+				for (String imp : javaImplementation.getImports()) {
+					boolean functionalityFound = false;
 					if (imp.contains("javax")) {
 						System.out.println("imp: " + imp);
-						// first check if we can find a detailed functionality
+						// first check if we can find a detailed
+						// functionality
 						boolean secondLevelFunctionalityFound = false;
 						for (SecondLevelFunctionality func : SecondLevelFunctionality.values()) {
 							if (imp.contains(func.toString())) {
 								System.out.println("imp is the same as second level func: " + imp + " " + func);
 								secondLevelFunctionalityFound = true;
-								functionalityFound = true; 
-								//graphFoundationDAO.persistSecondLevelFunctionality(func);
-								//graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(), func.toString(), imp);
+								functionalityFound = true;
+								// graphFoundationDAO.persistSecondLevelFunctionality(func);
+								// graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(),
+								// func.toString(), imp);
 							}
 						}
-						// if we could not find a detailed functionality, check
+						// if we could not find a detailed functionality,
+						// check
 						// if we match a more generic functionality
 						if (!secondLevelFunctionalityFound) {
 							for (FirstLevelFunctionality func : FirstLevelFunctionality.values()) {
 								if (imp.contains(func.toString())) {
 									System.out.println("imp is the same as First Level func: " + imp + " " + func);
-									functionalityFound = true; 
-									//graphFoundationDAO.persistFirstLevelFunctionality(func);
-									//graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(), func.toString(), imp);
+									functionalityFound = true;
+									// graphFoundationDAO.persistFirstLevelFunctionality(func);
+									// graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(),
+									// func.toString(), imp);
 								}
 							}
 						}
-						if(!functionalityFound){
+						if (!functionalityFound) {
 							System.out.println("FUNCTIONALITY WAS NOT FOUND**************************!");
 						}
 					}
 				}
+				
 			}
-			// TODO: find external resouces in annotations like @Resource(lookup = "java:jboss/DefaultJMSConnectionFactory")
-			// TODO adding them as resource nodes in the graph 
+			// TODO include enums
+			System.out.println("+++++++++Start persisting enum import relations +++++++++");
+			for (JavaImplementation javaImplementation : javaImplementationsList) {
+				for (String imp : javaImplementation.getImports()) {
+					for(JavaImplementation enumImpl : enumList){
+						if (imp.contains(enumImpl.getClassName())) {
+							System.out.println("Found a connection from: " + javaImplementation.getClassName() + " to enum: " + enumImpl.getClassName());
+							graphFoundationDAO.persistEnumImportRelation(enumImpl.getPath(), javaImplementation.getPath(), javaImplementation.getNodeType().toString());
+						}
+					}
+				}
+			}
+			// TODO: find external resouces in annotations like @Resource(lookup
+			// = "java:jboss/DefaultJMSConnectionFactory")
+			// TODO adding them as resource nodes in the graph
+			
 
 			connection.close();
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			result = false;
 			e.printStackTrace();
 		}
@@ -237,6 +274,43 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		return javaImplementation;
 	}
 
+	public JavaImplementation transformClassDTOtoEnumJavaImplementation(ClassDTO classDTO) {
+		JavaImplementation javaImplementation = new EnumNode();
+
+		// set String variables
+		javaImplementation.setPath(classDTO.getFullName());
+		javaImplementation.setModules(convertGenericListToString(extractPathStructure(javaImplementation.getPath())));
+		javaImplementation.setClassName(
+				extractPathStructure(javaImplementation.getPath()).get(javaImplementation.getModules().size() - 1));
+		javaImplementation.setJavaClassName(javaImplementation.getClassName() + ".java");
+		javaImplementation.setCompleteClassCode(classDTO.getEnumClass().toString());
+		javaImplementation.cleanBody();
+		String moduleDeclaration = classDTO.getModuleDeclaration() == null ? "" : classDTO.getModuleDeclaration();
+		javaImplementation.setModuleDeclaration(moduleDeclaration);
+
+		// set List<String> variables containing plain Strings
+		List<String> implementedInterfaces = new ArrayList<String>();
+		List<String> imports = new ArrayList<String>();
+		for (ImportDeclaration importDeclaration : classDTO.getImports()) {
+			imports.add("'" + importDeclaration.getNameAsString() + "'");
+		}
+		javaImplementation.setImports(imports);
+		for (ClassOrInterfaceType implementedInterface : classDTO.getImplementations()) {
+			implementedInterfaces.add("'" + implementedInterface.getNameAsString() + "'");
+		}
+		javaImplementation.setImplementedInterfaces(implementedInterfaces);
+
+		// set List<String> variables containing JSON Objects which were
+		// converted to Strings
+		javaImplementation.setFieldsAsJsonObjectStrings(getFieldsAsJSONStringList(classDTO.getFields()));
+		javaImplementation
+				.setConstructorsAsJsonObjectStrings(getConstructorsAsJSONStringList(classDTO.getConstructors()));
+		javaImplementation.setAnnotationsAsJsonObjectStrings(
+				getAnnotationsAsJSONStringList(classDTO.getAnnotationDeclarationList()));
+		javaImplementation.setMethodsAsJsonObjectStrings(getMethodsAsJSONStringList(classDTO.getMethods()));
+		return javaImplementation;
+	}
+
 	// GRAPH_RELATION: MethodCall between Class, Interface and AbstractClass
 	public List<MethodCallRelation> getMethodCallRelationList(ClassDTO classDTO) {
 		List<MethodCallRelation> methodCallRelationList = new ArrayList<MethodCallRelation>();
@@ -287,9 +361,43 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				// save in methodCallRelation object
 				methodCallRelation.setProvidingJavaImplementation(providingClass + ".java");
 				methodCallRelation.setMethod(method);
-				//System.out.println(className + " uses " + method + " from " + providingClass);
+				// System.out.println(className + " uses " + method + " from " +
+				// providingClass);
 			} catch (Exception e) {
 				// e.printStackTrace();
+			}
+			methodCallRelationList.add(methodCallRelation);
+		}
+		return methodCallRelationList;
+	}
+
+	public List<MethodCallRelation> getEnumMethodCallRelationList(ClassDTO classDTO) {
+		List<MethodCallRelation> methodCallRelationList = new ArrayList<MethodCallRelation>();
+
+		// get calling class
+		List<String> modules = convertGenericListToString(extractPathStructure(classDTO.getFullName()));
+		String className = modules.get(modules.size() - 1).replaceAll("'", "") + ".java";
+		// get type of calling class
+		NodeType implementationType = NodeType.Enum;
+		List<MethodCallExpr> enumMethodList = classDTO.getEnumClass().findAll(MethodCallExpr.class);
+		System.out.println("counting enum method call relations: " + enumMethodList.size());
+		// analyse method call expressions in java implementation
+		for (MethodCallExpr n : enumMethodList) {
+			MethodCallRelation methodCallRelation = new MethodCallRelation();
+			methodCallRelation.setCallingJavaImplementation(className);
+			methodCallRelation.setCallingJavaImplementationType(implementationType);
+			try {
+				String resolvedMethodSignature = n.resolve().getQualifiedSignature();
+				// get method and providing class
+				String method = resolveMethodFromMethodCall(resolvedMethodSignature);
+				String providingClass = resolveClassFromMethodCall(resolvedMethodSignature);
+				// save in methodCallRelation object
+				methodCallRelation.setProvidingJavaImplementation(providingClass + ".java");
+				methodCallRelation.setMethod(method);
+				System.out.println(
+						"ENUM METHOD CALL RELATION: " + className + " uses " + method + " from " + providingClass);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 			methodCallRelationList.add(methodCallRelation);
 		}

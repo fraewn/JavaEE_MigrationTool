@@ -119,6 +119,28 @@ public class GraphFoundationDAO implements AutoCloseable {
 		return false; 
 	}
 	
+	public boolean persistFullEnumNode(JavaImplementation impl) throws Exception {
+		String genericNodeType = impl.getGenericNodeType().toString(); 
+		String mergeQuery = "MERGE (n:" + impl.getNodeType().toString() + ":" + genericNodeType + " {name:'" + impl.getJavaClassName() + "'})";
+		String setQueryBegin = "SET n += { ";
+		String setQueryEnd = "}";
+		String separator = " ";
+		
+		String attributes = "path:'" + impl.getPath() + "', moduleDeclaration:'" + impl.getModuleDeclaration() + "', body:'" + impl.getCompleteClassCode() 
+		+ "', modules:" + impl.getModules().toString() + ", imports:" + impl.getImports().toString() + ", annotations:" + impl.getAnnotationsAsJsonObjectStrings() 
+		+ ", implementedInterfaces:" + impl.getImplementedInterfaces() + ", constructors:" + impl.getConstructorsAsJsonObjectStrings().toString() + ", fields:" + impl.getFieldsAsJsonObjectStrings()
+		+ ", methods: " + impl.getMethodsAsJsonObjectStrings(); 
+		
+		// execute 
+		query = mergeQuery + separator + setQueryBegin + attributes + setQueryEnd;
+		System.out.println(query);
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+	}
+	
 	public boolean setListAttributeInClassNode(String className, String javaClassName, String nodeAttribute, List<String> jsonObjectListAsString) throws Exception {
 		System.out.println(jsonObjectListAsString.get(0));
 		System.out.println(jsonObjectListAsString.get(1));
@@ -138,6 +160,19 @@ public class GraphFoundationDAO implements AutoCloseable {
 		query = "MATCH (callingClass:" + callingJavaImplementationType + " {name:'" + callingJavaImplementation + "'}) "
 				+ "MATCH (providingClass {name:'" + providingJavaImplementation + "'}) "
 				+ "MERGE (callingClass)-[:" + relationType + " {name:'" + methodCallRelation.getMethod() + "'}]->(providingClass)";
+		System.out.println(query);
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+	}
+	
+	public boolean persistEnumImportRelation(String enumPath, String implPath, String implType){
+		String relationType = RelationType.USES_ENUM.toString(); 
+		query = "MATCH (class:" + implType + " {path:'" + implPath + "'}) "
+				+ "MATCH (enum {path:'" + enumPath + "'}) "
+				+ "MERGE (class)-[:" + relationType + "]->(enum)";
 		System.out.println(query);
 		result = session.run(query);
 		if(result.summary() != null){
