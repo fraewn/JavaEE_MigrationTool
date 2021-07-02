@@ -91,9 +91,9 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			for (ClassDTO classDTO : classDTOList) {
 				if (classDTO.getEnumClass() != null) {
 					JavaImplementation javaImplementation = transformClassDTOtoEnumJavaImplementation(classDTO);
-					System.out.println(javaImplementation.toString());
 					enumList.add(javaImplementation);
-					graphFoundationDAO.persistFullEnumNode(javaImplementation);
+					// IMPORTANT
+					//graphFoundationDAO.persistFullEnumNode(javaImplementation);
 				} else {
 					JavaImplementation javaImplementation;
 					// enthält den javaImplementation knoten
@@ -101,7 +101,6 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 					javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
 					javaImplementationsList.add(javaImplementation);
 					// graphFoundationDAO.persistFullClassNode(javaImplementation);
-
 					// check if class is entity
 					AnnotationVisitor entityAnnotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
 							TargetTypes.TYPE);
@@ -112,6 +111,18 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 						// graphFoundationDAO.persistEntity(className,
 						// entityName);
 					}
+					System.out.println("start to analyse resource annotations");
+					List<FieldDeclaration> fields = classDTO.getJavaClass().getFields();
+					for(FieldDeclaration field : fields){
+						List<AnnotationExpr> annoList = field.getAnnotations(); 
+						for(AnnotationExpr annoExpr : annoList){
+							if(annoExpr.toString().contains("Resource")){
+								System.out.println("Found a resource in the field: " + field.toString() + " called " + annoExpr.toString());
+							}
+						}
+					}
+					
+					
 
 				}
 			}
@@ -155,13 +166,13 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				for (String imp : javaImplementation.getImports()) {
 					boolean functionalityFound = false;
 					if (imp.contains("javax")) {
-						System.out.println("imp: " + imp);
+						// System.out.println("imp: " + imp);
 						// first check if we can find a detailed
 						// functionality
 						boolean secondLevelFunctionalityFound = false;
 						for (SecondLevelFunctionality func : SecondLevelFunctionality.values()) {
 							if (imp.contains(func.toString())) {
-								System.out.println("imp is the same as second level func: " + imp + " " + func);
+								//System.out.println("imp is the same as second level func: " + imp + " " + func);
 								secondLevelFunctionalityFound = true;
 								functionalityFound = true;
 								// graphFoundationDAO.persistSecondLevelFunctionality(func);
@@ -175,7 +186,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 						if (!secondLevelFunctionalityFound) {
 							for (FirstLevelFunctionality func : FirstLevelFunctionality.values()) {
 								if (imp.contains(func.toString())) {
-									System.out.println("imp is the same as First Level func: " + imp + " " + func);
+									// System.out.println("imp is the same as First Level func: " + imp + " " + func);
 									functionalityFound = true;
 									// graphFoundationDAO.persistFirstLevelFunctionality(func);
 									// graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(),
@@ -190,14 +201,14 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				}
 				
 			}
-			// TODO include enums
+			
 			System.out.println("+++++++++Start persisting enum import relations +++++++++");
 			for (JavaImplementation javaImplementation : javaImplementationsList) {
 				for (String imp : javaImplementation.getImports()) {
 					for(JavaImplementation enumImpl : enumList){
 						if (imp.contains(enumImpl.getClassName())) {
-							System.out.println("Found a connection from: " + javaImplementation.getClassName() + " to enum: " + enumImpl.getClassName());
-							graphFoundationDAO.persistEnumImportRelation(enumImpl.getPath(), javaImplementation.getPath(), javaImplementation.getNodeType().toString());
+							// System.out.println("Found a connection from: " + javaImplementation.getClassName() + " to enum: " + enumImpl.getClassName());
+							//graphFoundationDAO.persistEnumImportRelation(enumImpl.getPath(), javaImplementation.getPath(), javaImplementation.getNodeType().toString());
 						}
 					}
 				}
@@ -266,8 +277,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		// set List<String> variables containing JSON Objects which were
 		// converted to Strings
 		javaImplementation.setFieldsAsJsonObjectStrings(getFieldsAsJSONStringList(classDTO.getFields()));
-		javaImplementation
-				.setConstructorsAsJsonObjectStrings(getConstructorsAsJSONStringList(classDTO.getConstructors()));
+		 javaImplementation.setConstructorsAsJsonObjectStrings(getConstructorsAsJSONStringList(classDTO.getConstructors()));
 		javaImplementation.setAnnotationsAsJsonObjectStrings(
 				getAnnotationsAsJSONStringList(classDTO.getAnnotationDeclarationList()));
 		javaImplementation.setMethodsAsJsonObjectStrings(getMethodsAsJSONStringList(classDTO.getMethods()));
@@ -371,6 +381,9 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		return methodCallRelationList;
 	}
 
+	
+	// currently, there are no methods in any enums or method calls from any enums 
+	// this method is still included for future projects 
 	public List<MethodCallRelation> getEnumMethodCallRelationList(ClassDTO classDTO) {
 		List<MethodCallRelation> methodCallRelationList = new ArrayList<MethodCallRelation>();
 
@@ -380,7 +393,6 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		// get type of calling class
 		NodeType implementationType = NodeType.Enum;
 		List<MethodCallExpr> enumMethodList = classDTO.getEnumClass().findAll(MethodCallExpr.class);
-		System.out.println("counting enum method call relations: " + enumMethodList.size());
 		// analyse method call expressions in java implementation
 		for (MethodCallExpr n : enumMethodList) {
 			MethodCallRelation methodCallRelation = new MethodCallRelation();
@@ -394,8 +406,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				// save in methodCallRelation object
 				methodCallRelation.setProvidingJavaImplementation(providingClass + ".java");
 				methodCallRelation.setMethod(method);
-				System.out.println(
-						"ENUM METHOD CALL RELATION: " + className + " uses " + method + " from " + providingClass);
+				//System.out.println(
+						//"ENUM METHOD CALL RELATION: " + className + " uses " + method + " from " + providingClass);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

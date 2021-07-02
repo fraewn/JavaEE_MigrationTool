@@ -9,7 +9,7 @@ public class ClassNode extends JavaImplementation {
 	protected final NodeType nodeType = NodeType.Class; 
 	
 	// variables only necessary in java classes 
-	private List<String> constructorsAsJsonObjectStrings = new ArrayList();
+	private List<String> constructorsAsJsonObjectStrings = new ArrayList<String>();
 	private List<String> extensions;
 	
 	public List<String> getConstructorsAsJsonObjectStrings() {

@@ -29,9 +29,9 @@ public abstract class JavaImplementation {
 	protected List<String> annotationsAsJsonObjectStrings = new ArrayList<String>(); 
 	protected List<String> methodsAsJsonObjectStrings = new ArrayList<String>(); 
 	
-	public String toString(){
+	public String toString(){ 
 		return "javaImplementationName: " + javaImplementationName + " className: " + className + " path: " + path + " moduleDeclaration: " + moduleDeclaration
-				+ "modules: " + modules.toString() + " constructors: " + constructorsAsJsonObjectStrings.toString() + " implemented Interfaces: " + implementedInterfaces.toString()
+				+ "modules: " + modules.toString() +  " implemented Interfaces: " + " constructors: " + constructorsAsJsonObjectStrings.toString() + implementedInterfaces.toString() 
 				+ " Extensions: " + extensions + " Imports:" + imports.toString() + " Fields:" + fieldsAsJsonObjectStrings.toString() + "\nbody: " + completeClassCode;
 	}
 	
