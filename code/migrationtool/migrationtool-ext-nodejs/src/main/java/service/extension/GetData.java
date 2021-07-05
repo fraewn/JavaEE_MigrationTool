@@ -176,7 +176,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 								//System.out.println("imp is the same as second level func: " + imp + " " + func);
 								secondLevelFunctionalityFound = true;
 								functionalityFound = true;
-								// graphFoundationDAO.persistSecondLevelFunctionality(func);
+								graphFoundationDAO.persistSecondLevelFunctionality(func);
 								// graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(),
 								// func.toString(), imp);
 							}
@@ -189,7 +189,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 								if (imp.contains(func.toString())) {
 									// System.out.println("imp is the same as First Level func: " + imp + " " + func);
 									functionalityFound = true;
-									// graphFoundationDAO.persistFirstLevelFunctionality(func);
+									graphFoundationDAO.persistFirstLevelFunctionality(func);
 									// graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(),
 									// func.toString(), imp);
 								}
@@ -202,8 +202,8 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 					else {
 						for (Library lib : Library.values()) {
 							if (imp.contains(lib.toString())) {
-								System.out.println("found a library: " + lib);
-								graphFoundationDAO.persistLibrary(lib, javaImplementation.getPath()); 
+								//System.out.println("found a library: " + lib);
+								//graphFoundationDAO.persistLibrary(lib, javaImplementation.getPath()); 
 							}
 						}
 					}
