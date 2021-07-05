@@ -14,6 +14,7 @@ import model.graph.node.entityAttributes.AnnotationNameValuePair;
 import model.graph.relation.MethodCallRelation;
 import model.graph.relation.entityAttributes.Method;
 import model.graph.types.FirstLevelFunctionality;
+import model.graph.types.Library;
 import model.graph.types.NodeType;
 import model.graph.types.SecondLevelFunctionality;
 import operations.ModelService;
@@ -111,13 +112,13 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 						// graphFoundationDAO.persistEntity(className,
 						// entityName);
 					}
-					System.out.println("start to analyse resource annotations");
 					List<FieldDeclaration> fields = classDTO.getJavaClass().getFields();
 					for(FieldDeclaration field : fields){
 						List<AnnotationExpr> annoList = field.getAnnotations(); 
 						for(AnnotationExpr annoExpr : annoList){
 							if(annoExpr.toString().contains("Resource")){
-								System.out.println("Found a resource in the field: " + field.toString() + " called " + annoExpr.toString());
+								//System.out.println("Found a resource in the field: " + field.toString() + " called " + annoExpr.toString());
+								graphFoundationDAO.persistRessource(annoExpr.toString(), classDTO.getFullName());
 							}
 						}
 					}
@@ -196,6 +197,14 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 						}
 						if (!functionalityFound) {
 							System.out.println("FUNCTIONALITY WAS NOT FOUND**************************!");
+						}
+					}
+					else {
+						for (Library lib : Library.values()) {
+							if (imp.contains(lib.toString())) {
+								System.out.println("found a library: " + lib);
+								graphFoundationDAO.persistLibrary(lib, javaImplementation.getPath()); 
+							}
 						}
 					}
 				}

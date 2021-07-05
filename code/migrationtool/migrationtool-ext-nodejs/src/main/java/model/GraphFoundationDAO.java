@@ -9,6 +9,7 @@ import model.graph.node.ClassNode;
 import model.graph.node.JavaImplementation;
 import model.graph.relation.MethodCallRelation;
 import model.graph.types.FirstLevelFunctionality;
+import model.graph.types.Library;
 import model.graph.types.NodeType;
 import model.graph.types.RelationType;
 import model.graph.types.SecondLevelFunctionality;
@@ -249,6 +250,25 @@ public class GraphFoundationDAO implements AutoCloseable {
 	
 	public boolean associateJavaImplWithFunctionality(String javaImplementationPath, String functionality, String fullImportPath){
 		query = "MATCH (j:JavaImplementation) WHERE j.path='" + javaImplementationPath + "' MATCH (f:Functionality) WHERE f.name='" + functionality + "' MERGE (j)-[r:" + RelationType.USES_FUNCTIONALITY.toString() + " {name:" + fullImportPath + "}]->(f)"; 
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+	}
+	
+	public boolean persistRessource(String resource, String javaImplementationPath){
+		String nodeType = NodeType.Resource.toString(); 
+		query = "MATCH (j:JavaImplementation) WHERE j.path='" + javaImplementationPath + "' MERGE (r:" + nodeType + " {name: '" + resource + "'}) MERGE (r)<-[:" + RelationType.USES_RESOURCE.toString()+"]-(j)"; 
+		result = session.run(query);
+		if(result.summary() != null){
+			return true;
+		}
+		return false; 
+	}
+	public boolean persistLibrary(Library lib, String javaImplementationPath){
+		String nodeType = NodeType.Library.toString(); 
+		query = "MATCH (j:JavaImplementation) WHERE j.path='" + javaImplementationPath + "' MERGE (l:" + nodeType + " {name: '" + lib.getName() + "', description: '" + lib.getDescription() + "'}) MERGE (l)<-[:" + RelationType.USES_LIBRARY.toString()+"]-(j)"; 
 		result = session.run(query);
 		if(result.summary() != null){
 			return true;
