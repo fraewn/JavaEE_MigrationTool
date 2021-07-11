@@ -75,6 +75,16 @@ public class GraphFoundationDAO implements AutoCloseable {
 		System.out.println(result.single().get(0).toString());
 		return true;
 	}
+	
+	public boolean checkForJavaImplementationNodeByName(String name) throws Exception {
+		query = "match(n:JavaImplementation {name:'" + name + "'}) return n.name";
+		result = session.run(query);
+		if(result.hasNext()) {
+			System.out.println("Found a record: " + result.single().get(0).toString());
+			return true; 
+		}
+		return false; 
+	}
 
 	public List<String> getAllMethodCallsPerClass(String path) throws Exception {
 		// path = service.SecurityUtils
@@ -282,6 +292,62 @@ public class GraphFoundationDAO implements AutoCloseable {
 		}
 		return false;
 	}
+	
+	public boolean persistImplementation(String javaImplementationPath, String implementedInterfaceName) {
+		String relationType = RelationType.IMPLEMENTS.toString(); 
+		// service.GenericDAOAdapter
+		// service.GenericDAO
+		String query = "";
+		try {
+			if(checkForJavaImplementationNodeByName(implementedInterfaceName)) {
+				// if interface exists, connect javaImplementation with Interface
+				query = "MATCH(n:JavaImplementation {path:'" + javaImplementationPath + "'}) MATCH (m:Interface {name:'" 
+						+ implementedInterfaceName + "'}) MERGE (n)-[:" + relationType + "]->(m)"; 
+			}
+			else {
+				// if interface does not yet exist, create a new one and connect 
+				query = "MATCH(n:JavaImplementation {path:'" + javaImplementationPath + "'}) MERGE (m:Interface {name:'" 
+						+ implementedInterfaceName + "'}) MERGE (n)-[:" + relationType + "]->(m)"; 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		result = session.run(query); 
+		if (result.summary() != null) { 
+			return true; 
+		}
+		System.out.println(query);
+		
+		
+		return false;
+	}
+	
+	public boolean persistExtension(String javaImplementationPath, String extensionName) {
+		String relationType = RelationType.EXTENDS.toString(); 
+		String query = ""; 
+		try {
+			if(checkForJavaImplementationNodeByName(extensionName)) {
+				// if extension exists, connect javaImplementation with Interface
+				query = "MATCH(n:JavaImplementation {path:'" + javaImplementationPath + "'}) MATCH (m:JavaImplementation {name:'" 
+						+ extensionName + "'}) MERGE (n)-[:" + relationType + "]->(m)";
+			}
+			else {
+				// if abstract extension does not yet exist, create a new one and connect 
+				query = "MATCH(n:JavaImplementation {path:'" + javaImplementationPath + "'}) MERGE (m:AbstractClass {name:'" 
+						+ extensionName + "'}) MERGE (n)-[:" + relationType + "]->(m)";
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		result = session.run(query);
+		if (result.summary() != null) { 
+			return true; 
+		}
+		return false;
+	}
+	
+	
 
 	public boolean associateJavaImplWithFunctionality(String javaImplementationPath, String functionality,
 			String fullImportPath) {

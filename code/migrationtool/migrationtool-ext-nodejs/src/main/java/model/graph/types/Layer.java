@@ -5,21 +5,27 @@ import java.util.Collections;
 import java.util.List;
 
 public enum Layer {
-	persistence_layer("Persistence Layer", Collections.unmodifiableList(
-		    new ArrayList<FirstLevelFunctionality>() {{
-		        add(FirstLevelFunctionality.persistence);
-		        add(FirstLevelFunctionality.transaction);
-		        add(FirstLevelFunctionality.batch);
-		        }}
-		    )), 
+	// TODO change list parameter form
+	persistence_layer("Persistence Layer", Collections.unmodifiableList(new ArrayList<FirstLevelFunctionality>() {{
+        add(FirstLevelFunctionality.persistence);
+        // selbst suchen, evtl. in service 
+        add(FirstLevelFunctionality.transaction);
+        add(FirstLevelFunctionality.mail);
+        add(FirstLevelFunctionality.decorator);
+        add(FirstLevelFunctionality.transaction);
+        }}
+    )),
 	business_layer("Business Logic Layer", Collections.unmodifiableList(
 		    new ArrayList<FirstLevelFunctionality>() {{
 		        add(FirstLevelFunctionality.ejb);
+		        // selbst suchen, evtl. in service 
 		        add(FirstLevelFunctionality.enterprise);
 		        add(FirstLevelFunctionality.mail);
 		        add(FirstLevelFunctionality.decorator);
+		        add(FirstLevelFunctionality.transaction);
 		        }}
 		    )), 
+	// evtl. in network layer umbennen, weil jms ist nachrichten zwischen servern --> nichts mit web 
 	web_Layer("Web Layer", Collections.unmodifiableList(
 		    new ArrayList<FirstLevelFunctionality>() {{
 		        add(FirstLevelFunctionality.json);
@@ -42,6 +48,8 @@ public enum Layer {
 		        add(FirstLevelFunctionality.security);
 		        add(FirstLevelFunctionality.crypto);
 		        add(FirstLevelFunctionality.management);
+		        // wie kleine prozesse die der server mit z.B. nem timer starten kann
+		        add(FirstLevelFunctionality.batch);
 		    }}));
 		        
 	/*annotation("javax.annotation"), batch("javax.batch"), crypto("javax.crypto"), decorator("javax.decorator"), ejb("javax.ejb"), el("javax.el"), enterprise("javax.enterprise"), faces("javax.faces"), 

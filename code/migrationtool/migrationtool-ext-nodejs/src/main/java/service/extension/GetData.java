@@ -73,6 +73,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		 */
 		System.out.println("----------stopping reading from dto");
 		return null;
+		// TODO return string "analysis was successful bla" 
 	}
 
 	// persist javaImplementations (class, Abstract, Interface nodes) and
@@ -87,8 +88,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 
 			List<JavaImplementation> javaImplementationsList = new ArrayList<JavaImplementation>();
 			// persist java implementations
-			System.out.println(
-					"+++++++++Start persisting java implementations (enum OR class/interface/abstractClass) +++++++++");
+			System.out.println("+++++++++Start persisting java implementations (enum OR class/interface/abstractClass) +++++++++");
 			for (ClassDTO classDTO : classDTOList) {
 				if (classDTO.getEnumClass() != null) {
 					JavaImplementation javaImplementation = transformClassDTOtoEnumJavaImplementation(classDTO);
@@ -222,9 +222,10 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 					}
 				}
 			}
-			// TODO: find external resouces in annotations like @Resource(lookup
-			// = "java:jboss/DefaultJMSConnectionFactory")
-			// TODO adding them as resource nodes in the graph
+			
+			persistImplementations(javaImplementationsList, graphFoundationDAO);
+			persistExtensions(javaImplementationsList, graphFoundationDAO);
+			
 			
 
 			connection.close();
@@ -239,6 +240,32 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 
 	// Persistence Management
 	public void orchestratePersistenceProcess(List<JavaImplementation> javaImplementationList) {
+	}
+	
+	public void persistImplementations(List<JavaImplementation> javaImplementationList, GraphFoundationDAO dao) {
+		for(JavaImplementation impl : javaImplementationList) {
+			if(!impl.getImplementedInterfaces().isEmpty()) {
+				for(String implementedInterface : impl.getImplementedInterfaces()) {
+					String implementedInterfaceName = implementedInterface.replaceAll("'", "") + ".java";
+					String javaImplementationPath = impl.getPath(); 
+					System.out.println(javaImplementationPath + " implementes: " + implementedInterfaceName);
+					dao.persistImplementation(javaImplementationPath, implementedInterfaceName);
+				}
+			}
+		}
+	}
+	
+	public void persistExtensions(List<JavaImplementation> javaImplementationList, GraphFoundationDAO dao) {
+		for(JavaImplementation impl : javaImplementationList) {
+			if(!impl.getExtensions().isEmpty()) {
+				for(String extension : impl.getExtensions()) {
+					String extensionName = extension.replaceAll("'", "") + ".java";
+					String javaImplementationPath = impl.getPath(); 
+					System.out.println(javaImplementationPath + " extends: " + extensionName);
+					dao.persistExtension(javaImplementationPath, extensionName);
+				}
+			}
+		}
 	}
 
 	// GRAPH_NODES: Class, Abstract Class or Interface

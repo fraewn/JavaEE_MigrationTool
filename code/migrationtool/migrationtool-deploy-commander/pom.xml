@@ -55,5 +55,16 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		<profile>
+			<id>nodejs-build</id>
+			<dependencies>
+				<dependency>
+					<groupId>thesis.hbrs</groupId>
+					<artifactId>migrationtool-ext-nodejs</artifactId>
+					<version>${migrationtool-nodejs-version}</version>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
 	</profiles>
 </project>
