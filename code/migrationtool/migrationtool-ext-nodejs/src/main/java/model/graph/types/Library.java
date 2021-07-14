@@ -12,7 +12,6 @@ public enum Library {
 		private Library(String module, String description){
 			this.module = module; 
 			this.description = description; 
-
 		}
 		public String toString(){
 			return this.module;

@@ -43,4 +43,11 @@ public class Constructor {
 	public void setBody(String body) {
 		this.body = body;
 	}
+	public void cleanBody(){
+		if(this.body != null){
+		this.body = this.body.replaceAll("\"", "'");
+		String newline = System.getProperty("line.separator");
+		this.body = this.body.replace(newline, "\\n");
+		}
+	}
 }

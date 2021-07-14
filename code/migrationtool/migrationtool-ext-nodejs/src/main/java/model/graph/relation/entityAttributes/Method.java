@@ -59,6 +59,8 @@ public class Method {
 	public void cleanBody(){
 		if(this.body != null){
 		this.body = this.body.replaceAll("'", "\"");
+		String newline = System.getProperty("line.separator");
+		this.body = this.body.replace(newline, "\\n");
 		}
 	}
 	

@@ -19,6 +19,7 @@ import model.graph.types.NodeType;
 import model.graph.types.SecondLevelFunctionality;
 import operations.ModelService;
 import operations.dto.ClassDTO;
+import parser.LoadSourcesServiceImpl;
 import parser.utils.AnnotationResolver;
 import parser.visitors.AnnotationVisitor;
 import service.persistence.Neo4jConnection;
@@ -44,13 +45,14 @@ import com.google.gson.Gson;
 
 import data.TargetTypes;
 
+import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import java.io.File;
 
 // TODO create three classes extractions, transformation, loading 
 // call each one after the other; this class is going to be extraction 
 public class GetData extends ModelService<List<ClassDTO>, String> {
-
+	private static final Logger LOG = Logger.getLogger(GetData.class);
 	// method that inits the ETL and persistence processes
 	// hier kommt eine liste an dtos rein
 	// für jedes dto wird zunächst ein klassen knoten erstellt
@@ -61,207 +63,235 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 	// danach wird auf entitäten und funktionalitäten geprüft und diese
 	// mittels Knoten und Kanten eingefügt
 	@Override
-	public String save(List<ClassDTO> classDTOList) {
-		System.out.println("----------starting reading from dto");
-		persistFoundation(classDTOList);
-		/*
-		 * for (ClassDTO classDTO : classDTOList) { JavaImplementation
-		 * javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
-		 * javaImplementationsList.add(javaImplementation);
-		 * 
-		 * }
-		 */
-		System.out.println("----------stopping reading from dto");
+	public String save(List<ClassDTO> astDTOList) {
+		LOG.info("STARTING ETL PROCESS");
+		orchestrateETL(astDTOList);
+		LOG.info("STOPPING ETL PROCESS");
 		return null;
-		// TODO return string "analysis was successful bla" 
 	}
 
-	// persist javaImplementations (class, Abstract, Interface nodes) and
-	// methods calls (edges)
-	public boolean persistFoundation(List<ClassDTO> classDTOList) {
+	// persist javaImplementations (class, Abstract, Interface nodes) 
+	public void orchestrateETL(List<ClassDTO> astDTOList) {
+		List<JavaImplementation> javaImplementationsList = new ArrayList<JavaImplementation>();
 		List<JavaImplementation> enumList = new ArrayList<JavaImplementation>(); 
-		boolean result = true;
+		
 		try {
 			Neo4jConnection connection = Neo4jConnection.getInstance();
 			GraphFoundationDAO graphFoundationDAO = GraphFoundationDAO.getInstance();
 			graphFoundationDAO.setSession(connection.initConnection());
-
-			List<JavaImplementation> javaImplementationsList = new ArrayList<JavaImplementation>();
-			// persist java implementations
-			System.out.println("+++++++++Start persisting java implementations (enum OR class/interface/abstractClass) +++++++++");
-			for (ClassDTO classDTO : classDTOList) {
+			
+			// ETL base information 
+			System.out.println(""); 
+			LOG.info("+++++++++ START persisting base information +++++++++");
+			LOG.info("+++++++++ Persisting classes, abstract classes, interfaces and enums +++++++++");
+			for (ClassDTO classDTO : astDTOList) {
 				if (classDTO.getEnumClass() != null) {
+					// astDTO represents Enum
 					JavaImplementation javaImplementation = transformClassDTOtoEnumJavaImplementation(classDTO);
 					enumList.add(javaImplementation);
-					// IMPORTANT
-					//graphFoundationDAO.persistFullEnumNode(javaImplementation);
+					
+					graphFoundationDAO.persistFullEnumNode(javaImplementation);
+				
 				} else {
+					// astDTO represents Class/AbstractClass/Interface 
 					JavaImplementation javaImplementation;
-					// enthält den javaImplementation knoten
-					// (Class/AbstractClass/Interface) mit allen Attributen
 					javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
 					javaImplementationsList.add(javaImplementation);
-					// graphFoundationDAO.persistFullClassNode(javaImplementation);
-					// check if class is entity
-					AnnotationVisitor entityAnnotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
-							TargetTypes.TYPE);
-					if (Optional.ofNullable(classDTO.getJavaClass().accept(entityAnnotationVisitor, null))
-							.orElse(false)) {
-						String className = javaImplementation.getJavaClassName();
-						String entityName = javaImplementation.getClassName();
-						// graphFoundationDAO.persistEntity(className,
-						// entityName);
-					}
-					List<FieldDeclaration> fields = classDTO.getJavaClass().getFields();
-					for(FieldDeclaration field : fields){
-						List<AnnotationExpr> annoList = field.getAnnotations(); 
-						for(AnnotationExpr annoExpr : annoList){
-							if(annoExpr.toString().contains("Resource")){
-								//System.out.println("Found a resource in the field: " + field.toString() + " called " + annoExpr.toString());
-								graphFoundationDAO.persistRessource(annoExpr.toString(), classDTO.getFullName());
-							}
-						}
-					}
-					
-					
-
-				}
-			}
-
-			// persist method dependencies between java implementations
-			System.out.println("+++++++++Start persisting method call relations +++++++++");
-			for (ClassDTO classDTO : classDTOList) {
-				if (classDTO.getEnumClass() != null) {
-					JavaImplementation javaImplementation = transformClassDTOtoEnumJavaImplementation(classDTO);
-					List<MethodCallRelation> methodCallRelationList = getEnumMethodCallRelationList(classDTO);
-					
-				} else {
-					// enthält alle ausgehenden Kanten des javaImplementation
-					// Knotens
-					List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
-					for (MethodCallRelation methodCallRelation : methodCallRelationList) {
-						// graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
-					}
-				}
-			}
-
-			System.out.println("+++++++++Start persisting dependecy injection relations +++++++++");
-			for (ClassDTO classDTO : classDTOList) {
-				// check all fields in class if they are injected
-				for (FieldDeclaration fieldDeclaration : classDTO.getFields()) {
-					JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
-					if (fieldDeclaration.toString().contains("@Inject")) {
-						String dependentClass = javaImplementation.getJavaClassName();
-						String injectedClass = fieldDeclaration.getElementType().asString() + ".java";
-						// System.out.println(dependentClass + " is
-						// dependent
-						// on: " + injectedClass);
-						// graphFoundationDAO.persistDependencyInjection(dependentClass,
-						// injectedClass);
-					}
-				}
-			}
-
-			System.out.println("+++++++++Start persisting functionalities and their relations +++++++++");
-			for (JavaImplementation javaImplementation : javaImplementationsList) {
-				for (String imp : javaImplementation.getImports()) {
-					boolean functionalityFound = false;
-					if (imp.contains("javax")) {
-						// System.out.println("imp: " + imp);
-						// first check if we can find a detailed
-						// functionality
-						boolean secondLevelFunctionalityFound = false;
-						for (SecondLevelFunctionality func : SecondLevelFunctionality.values()) {
-							if (imp.contains(func.toString())) {
-								//System.out.println("imp is the same as second level func: " + imp + " " + func);
-								secondLevelFunctionalityFound = true;
-								functionalityFound = true;
-								graphFoundationDAO.persistSecondLevelFunctionality(func);
-								// graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(),
-								// func.toString(), imp);
-							}
-						}
-						// if we could not find a detailed functionality,
-						// check
-						// if we match a more generic functionality
-						if (!secondLevelFunctionalityFound) {
-							for (FirstLevelFunctionality func : FirstLevelFunctionality.values()) {
-								if (imp.contains(func.toString())) {
-									// System.out.println("imp is the same as First Level func: " + imp + " " + func);
-									functionalityFound = true;
-									graphFoundationDAO.persistFirstLevelFunctionality(func);
-									// graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(),
-									// func.toString(), imp);
-								}
-							}
-						}
-						if (!functionalityFound) {
-							System.out.println("FUNCTIONALITY WAS NOT FOUND**************************!");
-						}
-					}
-					else {
-						for (Library lib : Library.values()) {
-							if (imp.contains(lib.toString())) {
-								//System.out.println("found a library: " + lib);
-								//graphFoundationDAO.persistLibrary(lib, javaImplementation.getPath()); 
-							}
-						}
-					}
-				}
-				
-			}
-			
-			System.out.println("+++++++++Start persisting enum import relations +++++++++");
-			for (JavaImplementation javaImplementation : javaImplementationsList) {
-				for (String imp : javaImplementation.getImports()) {
-					for(JavaImplementation enumImpl : enumList){
-						if (imp.contains(enumImpl.getClassName())) {
-							// System.out.println("Found a connection from: " + javaImplementation.getClassName() + " to enum: " + enumImpl.getClassName());
-							//graphFoundationDAO.persistEnumImportRelation(enumImpl.getPath(), javaImplementation.getPath(), javaImplementation.getNodeType().toString());
-						}
-					}
+					graphFoundationDAO.persistFullClassNode(javaImplementation);
 				}
 			}
 			
-			persistImplementations(javaImplementationsList, graphFoundationDAO);
-			persistExtensions(javaImplementationsList, graphFoundationDAO);
-			
-			
+			LOG.info("+++++++++ Persisting method calls +++++++++");
+			etlMethodCallRelations(astDTOList, graphFoundationDAO);
+			LOG.info("+++++++++ Persisting implement relations +++++++++");
+			etlImplementations(javaImplementationsList, graphFoundationDAO);
+			LOG.info("+++++++++ Persisting extend relations +++++++++");
+			etlExtensions(javaImplementationsList, graphFoundationDAO);
+			LOG.info("+++++++++ Persisting enum imports +++++++++");
+			etlEnumImportRelations(javaImplementationsList, enumList, graphFoundationDAO);
+			LOG.info("+++++++++ STOP persisting base information +++++++++");
+			System.out.println(""); 
 
+			
+			// ETL generated knowledge 
+			LOG.info("+++++++++ START persisting generated knowledge +++++++++");
+			LOG.info("+++++++++ Persisting Dependency Injections +++++++++");
+			etlDependencyInjections(astDTOList, graphFoundationDAO);
+			LOG.info("+++++++++ Persisting Resources +++++++++");
+			etlResources(astDTOList, graphFoundationDAO);
+			LOG.info("+++++++++ Persisting Entities +++++++++");
+			etlEntities(astDTOList, graphFoundationDAO);
+			LOG.info("+++++++++ Persisting Functionalities and Libraries +++++++++");
+			etlFunctionalitiesAndLibraries(javaImplementationsList, graphFoundationDAO);
+			LOG.info("+++++++++ Persisting Layers +++++++++");
+			graphFoundationDAO.persistEntityPersistenceLayerRelations();
+			LOG.info("+++++++++ Persisting Default Edge Weight +++++++++");
+			graphFoundationDAO.persistDefaultEdgeWeight(); 
+			LOG.info("+++++++++ STOP persisting generated knowledge +++++++++");
+			System.out.println(""); 
+			
+			// close neo4j connection 
 			connection.close();
-		} catch (
-
-		Exception e) {
-			result = false;
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return result;
+		
 	}
-
-	// Persistence Management
-	public void orchestratePersistenceProcess(List<JavaImplementation> javaImplementationList) {
+	public void etlResources(List<ClassDTO> astDTOList, GraphFoundationDAO graphFoundationDAO) {
+		for (ClassDTO classDTO : astDTOList) {
+			// exclude enums
+			if (classDTO.getEnumClass() == null) {
+				// check if class is connected to any resources 
+				List<FieldDeclaration> fields = classDTO.getJavaClass().getFields();
+				for(FieldDeclaration field : fields){
+					List<AnnotationExpr> annoList = field.getAnnotations(); 
+					for(AnnotationExpr annoExpr : annoList){
+						if(annoExpr.toString().contains("Resource")){
+							//System.out.println("Found a resource in the field: " + field.toString() + " called " + annoExpr.toString());
+							graphFoundationDAO.persistRessource(annoExpr.toString(), classDTO.getFullName());
+						}
+					}
+				}
+			}
+		}
 	}
 	
-	public void persistImplementations(List<JavaImplementation> javaImplementationList, GraphFoundationDAO dao) {
+	public void etlEntities(List<ClassDTO> astDTOList, GraphFoundationDAO graphFoundationDAO) {
+		for (ClassDTO classDTO : astDTOList) {
+			// exclude enums
+			if (classDTO.getEnumClass() == null) {
+				JavaImplementation javaImplementation;
+				javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
+				
+				// check if class is entity
+				AnnotationVisitor entityAnnotationVisitor = new AnnotationVisitor("javax.persistence.Entity",
+						TargetTypes.TYPE);
+				if (Optional.ofNullable(classDTO.getJavaClass().accept(entityAnnotationVisitor, null))
+						.orElse(false)) {
+					String className = javaImplementation.getJavaClassName();
+					String entityName = javaImplementation.getClassName();
+					graphFoundationDAO.persistEntity(className, entityName);
+				}
+			}
+		}
+	}
+	
+	public void etlMethodCallRelations(List<ClassDTO> astDTOList, GraphFoundationDAO graphFoundationDAO) {
+		// persist method dependencies between java implementations
+					for (ClassDTO classDTO : astDTOList) {
+						if (classDTO.getEnumClass() != null) {
+							JavaImplementation javaImplementation = transformClassDTOtoEnumJavaImplementation(classDTO);
+							List<MethodCallRelation> methodCallRelationList = getEnumMethodCallRelationList(classDTO);
+							
+						} else {
+							// enthält alle ausgehenden Kanten des javaImplementation
+							// Knotens
+							List<MethodCallRelation> methodCallRelationList = getMethodCallRelationList(classDTO);
+							for (MethodCallRelation methodCallRelation : methodCallRelationList) {
+								graphFoundationDAO.persistMethodCallRelation(methodCallRelation);
+							}
+						}
+					}
+	}
+	
+	public void etlDependencyInjections(List<ClassDTO> astDTOList, GraphFoundationDAO graphFoundationDAO) {
+		for (ClassDTO classDTO : astDTOList) {
+			// check all fields in class if they are injected
+			for (FieldDeclaration fieldDeclaration : classDTO.getFields()) {
+				JavaImplementation javaImplementation = transformClassDTOtoJavaImplementation(classDTO);
+				if (fieldDeclaration.toString().contains("@Inject")) {
+					String dependentClass = javaImplementation.getJavaClassName();
+					String injectedClass = fieldDeclaration.getElementType().asString() + ".java";
+					// System.out.println(dependentClass + " is
+					// dependent
+					// on: " + injectedClass);
+					graphFoundationDAO.persistDependencyInjection(dependentClass, injectedClass);
+				}
+			}
+		}
+	}
+	
+	public void etlFunctionalitiesAndLibraries(List<JavaImplementation> javaImplementationList, GraphFoundationDAO graphFoundationDAO) {
+		for (JavaImplementation javaImplementation : javaImplementationList) {
+			for (String imp : javaImplementation.getImports()) {
+				boolean functionalityFound = false;
+				if (imp.contains("javax")) {
+					// System.out.println("imp: " + imp);
+					// first check if we can find a detailed
+					// functionality
+					boolean secondLevelFunctionalityFound = false;
+					for (SecondLevelFunctionality func : SecondLevelFunctionality.values()) {
+						if (imp.contains(func.toString())) {
+							//System.out.println("imp is the same as second level func: " + imp + " " + func);
+							secondLevelFunctionalityFound = true;
+							functionalityFound = true;
+							graphFoundationDAO.persistSecondLevelFunctionality(func);
+							graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(), func.toString(), imp);
+						}
+					}
+					// if we could not find a detailed functionality,
+					// check
+					// if we match a more generic functionality
+					if (!secondLevelFunctionalityFound) {
+						for (FirstLevelFunctionality func : FirstLevelFunctionality.values()) {
+							if (imp.contains(func.toString())) {
+								// System.out.println("imp is the same as First Level func: " + imp + " " + func);
+								functionalityFound = true;
+								graphFoundationDAO.persistFirstLevelFunctionality(func);
+								graphFoundationDAO.associateJavaImplWithFunctionality(javaImplementation.getPath(),func.toString(), imp);
+							}
+						}
+					}
+					if (!functionalityFound) {
+						System.out.println("FUNCTIONALITY WAS NOT FOUND**************************!");
+					}
+				}
+				else {
+					for (Library lib : Library.values()) {
+						if (imp.contains(lib.toString())) {
+							//System.out.println("found a library: " + lib);
+							graphFoundationDAO.persistLibrary(lib, javaImplementation.getPath()); 
+						}
+					}
+				}
+			}
+			
+		}
+	}
+	
+	public void etlEnumImportRelations(List<JavaImplementation> javaImplementationList, List<JavaImplementation> enumList, GraphFoundationDAO dao) {
+		for (JavaImplementation javaImplementation : javaImplementationList) {
+			for (String imp : javaImplementation.getImports()) {
+				for(JavaImplementation enumImpl : enumList){
+					if (imp.contains(enumImpl.getClassName())) {
+						// System.out.println("Found a connection from: " + javaImplementation.getClassName() + " to enum: " + enumImpl.getClassName());
+						dao.persistEnumImportRelation(enumImpl.getPath(), javaImplementation.getPath(), javaImplementation.getNodeType().toString());
+					}
+				}
+			}
+		}
+	}
+	
+	public void etlImplementations(List<JavaImplementation> javaImplementationList, GraphFoundationDAO dao) {
 		for(JavaImplementation impl : javaImplementationList) {
 			if(!impl.getImplementedInterfaces().isEmpty()) {
 				for(String implementedInterface : impl.getImplementedInterfaces()) {
 					String implementedInterfaceName = implementedInterface.replaceAll("'", "") + ".java";
 					String javaImplementationPath = impl.getPath(); 
-					System.out.println(javaImplementationPath + " implementes: " + implementedInterfaceName);
+					//System.out.println(javaImplementationPath + " implementes: " + implementedInterfaceName);
 					dao.persistImplementation(javaImplementationPath, implementedInterfaceName);
 				}
 			}
 		}
 	}
 	
-	public void persistExtensions(List<JavaImplementation> javaImplementationList, GraphFoundationDAO dao) {
+	public void etlExtensions(List<JavaImplementation> javaImplementationList, GraphFoundationDAO dao) {
 		for(JavaImplementation impl : javaImplementationList) {
 			if(!impl.getExtensions().isEmpty()) {
 				for(String extension : impl.getExtensions()) {
 					String extensionName = extension.replaceAll("'", "") + ".java";
 					String javaImplementationPath = impl.getPath(); 
-					System.out.println(javaImplementationPath + " extends: " + extensionName);
+					//System.out.println(javaImplementationPath + " extends: " + extensionName);
 					dao.persistExtension(javaImplementationPath, extensionName);
 				}
 			}
@@ -507,7 +537,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 		method.setAnnotations(convertAnnotationListToString(methodDeclaration.getAnnotations()));
 		method.setParameters(extractParameters(methodDeclaration.getParameters()));
 		method.setExceptions(convertGenericListToString(methodDeclaration.getThrownExceptions()));
-		method.cleanBody();
+		
 
 		/*
 		 * parameterList = methodDeclaration.getParameters(); for (Parameter
@@ -535,8 +565,9 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 			// ex.printStackTrace();
 			body = null;
 		}
+		
 		method.setBody(body);
-
+		method.cleanBody();
 		return method;
 	}
 
@@ -613,6 +644,7 @@ public class GetData extends ModelService<List<ClassDTO>, String> {
 				body = "";
 			}
 			constructor.setBody(body);
+			constructor.cleanBody();
 
 			// create constructor Json object string and add to list in the
 			// right format

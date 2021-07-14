@@ -72,7 +72,7 @@ public class GraphFoundationDAO implements AutoCloseable {
 	public boolean getClassNode(String className) throws Exception {
 		query = "match(c:Class {name:'" + className + "'}) return c.name";
 		result = session.run(query);
-		System.out.println(result.single().get(0).toString());
+		//System.out.println(result.single().get(0).toString());
 		return true;
 	}
 	
@@ -80,12 +80,31 @@ public class GraphFoundationDAO implements AutoCloseable {
 		query = "match(n:JavaImplementation {name:'" + name + "'}) return n.name";
 		result = session.run(query);
 		if(result.hasNext()) {
-			System.out.println("Found a record: " + result.single().get(0).toString());
+			// System.out.println("Found a record: " + result.single().get(0).toString());
 			return true; 
 		}
 		return false; 
 	}
 
+	public boolean persistEntityPersistenceLayerRelations() throws Exception {
+		query = "match(n:Entity) match(p:Layer {name:'Persistence Layer'}) MERGE(n)-[:BELONGS_TO]->(p)";
+		result = session.run(query);
+		if (result.summary() != null) {
+			return true;
+		}
+		return false; 
+	}
+	
+	public boolean persistDefaultEdgeWeight() throws Exception {
+		query = "match(n)-[r]->(m) set r.weight = 1";
+		result = session.run(query);
+		if (result.summary() != null) {
+			return true;
+		}
+		return false; 
+	}
+	
+	
 	public List<String> getAllMethodCallsPerClass(String path) throws Exception {
 		// path = service.SecurityUtils
 		List<String> methodCalls = new ArrayList<String>();
@@ -153,7 +172,7 @@ public class GraphFoundationDAO implements AutoCloseable {
 
 		// execute
 		query = mergeQuery + separator + setQueryBegin + attributes + setQueryEnd;
-		System.out.println(query);
+		//System.out.println(query);
 		result = session.run(query);
 		if (result.summary() != null) {
 			return true;
@@ -163,8 +182,8 @@ public class GraphFoundationDAO implements AutoCloseable {
 
 	public boolean setListAttributeInClassNode(String className, String javaClassName, String nodeAttribute,
 			List<String> jsonObjectListAsString) throws Exception {
-		System.out.println(jsonObjectListAsString.get(0));
-		System.out.println(jsonObjectListAsString.get(1));
+		//System.out.println(jsonObjectListAsString.get(0));
+		//System.out.println(jsonObjectListAsString.get(1));
 		query = "MATCH (c:Class {name:'" + javaClassName + "'}) SET c." + nodeAttribute + "= " + jsonObjectListAsString;
 		result = session.run(query);
 		if (result.summary() != null) {
@@ -181,7 +200,7 @@ public class GraphFoundationDAO implements AutoCloseable {
 		query = "MATCH (callingClass:" + callingJavaImplementationType + " {name:'" + callingJavaImplementation + "'}) "
 				+ "MATCH (providingClass {name:'" + providingJavaImplementation + "'}) " + "MERGE (callingClass)-[:"
 				+ relationType + " {name:'" + methodCallRelation.getMethod() + "'}]->(providingClass)";
-		System.out.println(query);
+		//System.out.println(query);
 		result = session.run(query);
 		if (result.summary() != null) {
 			return true;
@@ -193,7 +212,7 @@ public class GraphFoundationDAO implements AutoCloseable {
 		String relationType = RelationType.USES_ENUM.toString();
 		query = "MATCH (class:" + implType + " {path:'" + implPath + "'}) " + "MATCH (enum {path:'" + enumPath + "'}) "
 				+ "MERGE (class)-[:" + relationType + "]->(enum)";
-		System.out.println(query);
+		//System.out.println(query);
 		result = session.run(query);
 		if (result.summary() != null) {
 			return true;
@@ -226,7 +245,7 @@ public class GraphFoundationDAO implements AutoCloseable {
 					+ "'}) MATCH(injectedClass {name:'" + injectedClass + "'}) MERGE (dependentClass)-[:" + relationType
 					+ "]->(injectedClass)";
 			result = session.run(query);
-			System.out.println("node was already there: " + query);
+			//System.out.println("node was already there: " + query);
 			if (result.summary() != null) {
 				return true;
 			}
@@ -238,7 +257,7 @@ public class GraphFoundationDAO implements AutoCloseable {
 					+ "'}) MERGE (dependentClass)-[:" + relationType + "]->(injectedClass:" + injectedNodeType
 					+ " {name:'" + injectedClass + "'})";
 			result = session.run(query);
-			System.out.println("added new node: " + query);
+			//System.out.println("added new node: " + query);
 			if (result.summary() != null) {
 				return true;
 			}
@@ -316,7 +335,7 @@ public class GraphFoundationDAO implements AutoCloseable {
 		if (result.summary() != null) { 
 			return true; 
 		}
-		System.out.println(query);
+		//System.out.println(query);
 		
 		
 		return false;
