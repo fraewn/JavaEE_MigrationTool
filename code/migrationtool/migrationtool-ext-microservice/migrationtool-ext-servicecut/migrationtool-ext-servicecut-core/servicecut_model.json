@@ -1,0 +1,164 @@
+{
+  "name" : "5b0bf07a",
+  "generatedDate" : "20-07-2021 01:49:50",
+  "entityDiagram" : {
+    "entities" : [ {
+      "name" : "beans.report.Company",
+      "attributes" : [ "id", "name", "business", "foundation", "location" ]
+    }, {
+      "name" : "beans.user.UserGroup",
+      "attributes" : [ "id", "groupExtID", "permissions" ]
+    }, {
+      "name" : "beans.batch.CleanReport",
+      "attributes" : [ "id", "batchId", "title", "comment", "company" ]
+    }, {
+      "name" : "beans.user.Admin",
+      "attributes" : [ ]
+    }, {
+      "name" : "beans.report.Report",
+      "attributes" : [ "id", "reporter", "title", "comment", "createDate", "rating", "likes", "company", "liker" ]
+    }, {
+      "name" : "beans.messages.AuditMessage",
+      "attributes" : [ "id", "msg", "createDate" ]
+    }, {
+      "name" : "beans.user.Permissions",
+      "attributes" : [ "id", "name" ]
+    }, {
+      "name" : "beans.user.User",
+      "attributes" : [ "id", "password", "salt", "userExtID", "firstName", "lastName", "mail", "group" ]
+    }, {
+      "name" : "beans.messages.JMSMessage",
+      "attributes" : [ "id", "msg", "list" ]
+    } ],
+    "relationships" : [ {
+      "origin" : "beans.user.UserGroup",
+      "destination" : "beans.user.Permissions",
+      "type" : "AGGREGATION"
+    }, {
+      "origin" : "beans.batch.CleanReport",
+      "destination" : "beans.report.Company",
+      "type" : "AGGREGATION"
+    }, {
+      "origin" : "beans.user.Admin",
+      "destination" : "beans.user.User",
+      "type" : "INHERITANCE"
+    }, {
+      "origin" : "beans.report.Report",
+      "destination" : "beans.report.Company",
+      "type" : "AGGREGATION"
+    }, {
+      "origin" : "beans.report.Report",
+      "destination" : "beans.user.User",
+      "type" : "AGGREGATION"
+    }, {
+      "origin" : "beans.user.User",
+      "destination" : "beans.user.UserGroup",
+      "type" : "AGGREGATION"
+    } ]
+  },
+  "information" : {
+    "useCases" : [ {
+      "name" : "service.user.UserMgmtServiceImpl.getUserGroupByName",
+      "input" : "beans.user.UserGroup.permissions,beans.user.UserGroup.id,beans.user.UserGroup.groupExtID",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.batch.BatchServiceImpl.getBatchById",
+      "input" : "beans.batch.CleanReport.comment,beans.batch.CleanReport.company,beans.batch.CleanReport.batchId,beans.batch.CleanReport.title,beans.batch.CleanReport.id",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.batch.BatchServiceImpl.createBatch",
+      "input" : "beans.report.Report.title,beans.report.Report.comment,beans.report.Report.company",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.user.UserMgmtServiceImpl.getAllUsers",
+      "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.batch.BatchServiceImpl.getAllBatches",
+      "input" : "beans.batch.CleanReport.comment,beans.batch.CleanReport.company,beans.batch.CleanReport.batchId,beans.batch.CleanReport.title,beans.batch.CleanReport.id",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.user.UserMgmtServiceImpl.getUserById",
+      "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.user.UserMgmtServiceImpl.getUserByName",
+      "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.createCompany",
+      "input" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.getAllCompanies",
+      "input" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.editReport",
+      "input" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.getReportById",
+      "input" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.createReport",
+      "input" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.editCompany",
+      "input" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.messages.AuditServiceImpl.getMessageById",
+      "input" : "beans.messages.AuditMessage.id,beans.messages.AuditMessage.createDate,beans.messages.AuditMessage.msg",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.user.UserMgmtServiceImpl.deleteUser",
+      "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName",
+      "persistenceChanges" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName"
+    }, {
+      "name" : "service.report.ReportServiceImpl.getCompanyById",
+      "input" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.getAllReports",
+      "input" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.messages.AuditServiceImpl.getAllMessage",
+      "input" : "beans.messages.AuditMessage.id,beans.messages.AuditMessage.createDate,beans.messages.AuditMessage.msg",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.checkUniqueCompany",
+      "input" : "beans.report.Company.name",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.user.UserMgmtServiceImpl.checkUnique",
+      "input" : "beans.user.User.userExtID",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.getCompanyByName",
+      "input" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.user.UserMgmtServiceImpl.createUser",
+      "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.report.ReportServiceImpl.addNewLike",
+      "input" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.user.UserMgmtServiceImpl.getUserGroupOfUser",
+      "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.UserGroup.permissions,beans.user.UserGroup.id,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.UserGroup.groupExtID,beans.user.User.firstName",
+      "persistenceChanges" : ""
+    }, {
+      "name" : "service.user.UserMgmtServiceImpl.editUser",
+      "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName",
+      "persistenceChanges" : ""
+    } ],
+    "criteria" : { },
+    "compatibilities" : { }
+  }
+}

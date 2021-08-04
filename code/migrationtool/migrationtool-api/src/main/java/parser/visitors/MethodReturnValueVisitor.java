@@ -9,6 +9,9 @@ import com.github.javaparser.utils.Pair;
 
 import parser.utils.TypeResolver;
 
+/**
+ * Filter the AST-tree for a specific return type
+ */
 public class MethodReturnValueVisitor extends GenericVisitorAdapter<Boolean, FieldDeclaration> {
 
 	/** searched definition */
@@ -28,6 +31,7 @@ public class MethodReturnValueVisitor extends GenericVisitorAdapter<Boolean, Fie
 		if ((typeOfReturn != null) && typeOfReturn.equals(this.searchedEntity)) {
 			return Boolean.TRUE;
 		}
+		// If there is a container object e.g. List, inspect type parameter
 		if ((typeOfReturn != null) && type.isReferenceType()) {
 			for (Pair<ResolvedTypeParameterDeclaration, ResolvedType> pair : type.asReferenceType()
 					.getTypeParametersMap()) {

@@ -7,13 +7,17 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
-import data.ArgumentPosition;
+import parser.enums.ArgumentPosition;
 import parser.utils.TypeResolver;
 
+/**
+ * Filter the AST-tree for a method argument
+ */
 public class MethodArgumentsVisitor extends GenericVisitorAdapter<Boolean, FieldDeclaration> {
 
 	/** searched definition */
 	private String searchedEntity;
+	/** position of the argument */
 	private ArgumentPosition pos;
 
 	public MethodArgumentsVisitor(String searchedEntity, ArgumentPosition pos) {

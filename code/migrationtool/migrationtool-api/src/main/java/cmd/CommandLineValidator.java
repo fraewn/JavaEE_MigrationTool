@@ -3,7 +3,8 @@ package cmd;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.spi.OptionHandler;
 
@@ -18,12 +19,12 @@ import utils.PluginManager;
 public class CommandLineValidator {
 
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(CommandLineParser.class);
+	private static final Logger LOG = LogManager.getLogger();
 
 	/**
 	 * List all options of all services and commands
 	 */
-	public static <I, O> void listAllPossibleArguments() {
+	public static void listAllPossibleArguments() {
 		LOG.info("+++Arguments of all possible commands+++");
 		List<CommandExtension> commands = new ArrayList<>();
 		commands.addAll(PluginManager.findPluginCommands(CommandExtension.class));
@@ -83,8 +84,6 @@ public class CommandLineValidator {
 			sb.append(System.lineSeparator());
 			res.append(sb.toString());
 		}
-		res.append("]");
-		LOG.info("Arguments: " + o.getClass().getSimpleName() + " [ " + res.toString());
-
+		LOG.info("Arguments: {} [ {} ]", o.getClass().getSimpleName(), res.toString());
 	}
 }

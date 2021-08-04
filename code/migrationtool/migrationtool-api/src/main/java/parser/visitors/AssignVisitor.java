@@ -11,6 +11,9 @@ import com.github.javaparser.resolution.types.ResolvedType;
 
 import parser.utils.TypeResolver;
 
+/**
+ * Filter the AST-tree for a assign operation
+ */
 public class AssignVisitor extends GenericVisitorAdapter<Boolean, AssignExpr> {
 
 	/** searched target, fully qualified name */
@@ -44,7 +47,7 @@ public class AssignVisitor extends GenericVisitorAdapter<Boolean, AssignExpr> {
 
 	@Override
 	public Boolean visit(FieldDeclaration n, AssignExpr arg) {
-		if (!this.objectCreation && check(n)) {
+		if (this.objectCreation && check(n)) {
 			return Boolean.TRUE;
 		}
 		return super.visit(n, arg);
@@ -52,7 +55,7 @@ public class AssignVisitor extends GenericVisitorAdapter<Boolean, AssignExpr> {
 
 	@Override
 	public Boolean visit(VariableDeclarationExpr n, AssignExpr arg) {
-		if (!this.objectCreation && check(n)) {
+		if (this.objectCreation && check(n)) {
 			return Boolean.TRUE;
 		}
 		return super.visit(n, arg);

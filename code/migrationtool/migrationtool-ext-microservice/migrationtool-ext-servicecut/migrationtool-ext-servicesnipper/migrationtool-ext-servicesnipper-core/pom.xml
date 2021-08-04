@@ -1,0 +1,40 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>thesis.hbrs</groupId>
+		<artifactId>migrationtool-ext-servicesnipper</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>migrationtool-ext-servicesnipper-core</artifactId>
+
+	<dependencies>
+		<dependency>
+			<groupId>thesis.hbrs</groupId>
+			<artifactId>migrationtool-ext-servicesnipper-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.graphstream</groupId>
+			<artifactId>gs-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.graphstream</groupId>
+			<artifactId>gs-algo</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.nlpub</groupId>
+			<artifactId>watset</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jgrapht</groupId>
+			<artifactId>jgrapht-core</artifactId>
+			<version>1.5.1</version>
+		</dependency>
+	</dependencies>
+</project>

@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
@@ -24,7 +25,7 @@ import exceptions.MigrationToolRuntimeException;
 
 public class LoadSourcesServiceImpl implements LoadSourcesService {
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(LoadSourcesServiceImpl.class);
+	private static final Logger LOG = LogManager.getLogger();
 	/** Project root directory, containing all analyzed classes */
 	private ProjectRoot rootDirectory;
 
@@ -77,12 +78,10 @@ public class LoadSourcesServiceImpl implements LoadSourcesService {
 					pathsToJars.add(subFile.getPath());
 				}
 			}
+		} else if (file.getName().endsWith(".jar")) {
+			pathsToJars.add(file.getPath());
 		} else {
-			if (file.getName().endsWith(".jar")) {
-				pathsToJars.add(file.getPath());
-			} else {
-				LOG.info(file + " is an empty directory");
-			}
+			LOG.info(file + " is an empty directory");
 		}
 	}
 

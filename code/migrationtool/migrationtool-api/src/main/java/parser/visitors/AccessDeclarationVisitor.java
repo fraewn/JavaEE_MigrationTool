@@ -10,7 +10,7 @@ import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithFinalModifier;
 import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithStaticModifier;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
-import data.ModifierTypes;
+import parser.enums.ModifierTypes;
 
 /**
  * Filter the AST-tree for a specific declaration

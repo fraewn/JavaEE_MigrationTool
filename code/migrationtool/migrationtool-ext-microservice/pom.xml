@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -10,9 +11,9 @@
 	<artifactId>migrationtool-ext-microservice</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>migrationtool-ext-servicecutter</module>
-		<module>migrationtool-ext-servicecut</module>
 		<module>migrationtool-microservices</module>
+		<module>migrationtool-ext-servicecut</module>
+		<module>migrationtool-ext-servicemigrater</module>
 	</modules>
 
 	<repositories>
@@ -35,7 +36,7 @@
 	</repositories>
 
 	<properties>
-		<servicecutter-version>0.0.1-SNAPSHOT</servicecutter-version>
+		<servicemigrater-version>0.0.1-SNAPSHOT</servicemigrater-version>
 		<servicecut-version>0.0.1-SNAPSHOT</servicecut-version>
 
 		<!-- Library versions -->
@@ -43,20 +44,23 @@
 		<spring-cloud.version>Hoxton.RELEASE</spring-cloud.version>
 		<jsonwebtoken-version>0.9.1</jsonwebtoken-version>
 		<jackson-version>2.12.2</jackson-version>
+		<validation-api-version>2.0.1.Final</validation-api-version>
+		<validation-impl-version>6.2.0.Final</validation-impl-version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>thesis.hbrs</groupId>
-				<artifactId>migrationtool-servicecutter</artifactId>
+				<artifactId>migrationtool-ext-servicemigrater</artifactId>
 				<type>pom</type>
-				<version>${servicecutter-version}</version>
+				<version>${servicemigrater-version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>thesis.hbrs</groupId>
-				<artifactId>migrationtool-ext-servicecut</artifactId>
+				<artifactId>migrationtool-servicecut</artifactId>
+				<type>pom</type>
 				<version>${servicecut-version}</version>
 			</dependency>
 
@@ -98,6 +102,18 @@
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
 				<version>${jackson-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.validation</groupId>
+				<artifactId>validation-api</artifactId>
+				<version>${validation-api-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hibernate.validator</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>${validation-impl-version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

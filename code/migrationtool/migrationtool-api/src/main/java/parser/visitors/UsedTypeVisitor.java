@@ -12,11 +12,14 @@ import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
 import parser.utils.TypeResolver;
 
+/**
+ * Filter the AST-tree for a specific type/method
+ */
 public class UsedTypeVisitor extends GenericVisitorAdapter<Boolean, FieldDeclaration> {
 
 	/** searched definition */
 	private String searchedEntity;
-
+	/** searched methods of the object */
 	private List<String> searchedMethods;
 
 	public UsedTypeVisitor(String searchedEntity, String... searchedMethods) {

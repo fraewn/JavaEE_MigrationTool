@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -8,26 +9,49 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>migrationtool-ext-servicecut</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>migrationtool-ext-servicecut-api</module>
+		<module>migrationtool-ext-servicecut-core</module>
+		<module>migrationtool-ext-recommender</module>
+		<module>migrationtool-ext-servicesnipper</module>
+		<module>migrationtool-servicecut</module>
+	</modules>
 
-	<dependencies>
-		<dependency>
-			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-servicecutter</artifactId>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.graalvm.js</groupId>
-			<artifactId>js</artifactId>
-			<version>20.3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.graalvm.js</groupId>
-			<artifactId>js-scriptengine</artifactId>
-			<version>20.3.0</version>
-		</dependency>
-	</dependencies>
+	<properties>
+		<servicecut-api-version>0.0.1-SNAPSHOT</servicecut-api-version>
+		<servicecut-core-version>0.0.1-SNAPSHOT</servicecut-core-version>
+		<recommender-version>0.0.1-SNAPSHOT</recommender-version>
+		<servicesnipper-version>0.0.1-SNAPSHOT</servicesnipper-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-servicesnipper</artifactId>
+				<type>pom</type>
+				<version>${servicesnipper-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-recommender</artifactId>
+				<type>pom</type>
+				<version>${recommender-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-servicecut-api</artifactId>
+				<version>${servicecut-api-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-servicecut-core</artifactId>
+				<version>${servicecut-core-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>

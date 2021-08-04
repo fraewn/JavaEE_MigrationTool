@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import exceptions.MigrationToolInitException;
 
@@ -19,7 +20,7 @@ import exceptions.MigrationToolInitException;
 public class PropertiesLoader {
 
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(PropertiesLoader.class);
+	private static final Logger LOG = LogManager.getLogger();
 
 	/** content of properties file */
 	private Map<String, String> cache;
@@ -43,7 +44,7 @@ public class PropertiesLoader {
 			}
 		} catch (IOException ex) {
 			LOG.info("No properties file found, try local");
-			try (InputStream inputLocal = PropertiesLoader.class.getResourceAsStream(this.fileName)) {
+			try (InputStream inputLocal = PropertiesLoader.class.getResourceAsStream("/" + this.fileName)) {
 				Properties prop = new Properties();
 				prop.load(inputLocal);
 				for (Map.Entry<Object, Object> e : prop.entrySet()) {

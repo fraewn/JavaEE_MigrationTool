@@ -11,15 +11,18 @@ import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
 import parser.utils.TypeResolver;
 
+/**
+ * Filter the AST-tree for a specific method
+ */
 public class UsedMethodVisitor extends GenericVisitorAdapter<Boolean, FieldDeclaration> {
 
-	/** searched definition */
+	/** searched target entity */
 	private String searchedEntity;
-
+	/** searched method of entity */
 	private String searchedMethodName;
-
+	/** method arguments of searched method */
 	private List<String> searchedMethodArguments;
-
+	/** inspect method arguments */
 	private boolean search;
 
 	public UsedMethodVisitor(String searchedEntity, String searchedMethodName) {
@@ -79,6 +82,5 @@ public class UsedMethodVisitor extends GenericVisitorAdapter<Boolean, FieldDecla
 			}
 		}
 		return super.visit(n, arg);
-
 	}
 }

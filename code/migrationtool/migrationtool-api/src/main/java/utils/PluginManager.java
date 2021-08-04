@@ -6,6 +6,7 @@ import java.util.ServiceLoader;
 
 import operations.CommandExtension;
 import operations.ProcessingStep;
+import validator.Validator;
 
 /**
  * Utility class to load plugins of services or commands
@@ -15,6 +16,8 @@ public class PluginManager {
 	private static final String SERVICE_EXTENSION_PACKAGE = "service.extension";
 	/** Package location of command plugins */
 	private static final String COMMAND_EXTENSION_PACKAGE = "command.extension";
+	/** Package location of validator plugins */
+	private static final String VALIDATOR_EXTENSION_PACKAGE = "validator.extension";
 
 	/**
 	 * Find service plugins
@@ -79,5 +82,38 @@ public class PluginManager {
 			res.add(p);
 		});
 		return res;
+	}
+
+	/**
+	 * Find validator plugins
+	 *
+	 * @param plugin Plugin Definition
+	 *
+	 * @return searched validators
+	 */
+	public static List<Validator> findPluginValidators() {
+		List<Validator> res = new ArrayList<>();
+		ServiceLoader.load(Validator.class).forEach(p -> {
+			res.add(p);
+		});
+		return res;
+	}
+
+	/**
+	 * Find validator plugin
+	 *
+	 * @param plugin       Plugin Definition
+	 * @param searchedImpl Plugin Implementation
+	 * @return searched validtor
+	 */
+	public static Validator findPluginValidator(String searchedImpl) {
+		List<Validator> res = new ArrayList<>();
+		ServiceLoader.load(Validator.class).forEach(p -> {
+			String path = VALIDATOR_EXTENSION_PACKAGE + "." + searchedImpl;
+			if (path.equals(p.getClass().getName())) {
+				res.add(p);
+			}
+		});
+		return res.size() > 0 ? res.get(0) : null;
 	}
 }

@@ -8,7 +8,7 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
-import data.TargetTypes;
+import parser.enums.TargetTypes;
 
 /**
  * Filter the AST-tree for a specific annotation

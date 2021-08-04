@@ -1,15 +1,19 @@
 package operations;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Model Service of the migration tool. Save the meta definitions of a external
  * java project
+ *
+ * @param <I> Input Object
+ * @param <O> Output Object
  */
 public abstract class ModelService<I, O> implements ProcessingStep<I, O> {
 
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(ModelService.class);
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Override
 	public O process(I input) {

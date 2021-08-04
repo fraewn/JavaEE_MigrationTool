@@ -9,7 +9,7 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 import com.github.javaparser.resolution.types.ResolvedType;
 
-import data.DefinitionTypes;
+import parser.enums.DefinitionTypes;
 import parser.utils.TypeResolver;
 
 /**
@@ -53,25 +53,23 @@ public class TypeFieldVisitor extends GenericVisitorAdapter<Boolean, FieldDeclar
 			}
 		}
 		for (ResolvedType resolvedType : types) {
-			if (this.type.equals(DefinitionTypes.ALL)) {
+			String s = TypeResolver.getFullyQualifiedName(resolvedType);
+			boolean match = this.searchedDefinition != null ? s.equals(this.searchedDefinition) : true;
+			if (this.type.equals(DefinitionTypes.ALL) && match) {
 				return Boolean.TRUE;
-			} else if (this.type.equals(DefinitionTypes.PRIMITIVE) && resolvedType.isPrimitive()) {
+			}
+			if (this.type.equals(DefinitionTypes.PRIMITIVE) && resolvedType.isPrimitive() && match) {
 				return Boolean.TRUE;
-			} else if (this.type.equals(DefinitionTypes.CLASS) && resolvedType.isReference()) {
-				String s = TypeResolver.getFullyQualifiedName(resolvedType);
-				boolean match = this.searchedDefinition != null ? s.equals(this.searchedDefinition) : true;
+			}
+			if (this.type.equals(DefinitionTypes.CLASS) && resolvedType.isReference()) {
 				if (checkReference(resolvedType) && match) {
 					return Boolean.TRUE;
 				}
 			} else if (this.type.equals(DefinitionTypes.JAVA_CLASSES) && resolvedType.isReference()) {
-				String s = TypeResolver.getFullyQualifiedName(resolvedType);
-				boolean match = this.searchedDefinition != null ? s.equals(this.searchedDefinition) : true;
 				if (checkReference(resolvedType) && s.startsWith("java") && match) {
 					return Boolean.TRUE;
 				}
 			} else if (this.type.equals(DefinitionTypes.EXTERN) && resolvedType.isReference()) {
-				String s = TypeResolver.getFullyQualifiedName(resolvedType);
-				boolean match = this.searchedDefinition != null ? s.equals(this.searchedDefinition) : true;
 				if (checkReference(resolvedType) && !s.startsWith("java") && match) {
 					return Boolean.TRUE;
 				}
@@ -85,9 +83,8 @@ public class TypeFieldVisitor extends GenericVisitorAdapter<Boolean, FieldDeclar
 			ResolvedType comp = type.asArrayType().getComponentType();
 			if (comp.isReference()) {
 				return checkReference(comp);
-			} else {
-				return Boolean.FALSE;
 			}
+			return Boolean.FALSE;
 		}
 		return Boolean.TRUE;
 	}

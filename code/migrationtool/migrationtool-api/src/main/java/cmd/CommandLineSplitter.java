@@ -21,9 +21,9 @@ public class CommandLineSplitter {
 	 */
 	public static String[] definedArgs(String[] args, CmdLineParser parser) {
 		List<String> res = new ArrayList<>();
-		for (OptionHandler<?> o : parser.getOptions()) {
-			String option = o.option.toString();
-			for (String s : args) {
+		for (String s : args) {
+			for (OptionHandler<?> o : parser.getOptions()) {
+				String option = o.option.toString();
 				if (s.startsWith(option)) {
 					res.add(s);
 				}

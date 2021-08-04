@@ -1,18 +1,19 @@
 package operations;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.kohsuke.args4j.Option;
 
 /**
  * Load Service of the migration tool. Find and load a external java project
- * 
- * @param <I>
- * @param <O>
+ *
+ * @param <I> Input Object
+ * @param <O> Output Object
  */
 public abstract class LoaderService<I, O> implements ProcessingStep<I, O> {
 
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(LoaderService.class);
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Option(name = "-path", required = true, usage = "value for defining the location of the class files")
 	protected String path;

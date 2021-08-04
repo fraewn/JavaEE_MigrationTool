@@ -3,7 +3,8 @@ package controllers;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.jfoenix.controls.JFXListView;
 
@@ -23,7 +24,7 @@ import visualization.ParentController;
 public class MainController implements ParentController {
 
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(MainController.class);
+	private static final Logger LOG = LogManager.getLogger();
 
 	@FXML
 	private JFXListView<Label> progressList;

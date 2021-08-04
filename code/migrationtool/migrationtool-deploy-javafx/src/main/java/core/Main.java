@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import application.Appl;
 import javafx.application.Application;
@@ -17,7 +18,7 @@ import utils.PropertiesLoader;
 public class Main {
 
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(Main.class);
+	private static final Logger LOG = LogManager.getLogger();
 
 	public static void main(String[] args) {
 		LOG.info("Starting migrationtool (version: javafx)");

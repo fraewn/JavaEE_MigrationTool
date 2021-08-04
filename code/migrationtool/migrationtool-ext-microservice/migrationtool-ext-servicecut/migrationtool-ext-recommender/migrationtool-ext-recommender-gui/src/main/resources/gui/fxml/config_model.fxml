@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTreeTableView?>
+<?import com.jfoenix.controls.JFXTreeTableColumn?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<BorderPane
+	xmlns:fx="http://javafx.com/fxml/"
+	xmlns="http://javafx.com/javafx/"
+	fx:controller="recommandation.controllers.ConfigController"
+	AnchorPane.bottomAnchor="0.0"
+	AnchorPane.leftAnchor="0.0"
+	AnchorPane.rightAnchor="0.0"
+	AnchorPane.topAnchor="0.0">
+	<top>
+		<AnchorPane BorderPane.alignment="CENTER">
+			<padding>
+				<Insets
+					bottom="10.0"
+					top="10.0" />
+			</padding>
+			<children>
+				<VBox
+					spacing="10.0"
+					AnchorPane.bottomAnchor="0.0"
+					AnchorPane.leftAnchor="0.0"
+					AnchorPane.rightAnchor="0.0"
+					AnchorPane.topAnchor="0.0">
+					<children>
+						<AnchorPane BorderPane.alignment="CENTER">
+							<children>
+								<Label
+									alignment="CENTER"
+									fx:id="criteria"
+									AnchorPane.bottomAnchor="0.0"
+									AnchorPane.leftAnchor="0.0"
+									AnchorPane.rightAnchor="0.0"
+									AnchorPane.topAnchor="0.0">
+									<font>
+										<Font size="14.0" />
+									</font>
+								</Label>
+							</children>
+						</AnchorPane>
+						<Label
+							fx:id="description"
+							AnchorPane.bottomAnchor="0.0"
+							AnchorPane.leftAnchor="0.0"
+							AnchorPane.rightAnchor="0.0"
+							AnchorPane.topAnchor="0.0" />
+					</children>
+				</VBox>
+			</children>
+		</AnchorPane>
+	</top>
+	<center>
+		<StackPane fx:id="stackPane">
+			<children>
+				<AnchorPane BorderPane.alignment="CENTER">
+					<JFXTreeTableView
+						fx:id="recommandationTable"
+						AnchorPane.bottomAnchor="0.0"
+						AnchorPane.leftAnchor="0.0"
+						AnchorPane.rightAnchor="0.0"
+						AnchorPane.topAnchor="0.0">
+						<columns>
+						</columns>
+					</JFXTreeTableView>
+				</AnchorPane>
+			</children>
+		</StackPane>
+	</center>
+	<bottom>
+		<AnchorPane BorderPane.alignment="CENTER">
+			<children>
+				<HBox
+					spacing="10.0"
+					AnchorPane.bottomAnchor="0.0"
+					AnchorPane.leftAnchor="0.0"
+					AnchorPane.rightAnchor="0.0"
+					AnchorPane.topAnchor="0.0">
+					<children>
+						<Pane HBox.hgrow="ALWAYS" />
+						<AnchorPane>
+							<children>
+								<JFXButton
+									fx:id="addGroup"
+									onAction="#createModelForm"
+									buttonType="RAISED"
+									ripplerFill="#0037ff"
+									AnchorPane.bottomAnchor="0.0"
+									AnchorPane.leftAnchor="0.0"
+									AnchorPane.rightAnchor="0.0"
+									AnchorPane.topAnchor="0.0"
+									styleClass="jfx-button-raised" />
+							</children>
+						</AnchorPane>
+						<Pane />
+					</children>
+				</HBox>
+			</children>
+			<padding>
+				<Insets
+					bottom="10.0"
+					top="10.0" />
+			</padding>
+		</AnchorPane>
+	</bottom>
+</BorderPane>

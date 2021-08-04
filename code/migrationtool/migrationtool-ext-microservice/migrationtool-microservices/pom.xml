@@ -13,13 +13,14 @@
 	<dependencies>
 		<dependency>
 			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-servicecutter</artifactId>
+			<artifactId>migrationtool-ext-servicemigrater</artifactId>
 			<type>pom</type>
 		</dependency>
 
 		<dependency>
 			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-ext-servicecut</artifactId>
+			<artifactId>migrationtool-servicecut</artifactId>
+			<type>pom</type>
 		</dependency>
 	</dependencies>
 </project>

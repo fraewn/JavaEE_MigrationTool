@@ -4,6 +4,9 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
+/**
+ * Filter the AST-tree for a inheritence definition
+ */
 public class InheritenceVisitor extends GenericVisitorAdapter<Boolean, ClassOrInterfaceDeclaration> {
 
 	/** searched definition */

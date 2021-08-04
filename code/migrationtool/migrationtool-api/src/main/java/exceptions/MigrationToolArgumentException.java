@@ -12,6 +12,10 @@ public class MigrationToolArgumentException extends RuntimeException {
 
 	private Object object;
 
+	public MigrationToolArgumentException(String s) {
+		super(s);
+	}
+
 	public MigrationToolArgumentException(String s, Object object) {
 		super(s);
 		this.object = object;

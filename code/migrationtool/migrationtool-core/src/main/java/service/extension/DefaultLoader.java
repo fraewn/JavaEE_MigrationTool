@@ -3,7 +3,8 @@ package service.extension;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -13,26 +14,26 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 
 import operations.LoaderService;
-import operations.dto.ClassDTO;
+import operations.dto.AstDTO;
 import parser.LoadSourcesService;
 import parser.LoadSourcesServiceImpl;
 
 /**
  * Default method to load a defined project. Convert all classes to a
- * {@link ClassDTO}
+ * {@link AstDTO}
  */
-public class DefaultLoader extends LoaderService<Object, List<ClassDTO>> {
+public class DefaultLoader extends LoaderService<Object, List<AstDTO>> {
+	/** LOGGER */
+	private static final Logger LOG = LogManager.getLogger();
 
-	private static final Logger LOG = Logger.getLogger(DefaultLoader.class);
-
-	private List<ClassDTO> classes;
+	private List<AstDTO> classes;
 
 	public DefaultLoader() {
 		this.classes = new ArrayList<>();
 	}
 
 	@Override
-	public List<ClassDTO> loadProject(Object dto) {
+	public List<AstDTO> loadProject(Object dto) {
 		LoadSourcesService service = new LoadSourcesServiceImpl();
 		service.loadSources(this.path);
 		List<CompilationUnit> units = service.getAllCompilationUnits();
@@ -48,7 +49,7 @@ public class DefaultLoader extends LoaderService<Object, List<ClassDTO>> {
 					continue;
 				}
 				LOG.debug("Inspect class: " + decl.getNameAsString());
-				ClassDTO classDTO = new ClassDTO();
+				AstDTO classDTO = new AstDTO();
 				classDTO.setFullName(classPath);
 				// save imports
 				classDTO.setImports(unit.getImports());
@@ -69,7 +70,7 @@ public class DefaultLoader extends LoaderService<Object, List<ClassDTO>> {
 					continue;
 				}
 				LOG.debug("Inspect enum: " + decl.getNameAsString());
-				ClassDTO classDTO = new ClassDTO();
+				AstDTO classDTO = new AstDTO();
 				classDTO.setFullName(classPath);
 				// save imports
 				classDTO.setImports(unit.getImports());
@@ -83,7 +84,7 @@ public class DefaultLoader extends LoaderService<Object, List<ClassDTO>> {
 		return this.classes;
 	}
 
-	private ClassDTO setClass(ClassDTO classDTO, ClassOrInterfaceDeclaration decl) {
+	private AstDTO setClass(AstDTO classDTO, ClassOrInterfaceDeclaration decl) {
 		// save class
 		classDTO.setJavaClass(decl);
 		// add interfaces the class implements
@@ -105,7 +106,7 @@ public class DefaultLoader extends LoaderService<Object, List<ClassDTO>> {
 		return classDTO;
 	}
 
-	private ClassDTO setEnum(ClassDTO classDTO, EnumDeclaration decl) {
+	private AstDTO setEnum(AstDTO classDTO, EnumDeclaration decl) {
 		// save class
 		classDTO.setEnumClass(decl);
 		// add interfaces the class implements

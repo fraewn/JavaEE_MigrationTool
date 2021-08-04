@@ -1,6 +1,7 @@
 package core;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
@@ -21,11 +22,7 @@ import utils.PluginManager;
  */
 public class Runner {
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(Runner.class);
-
-	/** value for defining global parent gui; only internal */
-	@Option(name = "-localGUI", hidden = true, usage = "value for defining global parent gui")
-	private boolean localGUI;
+	private static final Logger LOG = LogManager.getLogger();
 
 	/** value for defining the executed method */
 	@Option(name = "-command", usage = "value for defining the executed method")
@@ -38,7 +35,7 @@ public class Runner {
 	/** reference to the extension */
 	private CommandExtension commandExtension;
 
-	public void run(String[] args) {
+	public boolean run(String[] args) {
 		boolean error = false;
 		try {
 			execute(args);
@@ -63,6 +60,7 @@ public class Runner {
 				LOG.info("STOP EXECUTION");
 			}
 		}
+		return error;
 	}
 
 	private void execute(String[] args)

@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.kohsuke.args4j.CmdLineParser;
 
 import cmd.CommandLineParser;
@@ -15,6 +16,7 @@ import operations.CommandExtension;
 import operations.Pipeline;
 import operations.ProcessingStep;
 import utils.PluginManager;
+import validation.ConfigFileValidator;
 
 /**
  * Abstract class of all possible command. Defines a basic structure of the
@@ -22,7 +24,7 @@ import utils.PluginManager;
  */
 public abstract class AbstractCommand extends CommandExtension {
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(AbstractCommand.class);
+	private static final Logger LOG = LogManager.getLogger();
 
 	/** List of the operations */
 	private List<ProcessingStep<?, ?>> steps;
@@ -113,7 +115,7 @@ public abstract class AbstractCommand extends CommandExtension {
 	 */
 	@Override
 	public void afterInitialization() {
-		// Overwrite
+		ConfigFileValidator.checkAllConfigFiles();
 	}
 
 	/**

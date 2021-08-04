@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXHamburger?>
+<?import com.jfoenix.controls.JFXProgressBar?>
+<?import com.jfoenix.controls.JFXToolbar?>
+<?import com.jfoenix.controls.JFXRippler?>
+<?import com.jfoenix.controls.JFXDrawer?>
+<?import com.jfoenix.transitions.hamburger.HamburgerBackArrowBasicTransition?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.VBox?>
+<?import java.lang.String?>
+
+<BorderPane
+	xmlns:fx="http://javafx.com/fxml/"
+	xmlns="http://javafx.com/javafx/"
+	fx:controller="recommandation.controllers.RecommendationController">
+	<top>
+		<VBox spacing="20">
+			<JFXToolbar>
+				<leftItems>
+					<Label text="%titleBar" />
+				</leftItems>
+			</JFXToolbar>
+		</VBox>
+	</top>
+	<center>
+		<AnchorPane>
+			<children>
+				<SplitPane
+					AnchorPane.bottomAnchor="0.0"
+					AnchorPane.leftAnchor="0.0"
+					AnchorPane.rightAnchor="0.0"
+					AnchorPane.topAnchor="0.0">
+					<items>
+						<AnchorPane>
+							<children>
+								<fx:include fx:id="config" source="config_model.fxml" />
+							</children>
+						</AnchorPane>
+						<AnchorPane>
+							<children>
+								<fx:include fx:id="visual" source="visual_model.fxml" />
+							</children>
+						</AnchorPane>
+					</items>
+				</SplitPane>
+			</children>
+		</AnchorPane>
+	</center>
+	<bottom>
+		<GridPane>
+			<columnConstraints>
+				<ColumnConstraints
+					hgrow="ALWAYS"
+					percentWidth="50.0" />
+				<ColumnConstraints
+					hgrow="ALWAYS"
+					percentWidth="50.0" />
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints vgrow="NEVER" />
+			</rowConstraints>
+			<children>
+				<HBox
+					GridPane.columnIndex="0"
+					GridPane.rowIndex="0"
+					spacing="15">
+					<children>
+						<AnchorPane>
+							<children>
+								<Label
+									alignment="CENTER"
+									text="Progress / Current State:"
+									textAlignment="CENTER"
+									AnchorPane.bottomAnchor="0.0"
+									AnchorPane.leftAnchor="0.0"
+									AnchorPane.rightAnchor="0.0"
+									AnchorPane.topAnchor="0.0" />
+							</children>
+						</AnchorPane>
+						<AnchorPane>
+							<children>
+								<Label
+									fx:id="labelStep"
+									alignment="CENTER"
+									text="Init"
+									textAlignment="CENTER"
+									AnchorPane.bottomAnchor="0.0"
+									AnchorPane.leftAnchor="0.0"
+									AnchorPane.rightAnchor="0.0"
+									AnchorPane.topAnchor="0.0" />
+							</children>
+						</AnchorPane>
+						<Pane HBox.hgrow="ALWAYS" />
+					</children>
+					<padding>
+						<Insets
+							bottom="5.0"
+							left="5.0"
+							right="5.0"
+							top="5.0" />
+					</padding>
+				</HBox>
+				<HBox
+					GridPane.columnIndex="1"
+					GridPane.rowIndex="0"
+					spacing="15">
+					<children>
+						<StackPane HBox.hgrow="ALWAYS">
+							<children>
+								<AnchorPane>
+									<children>
+										<JFXProgressBar
+											fx:id="progressbar"
+											AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="0.0"
+											AnchorPane.rightAnchor="0.0"
+											AnchorPane.topAnchor="0.0" />
+									</children>
+								</AnchorPane>
+								<AnchorPane>
+									<children>
+										<Label
+											fx:id="progressbarIndicator"
+											alignment="CENTER"
+											text="0 %"
+											textAlignment="CENTER"
+											AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="0.0"
+											AnchorPane.rightAnchor="0.0"
+											AnchorPane.topAnchor="0.0" />
+									</children>
+								</AnchorPane>
+							</children>
+						</StackPane>
+						<AnchorPane>
+							<children>
+								<Label
+									alignment="CENTER"
+									text="version v1.0"
+									textAlignment="CENTER"
+									AnchorPane.bottomAnchor="0.0"
+									AnchorPane.leftAnchor="0.0"
+									AnchorPane.rightAnchor="0.0"
+									AnchorPane.topAnchor="0.0" />
+							</children>
+						</AnchorPane>
+					</children>
+					<padding>
+						<Insets
+							bottom="5.0"
+							left="5.0"
+							right="5.0"
+							top="5.0" />
+					</padding>
+				</HBox>
+			</children>
+		</GridPane>
+	</bottom>
+</BorderPane>

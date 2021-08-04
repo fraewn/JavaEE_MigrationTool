@@ -1,0 +1,47 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>thesis.hbrs</groupId>
+		<artifactId>migrationtool-ext-servicecut</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>migrationtool-ext-recommender</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>migrationtool-ext-recommender-core</module>
+		<module>migrationtool-ext-recommender-api</module>
+		<module>migrationtool-ext-recommender-gui</module>
+		<module>migrationtool-recommender</module>
+	</modules>
+
+	<properties>
+		<recommender-core-version>0.0.1-SNAPSHOT</recommender-core-version>
+		<recommender-api-version>0.0.1-SNAPSHOT</recommender-api-version>
+		<recommender-gui-version>0.0.1-SNAPSHOT</recommender-gui-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-recommender-core</artifactId>
+				<version>${recommender-core-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-recommender-api</artifactId>
+				<version>${recommender-api-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-recommender-gui</artifactId>
+				<version>${recommender-gui-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>

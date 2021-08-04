@@ -1,6 +1,7 @@
 package service.extension;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import operations.InterpreterService;
 
@@ -9,7 +10,7 @@ import operations.InterpreterService;
  */
 public class DefaultInterpreter extends InterpreterService<Object, Object> {
 	/** LOGGER */
-	private static final Logger LOG = Logger.getLogger(DefaultInterpreter.class);
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Override
 	public Object run(Object input) {
