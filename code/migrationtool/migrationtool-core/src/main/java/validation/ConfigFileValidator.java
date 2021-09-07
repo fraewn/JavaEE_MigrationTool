@@ -9,9 +9,9 @@ import org.apache.logging.log4j.Logger;
 import exceptions.MigrationToolArgumentException;
 import exceptions.MigrationToolInitException;
 import exceptions.MigrationToolRuntimeException;
+import operations.Validator;
 import utils.PluginManager;
 import utils.PropertiesLoader;
-import validator.Validator;
 
 /**
  * If there are validators configured, it is possible to check for configuration

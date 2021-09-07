@@ -23,6 +23,7 @@ import com.github.javaparser.ast.visitor.Visitable;
 
 import exceptions.MigrationToolInitException;
 import exceptions.MigrationToolRuntimeException;
+import parser.Grouping;
 
 /**
  * RuleEngine of the migrationtool. Supports a set of possible rules
@@ -205,19 +206,42 @@ public class RuleEvaluator {
 	 * @param input    object for rule evaluation
 	 * @param function function called if evaluation is successful
 	 */
-	@SuppressWarnings("unchecked")
 	public <T extends Visitable> void recommand(T input, Consumer<Integer> function) {
+		recommand(input, new HashMap<>(), function);
+	}
+
+	/**
+	 * Calls a defined function if the rule evaluation is successful, only visitors
+	 * with a {@link AtomicInteger} are valid
+	 *
+	 * @param <T>      DTO object
+	 * @param input    object for rule evaluation
+	 * @param groups   current groups
+	 * @param function function called if evaluation is successful
+	 * @return current groups
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends Visitable> Map<Integer, String> recommand(T input, Map<Integer, String> groups,
+			Consumer<Integer> function) {
+		Map<Integer, String> copy = new HashMap<>(groups);
 		AtomicInteger res = new AtomicInteger(-1);
 		for (Entry<String, Rule> rule : this.rules.entrySet()) {
 			GenericVisitor<Boolean, AtomicInteger> visitor = (GenericVisitor<Boolean, AtomicInteger>) rule
 					.getValue().definition.buildVisitor(rule.getValue().args);
+			if (visitor instanceof Grouping) {
+				((Grouping) visitor).setGroups(copy);
+			}
 			boolean c = Optional.ofNullable(input.accept(visitor, res)).orElse(false);
 			this.evaluates.put(rule.getKey(), c);
+			if (visitor instanceof Grouping) {
+				copy.putAll(((Grouping) visitor).getGroups());
+			}
 		}
 		if (eval()) {
 			function.accept(res.get());
 		}
 		reset();
+		return copy;
 	}
 
 	/**

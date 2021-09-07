@@ -1,5 +1,10 @@
 package visualization;
 
+/**
+ * Class to create a visualization based on processing steps
+ *
+ * @param <E> Enum of processing steps
+ */
 public interface VisualizationService<E extends Enum<E>> {
 
 	/**

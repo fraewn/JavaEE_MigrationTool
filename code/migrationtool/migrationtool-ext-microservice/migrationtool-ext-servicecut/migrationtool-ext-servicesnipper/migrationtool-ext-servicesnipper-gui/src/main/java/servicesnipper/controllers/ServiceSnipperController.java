@@ -10,7 +10,7 @@ import com.jfoenix.controls.JFXHamburger;
 import application.DefaultParentController;
 import controllers.ChildController;
 import exceptions.GraphInitException;
-import graph.model.AdjacencyList;
+import graph.model.GraphModel;
 import graph.processing.GraphProcessingSteps;
 import javafx.animation.Transition;
 import javafx.fxml.FXML;
@@ -18,6 +18,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
 import model.ModelRepresentation;
+import model.Result;
 import servicesnipper.model.CurrentView;
 import servicesnipper.model.Model;
 import utils.JsonConverter;
@@ -72,10 +73,10 @@ public class ServiceSnipperController extends DefaultParentController<GraphProce
 
 	@Override
 	public <T> void beforeVisualize(T dto) {
-		if (dto instanceof Boolean) {
-			Boolean showAsResult = (Boolean) dto;
+		if (dto instanceof Result) {
+			Result result = (Result) dto;
 			if (this.controllerContent != null) {
-				this.controllerContent.beforeRefreshModel(showAsResult);
+				this.controllerContent.beforeRefreshModel(result);
 			}
 		}
 	}
@@ -85,7 +86,7 @@ public class ServiceSnipperController extends DefaultParentController<GraphProce
 		if ((dto instanceof Model) && !this.currentView.equals(CurrentView.MODEL)) {
 			changeContent(CurrentView.MODEL);
 		}
-		if ((dto instanceof AdjacencyList) && !this.currentView.equals(CurrentView.GRAPH)) {
+		if ((dto instanceof GraphModel) && !this.currentView.equals(CurrentView.GRAPH)) {
 			changeContent(CurrentView.GRAPH);
 		}
 		this.controllerSideMenu.refreshModel(dto);

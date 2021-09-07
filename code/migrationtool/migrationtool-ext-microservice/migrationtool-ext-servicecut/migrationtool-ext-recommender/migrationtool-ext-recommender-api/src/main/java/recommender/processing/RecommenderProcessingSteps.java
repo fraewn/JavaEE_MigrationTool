@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import model.ModelRepresentation;
@@ -19,6 +21,7 @@ import model.criteria.CompatibitlyMapper;
 import model.criteria.CouplingCriteria;
 import model.data.ArchitectureInformation;
 import model.data.Characteristic;
+import model.data.ContextGroup;
 import model.data.Instance;
 import model.data.UseCase;
 import recommender.model.Recommendation;
@@ -57,10 +60,10 @@ public enum RecommenderProcessingSteps {
 		}
 
 		@Override
-		public void setGroups(Map<String, Recommendation> list, List<Integer> limits) {
+		public void setGroups(Map<String, Recommendation> list, Map<Integer, String> limits) {
 			for (Recommendation rec : list.values()) {
 				rec.setRelatedGroup(rec.getName());
-				for (Integer limit : limits) {
+				for (Integer limit : limits.keySet()) {
 					if (rec.getMetricValue() > limit) {
 						rec.setIncluded(true);
 						break;
@@ -71,7 +74,20 @@ public enum RecommenderProcessingSteps {
 
 		@Override
 		public void convertToModel(ModelRepresentation model, ArchitectureInformation info) {
-			model.getInformation().setUseCases(info.getUseCases());
+			List<UseCase> list = new ArrayList<>(info.getUseCases());
+			for (UseCase useCase : model.getInformation().getUseCases()) {
+				boolean exists = false;
+				for (UseCase u : list) {
+					if (u.getName().equals(useCase.getName())) {
+						exists = true;
+						break;
+					}
+				}
+				if (!exists) {
+					list.add(useCase);
+				}
+			}
+			model.getInformation().setUseCases(list);
 		}
 
 		@Override
@@ -98,11 +114,73 @@ public enum RecommenderProcessingSteps {
 	/**
 	 * Implemented;
 	 */
-	SECURITY_ACCESS_GROUPS(USE_CASE, ENTITY),
+	SECURITY_ACCESS_GROUPS(USE_CASE, ENTITY) {
+		private static final String GROUP = "GROUPED";
+
+		@Override
+		public ArchitectureInformation createInformation(ModelRepresentation model, List<Recommendation> list,
+				List<Integer> limits) {
+			ArchitectureInformation res = new ArchitectureInformation();
+			List<Recommendation> filtered = list.stream()
+					.filter(x -> x.getRelatedGroup() != null).collect(Collectors.toList());
+			List<ContextGroup> result = new ArrayList<>();
+			for (Recommendation recommendation : filtered) {
+				if (recommendation.isIncluded()) {
+					for (String group : recommendation.getRelatedGroup().split(";")) {
+						boolean included = false;
+						for (ContextGroup cg : result) {
+							if (cg.getName().equals(group)) {
+								included = true;
+								cg.getInstances().add(new Instance(recommendation.getName()));
+								break;
+							}
+						}
+						if (!included) {
+							ContextGroup cg = new ContextGroup();
+							cg.setName(group);
+							cg.getInstances().add(new Instance(recommendation.getName()));
+							result.add(cg);
+						}
+					}
+				}
+			}
+			if (!result.isEmpty()) {
+				res.getCriteria().put(ArchitectureArtifact.SECURITY_ACCESS_GROUPS, result);
+			}
+			return res;
+		}
+
+		@Override
+		public void convertToModel(ModelRepresentation model, ArchitectureInformation info) {
+			model.getInformation().getCriteria().put(ArchitectureArtifact.SECURITY_ACCESS_GROUPS,
+					info.getCriteria().get(ArchitectureArtifact.SECURITY_ACCESS_GROUPS));
+		}
+
+		@Override
+		public List<String> getGroups() {
+			return Collections.singletonList(GROUP);
+		}
+
+		@Override
+		public void setGroups(Map<String, Recommendation> list, Map<Integer, String> limits) {
+			for (Recommendation rec : list.values()) {
+				StringJoiner sb = new StringJoiner(";");
+				for (Entry<Integer, String> entry : limits.entrySet()) {
+					if ((rec.getMetricValue() != 0) && ((rec.getMetricValue() % entry.getKey()) == 0)) {
+						sb.add(entry.getValue());
+					}
+				}
+				if (sb.length() != 0) {
+					rec.setRelatedGroup(sb.toString());
+					rec.setIncluded(true);
+				}
+			}
+		}
+	},
 	/**
 	 * Not supported, no static code analysis metric
 	 */
-	COMPATIBILITY_STRUCTURAL_VOLATILITY(USE_CASE, ENTITY),
+	COMPATIBILITY_STRUCTURAL_VOLATILITY(ENTITY, ENTITY),
 	/**
 	 * Not supported, no static code analysis metric
 	 */
@@ -110,7 +188,7 @@ public enum RecommenderProcessingSteps {
 	/**
 	 * Not supported, no static code analysis metric
 	 */
-	COMPATIBILITY_AVAILABILITY_CRITICALITY(ENTITY, ENTITY),
+	COMPATIBILITY_AVAILABILITY_CRITICALITY(USE_CASE, ENTITY),
 	/**
 	 * Implemented;
 	 */
@@ -136,14 +214,14 @@ public enum RecommenderProcessingSteps {
 		}
 
 		@Override
-		public void setGroups(Map<String, Recommendation> list, List<Integer> limits) {
-			setCharacteristics(CONTENT_VOLATILITY, new ArrayList<>(list.values()), limits);
+		public void setGroups(Map<String, Recommendation> list, Map<Integer, String> limits) {
+			setCharacteristics(CONTENT_VOLATILITY, new ArrayList<>(list.values()), limits.keySet());
 		}
 	},
 	/**
 	 * Not supported, no static code analysis metric
 	 */
-	COMPATIBILITY_STORAGE_SIMILARITY(ENTITY, ENTITY),
+	COMPATIBILITY_STORAGE_SIMILARITY(USE_CASE, ENTITY),
 	/**
 	 * Not supported, no static code analysis metric
 	 */
@@ -195,6 +273,21 @@ public enum RecommenderProcessingSteps {
 	 * @param limits list of lower bounds
 	 */
 	public void setGroups(Map<String, Recommendation> list, List<Integer> limits) {
+		Map<Integer, String> temp = new HashMap<>();
+		for (Integer integer : limits) {
+			temp.put(integer, null);
+		}
+		setGroups(list, temp);
+	}
+
+	/**
+	 * Sets the related group property of the recommendations based of the current
+	 * step
+	 *
+	 * @param list   list of recommendations
+	 * @param limits list of lower bounds
+	 */
+	public void setGroups(Map<String, Recommendation> list, Map<Integer, String> limits) {
 
 	}
 
@@ -217,11 +310,12 @@ public enum RecommenderProcessingSteps {
 
 	}
 
-	private static void setCharacteristics(CouplingCriteria criteria, List<Recommendation> res, List<Integer> limits) {
+	private static void setCharacteristics(CouplingCriteria criteria, List<Recommendation> res, Set<Integer> limits) {
 		List<Integer> limit = new ArrayList<>(limits);
-		Collections.reverse(limit);
+		Collections.sort(limit);
 		int x = 0;
-		for (CompatibitlyCharacteristics cc : CompatibitlyMapper.getMapperFromCriteria(criteria).getCharacterisitics()) {
+		for (CompatibitlyCharacteristics cc : CompatibitlyMapper.getMapperFromCriteria(criteria)
+				.getCharacterisitics()) {
 			// Ignore default characteristic
 			if (!cc.isDefaultSelection()) {
 				for (Recommendation rec : res) {

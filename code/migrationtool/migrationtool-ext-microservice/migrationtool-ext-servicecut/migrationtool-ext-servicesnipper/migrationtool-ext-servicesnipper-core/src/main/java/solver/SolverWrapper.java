@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import graph.clustering.SolverConfiguration;
-import graph.model.AdjacencyList;
 import model.Graph;
 import model.Result;
 import model.criteria.CouplingCriteria;
@@ -19,7 +18,9 @@ import model.serviceDefintion.ServiceCut;
  */
 public abstract class SolverWrapper<N, E> implements Solver {
 
+	/** Reference to the graph */
 	private Graph originGraph;
+	/** Received priorities */
 	private Map<CouplingCriteria, Priorities> priorities;
 
 	@Override
@@ -36,13 +37,13 @@ public abstract class SolverWrapper<N, E> implements Solver {
 	protected abstract Result solve(SolverConfiguration config);
 
 	private void convertGraph() {
-		AdjacencyList adjList = this.originGraph.convert(this.priorities);
+		Map<String, Map<String, Double>> graph = this.originGraph.getGraphModel().getGraph(this.priorities);
 		// create nodes
-		for (String node : adjList.getGraph().keySet()) {
+		for (String node : graph.keySet()) {
 			createNode(node);
 		}
 		// create edges
-		for (Entry<String, Map<String, Double>> entry : adjList.getGraph().entrySet()) {
+		for (Entry<String, Map<String, Double>> entry : graph.entrySet()) {
 			// calc weight
 			for (Entry<String, Double> edge : entry.getValue().entrySet()) {
 				double sum = edge.getValue();
@@ -57,6 +58,10 @@ public abstract class SolverWrapper<N, E> implements Solver {
 		}
 	}
 
+	/**
+	 * How to handle a negative edge, default implementation cuts those edges from
+	 * the graph model
+	 */
 	protected void treatNegativeScore() {
 		// negative scores are removed
 	}
@@ -77,7 +82,7 @@ public abstract class SolverWrapper<N, E> implements Solver {
 	protected abstract void createEdge(String originVertex, String destinationVertex, double weight);
 
 	/**
-	 * @param families
+	 * @param families cluster results
 	 */
 	protected Result createResult(Map<String, List<String>> families) {
 		Result res = new Result();

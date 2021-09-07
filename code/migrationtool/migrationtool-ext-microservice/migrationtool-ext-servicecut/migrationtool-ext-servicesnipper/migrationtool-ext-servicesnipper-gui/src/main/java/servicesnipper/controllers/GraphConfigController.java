@@ -16,9 +16,10 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
-import com.jfoenix.controls.JFXToggleButton;
+import com.jfoenix.controls.JFXTextArea;
 
 import controllers.ChildController;
 import controllers.ParentController;
@@ -26,9 +27,7 @@ import graph.clustering.ClusterAlgorithms;
 import graph.clustering.NodeWeightings;
 import graph.processing.GraphProcessingSteps;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -54,8 +53,6 @@ public class GraphConfigController implements ChildController<GraphProcessingSte
 	@FXML
 	private JFXButton execute;
 	@FXML
-	private JFXToggleButton showLabels;
-	@FXML
 	private VBox algoConfig;
 	@FXML
 	private ResourceBundle resources;
@@ -78,8 +75,6 @@ public class GraphConfigController implements ChildController<GraphProcessingSte
 		this.model.setSelectedAlgorithmn(this.algorithmnSelect.valueProperty());
 		// Init TabMenu 2
 		initPrios();
-		// Init TabMenu 3
-		this.showLabels.setSelected(true);
 	}
 
 	private void initPrios() {
@@ -150,8 +145,10 @@ public class GraphConfigController implements ChildController<GraphProcessingSte
 	}
 
 	public void executeSolveAction() {
-		this.controller.approve(this.currentStep, this.currentStep.equals(GraphProcessingSteps.SAVE_RESULT));
-		this.execute.setDisable(true);
+		if (this.algorithmnSelect.getValue() != null) {
+			this.controller.approve(this.currentStep, this.currentStep.equals(GraphProcessingSteps.SAVE_RESULT));
+			this.execute.setDisable(true);
+		}
 	}
 
 	public void algorithmnSelectAction() {
@@ -163,6 +160,19 @@ public class GraphConfigController implements ChildController<GraphProcessingSte
 		this.algoConfig.getChildren().clear();
 		this.model.getAlgorithmnSettings().clear();
 		String keyPrefix = "graphconfig.config1.";
+
+		JFXCheckBox deterministicBox = new JFXCheckBox(this.resources.getString(keyPrefix + "deterministic"));
+		deterministicBox.setSelected(current.isDeterministic());
+		deterministicBox.setDisable(true);
+		this.algoConfig.getChildren().add(deterministicBox);
+
+		JFXTextArea description = new JFXTextArea(this.resources.getString(keyPrefix + current.toString()));
+		description.setEditable(false);
+		this.algoConfig.getChildren().add(description);
+
+		this.algoConfig.getChildren().add(new Separator());
+		this.algoConfig.getChildren().add(new Label(this.resources.getString(keyPrefix + "settings")));
+
 		switch (current) {
 		case GIRVAN_NEWMAN:
 			createSettingsGirvanNewman(keyPrefix);
@@ -187,13 +197,12 @@ public class GraphConfigController implements ChildController<GraphProcessingSte
 				this.resources.getString(keyPrefix + NUMBER_CLUSTERS + ".tooltip"));
 		this.algoConfig.getChildren().add(labelCluster);
 		JFXSlider slider = ComponentFactory.createSlider(5, 30, 3);
-		slider.valueProperty().addListener((obs, oldval, newVal) -> slider.setValue(newVal.intValue()));
+		slider.setMin(2);
+		slider.valueProperty().addListener((obs, oldval, newVal) -> {
+			slider.setValue(newVal.intValue());
+			this.model.getAlgorithmnSettings().put(NUMBER_CLUSTERS, new SimpleStringProperty("" + newVal.intValue()));
+		});
 		this.algoConfig.getChildren().add(slider);
-		StringProperty prop = new SimpleStringProperty();
-		IntegerProperty roundedValue = new SimpleIntegerProperty();
-		roundedValue.bind(slider.valueProperty());
-		Bindings.bindBidirectional(prop, roundedValue, new NumberStringConverter());
-		this.model.getAlgorithmnSettings().put(NUMBER_CLUSTERS, prop);
 	}
 
 	private void createSettingsChineseWhispers(String keyPrefix) {
@@ -214,7 +223,7 @@ public class GraphConfigController implements ChildController<GraphProcessingSte
 		this.algoConfig.getChildren().add(ComponentFactory.createLabelAndToolTip(
 				this.resources.getString(keyPrefix + LEUNG_PARAM_M),
 				this.resources.getString(keyPrefix + LEUNG_PARAM_M + ".tooltip")));
-		JFXSlider sliderM = ComponentFactory.createSlider(0.1, 1, 0.05);
+		JFXSlider sliderM = ComponentFactory.createSlider(0.1, 1, 0.1);
 		this.algoConfig.getChildren().add(sliderM);
 		StringProperty propM = new SimpleStringProperty();
 		Bindings.bindBidirectional(propM, sliderM.valueProperty(), new NumberStringConverter());

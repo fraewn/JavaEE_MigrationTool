@@ -8,6 +8,9 @@ import model.Result;
 import model.criteria.CouplingCriteria;
 import model.priorities.Priorities;
 
+/**
+ * General Interface for a cluster algorithm
+ */
 public interface Solver {
 
 	/**

@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.kohsuke.args4j.Option;
 
 import analyzer.Analyzer;
+import analyzer.AnalyzerImpl;
 import exceptions.MigrationToolRuntimeException;
 import model.ModelRepresentation;
 import operations.ModelService;
@@ -66,7 +67,7 @@ public class ServiceCutModel extends ModelService<List<AstDTO>, String> {
 		this.resultFile = new File(this.modelPath + this.modelName + ".json");
 		// skip analyzation process
 		if (!this.skip) {
-			Analyzer analyzer = new Analyzer();
+			Analyzer analyzer = new AnalyzerImpl();
 			analyzer.analyze(input);
 			ModelRepresentation rep = analyzer.getModel();
 			// start recommendation engine

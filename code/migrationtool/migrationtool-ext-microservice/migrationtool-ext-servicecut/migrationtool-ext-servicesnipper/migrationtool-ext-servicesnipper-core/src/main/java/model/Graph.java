@@ -2,68 +2,141 @@ package model;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import graph.model.AdjacencyList;
+import graph.model.EdgeAttribute;
+import graph.model.GraphModel;
 import model.criteria.CouplingCriteria;
-import model.priorities.Priorities;
 
+/**
+ * Class to create a proxy between the graph model and the used methods during
+ * the algorithm
+ */
 public class Graph {
 
-	private Set<String> nodes;
-
-	private Map<String, Edge> edges;
-
+	/** reference to the graph model */
+	private GraphModel graphModel;
+	/** reference to all groups of the edge creation */
 	private List<CouplingGroup> relatedGroups;
 
 	public Graph() {
-		this.nodes = new HashSet<>();
-		this.edges = new HashMap<>();
+		this.graphModel = new AdjacencyList();
 		this.relatedGroups = new ArrayList<>();
 	}
 
-	public void addNewNode(String node) {
-		if (!this.nodes.contains(node)) {
-			this.nodes.add(node);
+	/**
+	 * Adds a new node
+	 *
+	 * @param node node
+	 */
+	public void addNewVertex(String node) {
+		this.graphModel.addNewVertex(node);
+	}
+
+	/**
+	 * Adds a new edge
+	 *
+	 * @param edge edge
+	 * @param attr attr
+	 */
+	public void addNewEdge(EdgeWrapper edge, EdgeAttribute... attr) {
+		if (this.graphModel.hasEdge(edge.getFirstNode(), edge.getSecondNode())) {
+			this.graphModel.addEdgeAttribute(edge.getFirstNode(), edge.getSecondNode(), attr);
+		} else {
+			this.graphModel.addNewEdge(edge.getFirstNode(), edge.getSecondNode(), attr);
 		}
 	}
 
-	public void addNewEdge(Edge edge) {
-		if (!hasEdge(edge)) {
-			this.edges.put(edge.getId(), edge);
-		} else if (!edge.getAttributes().isEmpty()) {
-			Edge e = getEdge(edge);
-			for (EdgeAttribute attr : edge.getAttributes()) {
-				if (!e.getAttributes().contains(attr)) {
-					e.getAttributes().add(attr);
-				}
+	/**
+	 * Adds a new score
+	 *
+	 * @param edge     edge
+	 * @param criteria coupling criteria
+	 * @param value    new value
+	 */
+	public void addNewScore(EdgeWrapper edge, CouplingCriteria criteria, Double value) {
+		this.graphModel.addEdgeScore(edge.getFirstNode(), edge.getSecondNode(), criteria, value);
+	}
+
+	/**
+	 * Check if edge exists
+	 *
+	 * @param edge edge
+	 * @return exists
+	 */
+	public boolean hasEdge(EdgeWrapper edge) {
+		return this.graphModel.hasEdge(edge.getFirstNode(), edge.getSecondNode());
+	}
+
+	/**
+	 * Check if edge has an attribute
+	 *
+	 * @param edge edge
+	 * @param attr attr
+	 * @return exists
+	 */
+	public boolean hasAttribute(EdgeWrapper edge, EdgeAttribute attr) {
+		return this.graphModel.hasEdgeAttribute(edge.getFirstNode(), edge.getSecondNode(), attr);
+	}
+
+	/**
+	 * Gets the edge weight
+	 *
+	 * @param wrapper edge
+	 * @return current weight
+	 */
+	public Double getEdgeWeight(EdgeWrapper wrapper) {
+		return this.graphModel.getCurrentWeight(wrapper.getFirstNode(), wrapper.getSecondNode());
+	}
+
+	/**
+	 * Gets the edge weight of an criteria
+	 *
+	 * @param wrapper  edge
+	 * @param criteria coupling criteria
+	 * @return current weight
+	 */
+	public Double getEdgeWeight(EdgeWrapper wrapper, CouplingCriteria criteria) {
+		return this.graphModel.getCurrentWeightOfCriteria(wrapper.getFirstNode(), wrapper.getSecondNode(), criteria);
+	}
+
+	/**
+	 * Get directly linked neighbors of a node
+	 *
+	 * @param node searched node
+	 * @return direct neighbors
+	 */
+	public Collection<EdgeWrapper> getDirectNeighbours(String node) {
+		List<EdgeWrapper> res = new ArrayList<>();
+		for (String edge : this.graphModel.getAllNeighbours(node)) {
+			res.add(new EdgeWrapper(node, edge));
+		}
+		return res;
+	}
+
+	/**
+	 * @return get all edges in the model
+	 */
+	public Collection<EdgeWrapper> getAllEdges() {
+		List<EdgeWrapper> res = new ArrayList<>();
+		for (Entry<String, Set<String>> edge : this.graphModel.getAllEdges().entrySet()) {
+			for (String dest : edge.getValue()) {
+				res.add(new EdgeWrapper(edge.getKey(), dest));
 			}
 		}
+		return res;
 	}
 
-	public void addNewScore(Edge edge, CouplingCriteria criteria, Double value) {
-		if (hasEdge(edge)) {
-			Edge e = getEdge(edge);
-			e.getWeight().addNewValue(criteria, value);
-		}
-	}
-
-	public boolean hasEdge(Edge edge) {
-		return this.edges.containsKey(edge.getId()) || this.edges.containsKey(edge.getIdSwaped());
-	}
-
-	public Edge getEdge(Edge edge) {
-		Edge e = this.edges.get(edge.getId());
-		e = e == null ? this.edges.get(edge.getIdSwaped()) : e;
-		return e;
-	}
-
-	public Collection<Edge> getAllEdges() {
-		return this.edges.values();
+	/**
+	 * Adds a group to the list
+	 *
+	 * @param group coupling group
+	 */
+	public void addRelatedGroup(CouplingGroup group) {
+		this.relatedGroups.add(group);
 	}
 
 	/**
@@ -74,26 +147,9 @@ public class Graph {
 	}
 
 	/**
-	 * @param relatedGroups the relatedGroups to set
+	 * @return the graph
 	 */
-	public void setRelatedGroups(List<CouplingGroup> relatedGroups) {
-		this.relatedGroups = relatedGroups;
-	}
-
-	public AdjacencyList convert() {
-		return convert(null);
-	}
-
-	public AdjacencyList convert(Map<CouplingCriteria, Priorities> priorities) {
-		AdjacencyList adjList = new AdjacencyList();
-		for (String node : this.nodes) {
-			adjList.addNewVertex(node);
-		}
-		for (Edge edge : this.edges.values()) {
-			double weight = priorities == null ? edge.getWeight().getTotalScore()
-					: edge.getWeight().getFinalScore(priorities);
-			adjList.addNewEdge(edge.getFirstNode().getId(), edge.getSecondNode().getId(), weight);
-		}
-		return adjList;
+	public GraphModel getGraphModel() {
+		return this.graphModel;
 	}
 }

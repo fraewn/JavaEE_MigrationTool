@@ -1,10 +1,12 @@
 package parser.utils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 
 /**
  * Utils class to receive the values of a annotation
@@ -23,7 +25,8 @@ public class AnnotationResolver {
 	public static Expression getValueParameter(AnnotationExpr annotationExpr) {
 		Expression expression = getParamater(annotationExpr, VALUE);
 		if (expression == null) {
-			List<Expression> children = annotationExpr.findAll(Expression.class);
+			List<Expression> children = annotationExpr.findAll(Expression.class).stream()
+					.filter(x -> !(x instanceof SingleMemberAnnotationExpr)).collect(Collectors.toList());
 			if (!children.isEmpty()) {
 				expression = children.get(0);
 			}

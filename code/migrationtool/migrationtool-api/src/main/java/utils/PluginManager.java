@@ -6,7 +6,7 @@ import java.util.ServiceLoader;
 
 import operations.CommandExtension;
 import operations.ProcessingStep;
-import validator.Validator;
+import operations.Validator;
 
 /**
  * Utility class to load plugins of services or commands

@@ -7,7 +7,7 @@ import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 /**
  * Filter the AST-tree for a inheritence definition
  */
-public class InheritenceVisitor extends GenericVisitorAdapter<Boolean, ClassOrInterfaceDeclaration> {
+public class InheritenceVisitor extends GenericVisitorAdapter<Boolean, Void> {
 
 	/** searched definition */
 	private String searchedDefinition;
@@ -17,7 +17,7 @@ public class InheritenceVisitor extends GenericVisitorAdapter<Boolean, ClassOrIn
 	}
 
 	@Override
-	public Boolean visit(ClassOrInterfaceDeclaration n, ClassOrInterfaceDeclaration arg) {
+	public Boolean visit(ClassOrInterfaceDeclaration n, Void arg) {
 		for (ClassOrInterfaceType ex : n.getExtendedTypes()) {
 			if (ex.resolve().getQualifiedName().equals(this.searchedDefinition)) {
 				return Boolean.TRUE;

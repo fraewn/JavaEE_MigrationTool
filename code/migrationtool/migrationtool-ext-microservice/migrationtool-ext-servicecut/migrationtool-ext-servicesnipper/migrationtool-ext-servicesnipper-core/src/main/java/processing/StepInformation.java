@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import model.CouplingGroup;
-import model.Edge;
+import model.EdgeWrapper;
 import model.artifacts.ArchitectureArtifact;
 import model.criteria.CouplingCriteria;
 import resolver.CriteriaScorer;
@@ -25,16 +25,16 @@ public class StepInformation {
 		this.groups.addAll(groups);
 	}
 
-	public StepInformation(Map<String, Set<Edge>> relatedEdges, ArchitectureArtifact artifact,
+	public StepInformation(Map<String, Set<EdgeWrapper>> relatedEdges, ArchitectureArtifact artifact,
 			CouplingCriteria criteria, Class<? extends CriteriaScorer> scorer) {
 		this();
-		for (Entry<String, Set<Edge>> e : relatedEdges.entrySet()) {
+		for (Entry<String, Set<EdgeWrapper>> e : relatedEdges.entrySet()) {
 			CouplingGroup group = new CouplingGroup(e.getKey(), e.getValue(), criteria, artifact, scorer);
 			this.groups.add(group);
 		}
 	}
 
-	public StepInformation(String groupName, Set<Edge> relatedEdges, ArchitectureArtifact artifact,
+	public StepInformation(String groupName, Set<EdgeWrapper> relatedEdges, ArchitectureArtifact artifact,
 			CouplingCriteria criteria, Class<? extends CriteriaScorer> scorer) {
 		this();
 		CouplingGroup group = new CouplingGroup(groupName, relatedEdges, criteria, artifact, scorer);

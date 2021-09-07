@@ -13,7 +13,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>thesis.hbrs</groupId>
-			<artifactId>migrationtool-ext-servicemigrater</artifactId>
+			<artifactId>migrationtool-servicemigrater</artifactId>
 			<type>pom</type>
 		</dependency>
 

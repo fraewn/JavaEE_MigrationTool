@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
@@ -14,7 +13,7 @@ import parser.utils.TypeResolver;
 /**
  * Filter the AST-tree for a specific method
  */
-public class UsedMethodVisitor extends GenericVisitorAdapter<Boolean, FieldDeclaration> {
+public class UsedMethodVisitor extends GenericVisitorAdapter<Boolean, Void> {
 
 	/** searched target entity */
 	private String searchedEntity;
@@ -38,7 +37,7 @@ public class UsedMethodVisitor extends GenericVisitorAdapter<Boolean, FieldDecla
 	}
 
 	@Override
-	public Boolean visit(MethodCallExpr n, FieldDeclaration arg) {
+	public Boolean visit(MethodCallExpr n, Void arg) {
 		if (n.getNameAsString().equals(this.searchedMethodName)) {
 			Expression scope = n.getScope().orElse(null);
 			if (scope != null) {

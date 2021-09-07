@@ -10,4 +10,30 @@
 	</parent>
 	<artifactId>migrationtool-ext-servicemigrater</artifactId>
 	<packaging>pom</packaging>
+	<modules>
+		<module>migrationtool-ext-servicemigrater-api</module>
+		<module>migrationtool-ext-servicemigrater-core</module>
+		<module>migrationtool-servicemigrater</module>
+	</modules>
+
+	<properties>
+		<servicemigrater-api-version>0.0.1-SNAPSHOT</servicemigrater-api-version>
+		<servicemigrater-core-version>0.0.1-SNAPSHOT</servicemigrater-core-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-servicemigrater-api</artifactId>
+				<version>${servicemigrater-api-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>thesis.hbrs</groupId>
+				<artifactId>migrationtool-ext-servicemigrater-core</artifactId>
+				<version>${servicemigrater-core-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>

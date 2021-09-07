@@ -1,6 +1,5 @@
 package parser.visitors;
 
-import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
@@ -13,7 +12,7 @@ import parser.utils.TypeResolver;
 /**
  * Filter the AST-tree for a method argument
  */
-public class MethodArgumentsVisitor extends GenericVisitorAdapter<Boolean, FieldDeclaration> {
+public class MethodArgumentsVisitor extends GenericVisitorAdapter<Boolean, Void> {
 
 	/** searched definition */
 	private String searchedEntity;
@@ -26,7 +25,7 @@ public class MethodArgumentsVisitor extends GenericVisitorAdapter<Boolean, Field
 	}
 
 	@Override
-	public Boolean visit(MethodDeclaration n, FieldDeclaration arg) {
+	public Boolean visit(MethodDeclaration n, Void arg) {
 		if (this.pos.equals(ArgumentPosition.DECLARATION)) {
 			for (Parameter param : n.getParameters()) {
 				String typeOfParam = TypeResolver.getFullyQualifiedName(param.resolve().getType());
@@ -39,7 +38,7 @@ public class MethodArgumentsVisitor extends GenericVisitorAdapter<Boolean, Field
 	}
 
 	@Override
-	public Boolean visit(MethodCallExpr n, FieldDeclaration arg) {
+	public Boolean visit(MethodCallExpr n, Void arg) {
 		if (this.pos.equals(ArgumentPosition.CALL_EXPRESSION)) {
 			for (Expression exp : n.getArguments()) {
 				String typeOfParam = TypeResolver.getFullyQualifiedName(exp.calculateResolvedType());

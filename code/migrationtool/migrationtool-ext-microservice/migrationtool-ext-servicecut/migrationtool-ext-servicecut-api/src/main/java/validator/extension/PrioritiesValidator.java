@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import exceptions.MigrationToolArgumentException;
+import operations.Validator;
 import utils.DefinitionDomain;
-import validator.Validator;
 
 /**
  * Validator of the file {@link DefintionDomain#FILE_NAME}

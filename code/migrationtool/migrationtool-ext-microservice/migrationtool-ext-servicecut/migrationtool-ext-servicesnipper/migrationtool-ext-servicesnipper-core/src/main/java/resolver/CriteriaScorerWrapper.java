@@ -4,94 +4,96 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import model.CouplingGroup;
-import model.Edge;
+import model.EdgeWrapper;
 import model.Graph;
-import model.Node;
 import model.criteria.CouplingCriteria;
 
+/**
+ * Base class of all scorers to define shared methods
+ */
 public abstract class CriteriaScorerWrapper implements CriteriaScorer {
 
 	/** LOGGER */
-	private static final Logger LOG = LogManager.getLogger();
-
+	protected static final Logger LOG = LogManager.getLogger();
+	/** Reference to the graph and the model */
 	protected Graph graph;
 
 	@Override
-	public Map<Edge, Double> getScores(CouplingGroup relatedGroup, Graph graph) {
+	public Map<EdgeWrapper, Double> getScores(CouplingGroup relatedGroup, Graph graph) {
 		this.graph = graph;
-		Map<Edge, Double> values = new HashMap<>();
-		for (Edge edge : relatedGroup.getRelatedEdges()) {
+		Map<EdgeWrapper, Double> values = new HashMap<>();
+		for (EdgeWrapper edge : relatedGroup.getRelatedEdges()) {
 			if (this.graph.hasEdge(edge)) {
 				double score = getScore(edge, relatedGroup);
 				values.put(edge, Double.valueOf(score));
-				LOG.info(edge + " new score added " + score + " (" + relatedGroup.getGroupName() + ") ");
+				LOG.info("{} new score added {} ({})", edge, score, relatedGroup.getGroupName());
 			}
 		}
+		afterCalcScore(relatedGroup);
 		return values;
 	}
 
 	@Override
-	public Map<Edge, Double> normalize(Map<Edge, Double> values) {
-		// Default not used
+	public Map<EdgeWrapper, Double> normalize(Map<EdgeWrapper, Double> values) {
+		// Default; not used
 		return values;
 	}
 
-	protected void addPenalityToEdges(double penality, Edge currentEdge, Set<Edge> relatedEdges,
-			CouplingCriteria criteria) {
-		addPenalityToEdges(penality, currentEdge, relatedEdges, null, criteria);
-	}
-
-	protected void addPenalityToEdges(double penality, Edge currentEdge, Set<Edge> relatedEdges,
-			Set<Edge> correspondingEdges, CouplingCriteria criteria) {
-		Node origin = currentEdge.getFirstNode();
-		for (Edge edge : this.graph.getAllEdges()) {
-			if (edge.getFirstNode().equals(origin) || edge.getSecondNode().equals(origin)) {
-				// check same group
-				if (!relatedEdges.contains(edge)) {
-					if (correspondingEdges == null) {
-						// all edges are relevant
-						LOG.info(edge + " new score added " + penality + " () ");
-						this.graph.addNewScore(edge, criteria, penality);
-					} else if (correspondingEdges.contains(edge)) {
-						// check only specific comparison group
-						LOG.info(edge + " new score added " + penality + " () ");
-						this.graph.addNewScore(edge, criteria, penality);
-					}
+	/**
+	 * Adds a penalty to all edges which are not related to the group, but are
+	 * direct neighbors of involved vertices
+	 *
+	 * @param penalty      penalty value
+	 * @param relatedGroup related group
+	 * @param criteria     coupling criteria
+	 */
+	protected void addPenaltyToEdges(double penalty, CouplingGroup relatedGroup, CouplingCriteria criteria) {
+		for (String node : relatedGroup.getRelatedNodes()) {
+			for (EdgeWrapper edge : this.graph.getDirectNeighbours(node)) {
+				if (!relatedGroup.getRelatedEdges().contains(edge)) {
+					LOG.info("{} new penalty added {} ({}/{})", edge, penalty, relatedGroup.getGroupName(), criteria);
+					this.graph.addNewScore(edge, criteria, penalty);
 				}
 			}
 		}
 	}
 
-	protected CouplingGroup getGroupOfEdgeAndCriteria(Edge currentEdge, CouplingCriteria criteria) {
-		CouplingGroup ownGroup = null;
-		for (CouplingGroup group : this.graph.getRelatedGroups()) {
-			if (group.getCriteria().equals(criteria)) {
-				if (group.getRelatedEdges().contains(currentEdge)) {
-					ownGroup = group;
-					break;
-				}
-			}
-		}
-		return ownGroup;
-	}
-
-	protected List<CouplingGroup> getExclusiveGroupOfEdgeAndCriteria(Edge currentEdge, CouplingCriteria criteria) {
+	/**
+	 * Get all groups related to a specific coupling criteria
+	 *
+	 * @param criteria coupling criteria
+	 * @return all related coupling groups
+	 */
+	protected List<CouplingGroup> getAllGroupsOfCriteria(CouplingCriteria criteria) {
 		List<CouplingGroup> res = new ArrayList<>();
 		for (CouplingGroup group : this.graph.getRelatedGroups()) {
 			if (group.getCriteria().equals(criteria)) {
-				if (!group.getRelatedEdges().contains(currentEdge)) {
-					res.add(group);
-				}
+				res.add(group);
 			}
 		}
 		return res;
 	}
 
-	public abstract double getScore(Edge currentEdge, CouplingGroup relatedGroup);
+	/**
+	 * Calculates the score for the current edge
+	 *
+	 * @param currentEdge  current edge
+	 * @param relatedGroup related group
+	 * @return value of edge
+	 */
+	public abstract double getScore(EdgeWrapper currentEdge, CouplingGroup relatedGroup);
+
+	/**
+	 * Execute a task after the calculation of each edge in the related group
+	 *
+	 * @param relatedGroup related group
+	 */
+	public void afterCalcScore(CouplingGroup relatedGroup) {
+		// Nothing
+	}
 }

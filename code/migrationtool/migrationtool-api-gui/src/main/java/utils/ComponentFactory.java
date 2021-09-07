@@ -1,6 +1,7 @@
 package utils;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -9,13 +10,18 @@ import com.jfoenix.controls.JFXAutoCompletePopup;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTreeTableColumn;
+import com.jfoenix.controls.JFXTreeTableView;
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import com.jfoenix.validation.IntegerValidator;
 
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -188,5 +194,17 @@ public class ComponentFactory {
 		LayoutUtils.setAnchorPaneConst(node);
 		AnchorPane pane = new AnchorPane(node);
 		return new VBox(label, pane);
+	}
+
+	public static <I extends RecursiveTreeObject<I>, T> JFXTreeTableColumn<I, T> setupColumn(JFXTreeTableView<I> table,
+			JFXTreeTableColumn<I, T> column, double width, Function<I, ObservableValue<T>> mapper) {
+		column.prefWidthProperty().bind(table.widthProperty().multiply(width));
+		column.setCellValueFactory((TreeTableColumn.CellDataFeatures<I, T> param) -> {
+			if (column.validateValue(param)) {
+				return mapper.apply(param.getValue().getValue());
+			}
+			return column.getComputedValue(param);
+		});
+		return column;
 	}
 }

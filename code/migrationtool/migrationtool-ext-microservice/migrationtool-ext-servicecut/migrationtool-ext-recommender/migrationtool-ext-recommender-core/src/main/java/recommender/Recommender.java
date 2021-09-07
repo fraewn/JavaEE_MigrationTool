@@ -53,11 +53,14 @@ public class Recommender implements RecommenderService {
 	private Map<ClassOrInterfaceDeclaration, List<MethodDeclaration>> useCases;
 	/** RuleEngine */
 	private RuleEvaluator ruleEngine;
+	/** reference to the groups */
+	private Map<Integer, String> groups;
 
 	public Recommender() {
 		this.ruleEngine = new RuleEvaluator();
 		this.props = new PropertiesLoader(FILE_NAME);
 		this.props.loadProps(false);
+		this.groups = new HashMap<>();
 	}
 
 	@Override
@@ -84,13 +87,18 @@ public class Recommender implements RecommenderService {
 			String[] temp = exprLimit.split(RecommendationKeys.SEPERATOR);
 			List<Integer> limits = Arrays.stream(temp).map(Integer::parseInt).collect(Collectors.toList());
 			Collections.reverse(limits);
-			currentStep.setGroups(res, limits);
+			if (this.groups.isEmpty()) {
+				currentStep.setGroups(res, limits);
+			} else {
+				currentStep.setGroups(res, this.groups);
+			}
 		}
 		return res;
 	}
 
 	private Map<String, List<Integer>> processWrapper(RecommenderProcessingSteps currentStep, Targets source,
 			Targets target) {
+		this.groups.clear();
 		Map<String, String> cache = this.props.getCache();
 		String keyid = currentStep.name();
 		// It is possible that a target gets more values in one prio definition
@@ -138,11 +146,12 @@ public class Recommender implements RecommenderService {
 				String id = entry.getKey().resolve().getQualifiedName() + "." + method.getNameAsString();
 				if (recommand.contains(id)) {
 					LOG.debug("Test method: " + id);
-					this.ruleEngine.recommand(method, x -> {
+					Map<Integer, String> temp = this.ruleEngine.recommand(method, this.groups, x -> {
 						if (x >= 0) {
 							result.put(id, x);
 						}
 					});
+					this.groups.putAll(temp);
 				}
 			}
 		}
@@ -159,7 +168,7 @@ public class Recommender implements RecommenderService {
 				UseCase current = getUseCaseByName(id);
 				if (current != null) {
 					LOG.debug("Test method: " + id);
-					this.ruleEngine.recommand(method, x -> {
+					Map<Integer, String> temp = this.ruleEngine.recommand(method, this.groups, x -> {
 						if (x >= 0) {
 							List<Instance> list = new ArrayList<>();
 							list.addAll(current.getInput());
@@ -175,6 +184,7 @@ public class Recommender implements RecommenderService {
 							}
 						}
 					});
+					this.groups.putAll(temp);
 				}
 			}
 		}

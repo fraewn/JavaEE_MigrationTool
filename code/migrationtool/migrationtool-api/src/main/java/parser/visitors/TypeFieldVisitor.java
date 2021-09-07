@@ -15,7 +15,7 @@ import parser.utils.TypeResolver;
 /**
  * Filter the AST-tree for a specific type
  */
-public class TypeFieldVisitor extends GenericVisitorAdapter<Boolean, FieldDeclaration> {
+public class TypeFieldVisitor extends GenericVisitorAdapter<Boolean, Void> {
 
 	/** searched java type */
 	private DefinitionTypes type;
@@ -39,7 +39,7 @@ public class TypeFieldVisitor extends GenericVisitorAdapter<Boolean, FieldDeclar
 	}
 
 	@Override
-	public Boolean visit(FieldDeclaration n, FieldDeclaration container) {
+	public Boolean visit(FieldDeclaration n, Void container) {
 		List<ResolvedType> types = new ArrayList<>();
 		ResolvedType type = n.resolve().getType();
 		types.add(type);

@@ -187,14 +187,7 @@ public class ConfigController implements ChildController<RecommenderProcessingSt
 
 	private <T> JFXTreeTableColumn<RecommandObject, T> setupColumn(JFXTreeTableColumn<RecommandObject, T> column,
 			double width, Function<RecommandObject, ObservableValue<T>> mapper) {
-		column.prefWidthProperty().bind(this.recommandationTable.widthProperty().multiply(width));
-		column.setCellValueFactory((TreeTableColumn.CellDataFeatures<RecommandObject, T> param) -> {
-			if (column.validateValue(param)) {
-				return mapper.apply(param.getValue().getValue());
-			}
-			return column.getComputedValue(param);
-		});
-		return column;
+		return ComponentFactory.setupColumn(this.recommandationTable, column, width, mapper);
 	}
 
 	public void createModelForm() {
@@ -212,7 +205,7 @@ public class ConfigController implements ChildController<RecommenderProcessingSt
 				this.resources.getString("dialog.group.tooltip"));
 		List<String> autoSearch = new ArrayList<>();
 		for (RecommandObject rec : this.data) {
-			if (!autoSearch.contains(rec.relatedGroups.get())) {
+			if ((rec.relatedGroups.get() != null) && !autoSearch.contains(rec.relatedGroups.get())) {
 				autoSearch.add(rec.relatedGroups.get());
 			}
 		}
@@ -240,6 +233,13 @@ public class ConfigController implements ChildController<RecommenderProcessingSt
 				if ((name.getText() != null) && !name.getText().isEmpty() && (relatedGroup.getText() != null)
 						&& !relatedGroup.getText().isEmpty()) {
 					RecommandObject rec = new RecommandObject(name.getText(), z, true, relatedGroup.getText());
+					for (RecommandObject object : this.data) {
+						if (object.name.get().equals(name.getText())) {
+							// same object override
+							this.data.remove(object);
+							break;
+						}
+					}
 					this.data.add(rec);
 					this.controller.callbackEvent();
 					this.dialog.close();

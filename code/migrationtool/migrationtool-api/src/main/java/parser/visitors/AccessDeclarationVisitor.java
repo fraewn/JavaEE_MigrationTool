@@ -15,7 +15,7 @@ import parser.enums.ModifierTypes;
 /**
  * Filter the AST-tree for a specific declaration
  */
-public class AccessDeclarationVisitor extends GenericVisitorAdapter<Boolean, String> {
+public class AccessDeclarationVisitor extends GenericVisitorAdapter<Boolean, Void> {
 
 	/** Possible modifiers */
 	private ModifierTypes type;
@@ -25,7 +25,7 @@ public class AccessDeclarationVisitor extends GenericVisitorAdapter<Boolean, Str
 	}
 
 	@Override
-	public Boolean visit(MethodDeclaration n, String container) {
+	public Boolean visit(MethodDeclaration n, Void container) {
 		if (check(n)) {
 			return Boolean.TRUE;
 		}
@@ -33,7 +33,7 @@ public class AccessDeclarationVisitor extends GenericVisitorAdapter<Boolean, Str
 	}
 
 	@Override
-	public Boolean visit(ClassOrInterfaceDeclaration n, String container) {
+	public Boolean visit(ClassOrInterfaceDeclaration n, Void container) {
 		if (check(n)) {
 			return Boolean.TRUE;
 		}
@@ -41,7 +41,7 @@ public class AccessDeclarationVisitor extends GenericVisitorAdapter<Boolean, Str
 	}
 
 	@Override
-	public Boolean visit(FieldDeclaration n, String container) {
+	public Boolean visit(FieldDeclaration n, Void container) {
 		if (check(n)) {
 			return Boolean.TRUE;
 		}
@@ -49,7 +49,7 @@ public class AccessDeclarationVisitor extends GenericVisitorAdapter<Boolean, Str
 	}
 
 	@Override
-	public Boolean visit(ConstructorDeclaration n, String container) {
+	public Boolean visit(ConstructorDeclaration n, Void container) {
 		if (check(n)) {
 			return Boolean.TRUE;
 		}

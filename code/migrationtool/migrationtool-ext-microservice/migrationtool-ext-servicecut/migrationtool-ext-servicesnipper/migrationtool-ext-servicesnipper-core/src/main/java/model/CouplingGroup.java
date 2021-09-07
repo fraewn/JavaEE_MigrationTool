@@ -6,21 +6,24 @@ import java.util.stream.Collectors;
 
 import model.artifacts.ArchitectureArtifact;
 import model.criteria.CouplingCriteria;
-import model.data.Instance;
 import resolver.CriteriaScorer;
 
+/**
+ * A coupling group is a wrapper for all related data to the edge creation
+ */
 public class CouplingGroup {
 
+	/** name of this coupling group */
 	private String groupName;
-
-	private Set<Edge> relatedEdges;
-
-	private Set<Instance> relatedNodes;
-
+	/** all edges of this coupling group */
+	private Set<EdgeWrapper> relatedEdges;
+	/** all involved nodes of this coupling group */
+	private Set<String> relatedNodes;
+	/** criteria of this coupling group */
 	private CouplingCriteria criteria;
-
+	/** artifact of this coupling group */
 	private ArchitectureArtifact artifact;
-
+	/** scorer of this coupling group */
 	private Class<? extends CriteriaScorer> scorer;
 
 	public CouplingGroup() {
@@ -28,7 +31,7 @@ public class CouplingGroup {
 		this.relatedNodes = new HashSet<>();
 	}
 
-	public CouplingGroup(String groupName, Set<Edge> relatedEdges, CouplingCriteria criteria,
+	public CouplingGroup(String groupName, Set<EdgeWrapper> relatedEdges, CouplingCriteria criteria,
 			ArchitectureArtifact artifact, Class<? extends CriteriaScorer> scorer) {
 		this();
 		this.groupName = groupName;
@@ -41,15 +44,15 @@ public class CouplingGroup {
 	/**
 	 * @return the origins
 	 */
-	public Set<Node> getOrigins() {
-		return this.relatedEdges.stream().map(Edge::getFirstNode).collect(Collectors.toSet());
+	public Set<String> getOrigins() {
+		return this.relatedEdges.stream().map(EdgeWrapper::getFirstNode).collect(Collectors.toSet());
 	}
 
 	/**
 	 * @return the destinations
 	 */
-	public Set<Node> getDestinations() {
-		return this.relatedEdges.stream().map(Edge::getSecondNode).collect(Collectors.toSet());
+	public Set<String> getDestinations() {
+		return this.relatedEdges.stream().map(EdgeWrapper::getSecondNode).collect(Collectors.toSet());
 	}
 
 	/**
@@ -97,28 +100,28 @@ public class CouplingGroup {
 	/**
 	 * @return the relatedEdges
 	 */
-	public Set<Edge> getRelatedEdges() {
+	public Set<EdgeWrapper> getRelatedEdges() {
 		return this.relatedEdges;
 	}
 
 	/**
 	 * @param relatedEdges the relatedEdges to set
 	 */
-	public void setRelatedEdges(Set<Edge> relatedEdges) {
+	public void setRelatedEdges(Set<EdgeWrapper> relatedEdges) {
 		this.relatedEdges = relatedEdges;
 	}
 
 	/**
 	 * @return the relatedNodes
 	 */
-	public Set<Instance> getRelatedNodes() {
+	public Set<String> getRelatedNodes() {
 		return this.relatedNodes;
 	}
 
 	/**
 	 * @param relatedNodes the relatedNodes to set
 	 */
-	public void setRelatedNodes(Set<Instance> relatedNodes) {
+	public void setRelatedNodes(Set<String> relatedNodes) {
 		this.relatedNodes = relatedNodes;
 	}
 

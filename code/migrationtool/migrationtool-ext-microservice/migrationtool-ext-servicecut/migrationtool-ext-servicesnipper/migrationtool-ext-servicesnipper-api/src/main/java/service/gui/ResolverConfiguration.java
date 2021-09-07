@@ -6,11 +6,15 @@ import graph.clustering.ClusterAlgorithms;
 import model.criteria.CouplingCriteria;
 import model.priorities.Priorities;
 
+/**
+ * Wrapper class for all necessary settings to execute the service cut resolver
+ */
 public class ResolverConfiguration {
+	/** selected algorithm */
 	private ClusterAlgorithms selectedAlgorithmn;
-
+	/** algorithm settings */
 	private Map<String, String> settings;
-
+	/** priorities of coupling criteria */
 	private Map<CouplingCriteria, Priorities> priorities;
 
 	/**

@@ -7,6 +7,9 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Factory class to get the correct implementation of a scorer
+ */
 public class CriteriaScorerFactory {
 
 	/** LOGGER */
@@ -18,6 +21,12 @@ public class CriteriaScorerFactory {
 
 	private static Map<Class<? extends CriteriaScorer>, CriteriaScorer> cache = new HashMap<>();
 
+	/**
+	 * Get the implementation of a scorer
+	 *
+	 * @param scorer searched scorer
+	 * @return implementation of scorer
+	 */
 	public static CriteriaScorer getScorer(Class<? extends CriteriaScorer> scorer) {
 		if (cache.isEmpty() || !cache.containsKey(scorer)) {
 			loadScorer(scorer);

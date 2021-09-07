@@ -129,8 +129,7 @@ public class ServiceCutInterpreter extends InterpreterService<String, Object> {
 
 	private boolean awaitUserInteraction() {
 		this.visual.setProgress(this.currentStep.name(), this.stateMachine.getProcentOfProgress());
-		this.visual.awaitApproval(this.currentStep);
-		return false;
+		return this.visual.awaitApproval(this.currentStep);
 	}
 
 	private boolean awaitUserInteraction(StateMachine<?> subProcess) {
@@ -261,7 +260,7 @@ public class ServiceCutInterpreter extends InterpreterService<String, Object> {
 		this.result = this.service.solveCluster(configuration.getSelectedAlgorithmn(), config,
 				configuration.getPriorities());
 		LOG.info("Solve cluster successfull");
-		this.visual.visualizeCluster(this.service.getCurrentResultGraphState());
+		this.visual.visualizeCluster(this.result, this.service.getCurrentResultGraphState());
 	}
 
 	private void executeFinishedCluster() {

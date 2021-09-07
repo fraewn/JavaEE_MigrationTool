@@ -1,9 +1,13 @@
 package service.gui;
 
-import graph.model.AdjacencyList;
+import graph.model.GraphModel;
 import graph.processing.GraphProcessingSteps;
+import model.Result;
 import visualization.VisualizationService;
 
+/**
+ * Interaction interface with the visualization interface of the servicesnipper
+ */
 public interface Visualizer extends VisualizationService<GraphProcessingSteps> {
 
 	/**
@@ -14,11 +18,28 @@ public interface Visualizer extends VisualizationService<GraphProcessingSteps> {
 	 */
 	void visualizeModel(String jsonStringBefore, String jsonStringAfter);
 
-	void visualizeGraph(AdjacencyList adjList);
+	/**
+	 * Visualize the current input graph
+	 *
+	 * @param adjList model of graph
+	 */
+	void visualizeGraph(GraphModel model);
 
-	void visualizeCluster(AdjacencyList adjList);
+	/**
+	 * Visualize the current result graph
+	 *
+	 * @param result  result object
+	 * @param adjList model of graph
+	 */
+	void visualizeCluster(Result result, GraphModel model);
 
+	/**
+	 * @return the editied model as json string
+	 */
 	String getEditedModel();
 
+	/**
+	 * @return current settings
+	 */
 	ResolverConfiguration getSettings();
 }

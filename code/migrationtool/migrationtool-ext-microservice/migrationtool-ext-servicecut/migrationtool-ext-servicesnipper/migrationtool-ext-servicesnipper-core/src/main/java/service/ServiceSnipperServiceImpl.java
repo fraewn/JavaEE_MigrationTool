@@ -1,7 +1,6 @@
 package service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -11,9 +10,10 @@ import org.apache.logging.log4j.Logger;
 import graph.clustering.ClusterAlgorithms;
 import graph.clustering.SolverConfiguration;
 import graph.model.AdjacencyList;
+import graph.model.GraphModel;
 import graph.processing.GraphProcessingSteps;
 import model.CouplingGroup;
-import model.Edge;
+import model.EdgeWrapper;
 import model.Graph;
 import model.ModelRepresentation;
 import model.Result;
@@ -31,15 +31,18 @@ import resolver.CriteriaScorerFactory;
 import solver.Solver;
 import solver.SolverFactory;
 
+/**
+ * Implementation of the service interface
+ */
 public class ServiceSnipperServiceImpl implements ServiceSnipperService {
 
 	/** LOGGER */
 	private static final Logger LOG = LogManager.getLogger();
-
+	/** Reference to the current graph */
 	private Graph graph;
-
+	/** Reference to the input model */
 	private ModelRepresentation rep;
-
+	/** Refrence to the result object */
 	private Result result;
 
 	public ServiceSnipperServiceImpl() {
@@ -52,6 +55,16 @@ public class ServiceSnipperServiceImpl implements ServiceSnipperService {
 		this.rep = rep;
 		EntityRelationDiagram er = rep.getEntityDiagram();
 		nodeCreation(er);
+	}
+
+	private void nodeCreation(EntityRelationDiagram er) {
+		LOG.info("Creating nodes");
+		for (Entity entity : er.getEntities()) {
+			for (String attr : entity.getAttributes()) {
+				Instance n = new Instance(attr, entity.getName());
+				this.graph.addNewVertex(n.getQualifiedName());
+			}
+		}
 	}
 
 	@Override
@@ -70,65 +83,53 @@ public class ServiceSnipperServiceImpl implements ServiceSnipperService {
 
 	private void edgeCreation(Enum<?> subProcess) {
 		LOG.info("Creating edges of type: " + subProcess.name());
-		List<CouplingGroup> relatedGroups = this.graph.getRelatedGroups();
 		ProcessSteps processing = ProcessSteps.getStep(subProcess);
 		StepInformation info = processing.execute(this.rep);
 		for (CouplingGroup group : info.getGroups()) {
 			LOG.info("Group created " + group.getGroupName() + " has " + group.getRelatedEdges().size() + " edges");
-			relatedGroups.add(group);
-			for (Edge edge : group.getRelatedEdges()) {
-				this.graph.addNewEdge(edge);
+			this.graph.addRelatedGroup(group);
+			for (EdgeWrapper edge : group.getRelatedEdges()) {
+				this.graph.addNewEdge(edge, edge.getAttr());
 			}
 		}
 	}
 
 	private void edgeResolving(Enum<?> subProcess) {
 		LOG.info("Resolve edges of type " + subProcess.name());
-		Map<Edge, Double> resolvedCriteria = new HashMap<>();
+		CouplingCriteria currentCriteria = CouplingCriteria.valueOf(subProcess.name().toUpperCase());
+		Map<EdgeWrapper, Double> resolvedValues = new HashMap<>();
 		CriteriaScorer currentScorer = null;
-		CouplingCriteria currentCriteria = null;
+		// Run all groups of the searched criteria
 		for (CouplingGroup entry : this.graph.getRelatedGroups()) {
 			if (entry.getCriteria().name().equals(subProcess.name())) {
 				LOG.info("Related Group: " + entry.getGroupName());
 				// Scorer and criteria is for all groups in the step the same
-				currentCriteria = entry.getCriteria();
 				currentScorer = CriteriaScorerFactory.getScorer(entry.getScorer());
-				Map<Edge, Double> values = currentScorer.getScores(entry, this.graph);
-				for (Entry<Edge, Double> value : values.entrySet()) {
-					if (resolvedCriteria.containsKey(value.getKey())) {
-						Double current = resolvedCriteria.get(value.getKey());
-						resolvedCriteria.put(value.getKey(), current + value.getValue());
+				Map<EdgeWrapper, Double> values = currentScorer.getScores(entry, this.graph);
+				for (Entry<EdgeWrapper, Double> value : values.entrySet()) {
+					if (resolvedValues.containsKey(value.getKey())) {
+						resolvedValues.put(value.getKey(), resolvedValues.get(value.getKey()) + value.getValue());
 					} else {
-						resolvedCriteria.put(value.getKey(), value.getValue());
+						resolvedValues.put(value.getKey(), value.getValue());
 					}
 				}
 			}
 		}
-		if (!resolvedCriteria.isEmpty()) {
+		if (!resolvedValues.isEmpty()) {
 			LOG.info("Normailze edges of type " + subProcess.name());
-			Map<Edge, Double> res = currentScorer.normalize(resolvedCriteria);
-			for (Entry<Edge, Double> e : res.entrySet()) {
+			Map<EdgeWrapper, Double> res = currentScorer.normalize(resolvedValues);
+			for (Entry<EdgeWrapper, Double> e : res.entrySet()) {
 				this.graph.addNewScore(e.getKey(), currentCriteria, e.getValue());
 			}
 		}
 	}
 
-	private void nodeCreation(EntityRelationDiagram er) {
-		LOG.info("Creating nodes");
-		for (Entity entity : er.getEntities()) {
-			for (String attr : entity.getAttributes()) {
-				Instance n = new Instance(attr, entity.getName());
-				this.graph.addNewNode(n.getQualifiedName());
-			}
-		}
-	}
-
 	@Override
-	public AdjacencyList getCurrentGraphState() {
+	public GraphModel getCurrentGraphState() {
 		if (this.graph == null) {
 			return null;
 		}
-		return this.graph.convert();
+		return this.graph.getGraphModel();
 	}
 
 	@Override
@@ -140,20 +141,20 @@ public class ServiceSnipperServiceImpl implements ServiceSnipperService {
 	}
 
 	@Override
-	public AdjacencyList getCurrentResultGraphState() {
+	public GraphModel getCurrentResultGraphState() {
 		if (this.result == null) {
 			return null;
 		}
-		AdjacencyList adjList = new AdjacencyList();
+		GraphModel adjList = new AdjacencyList();
 		for (Service service : this.result.getIsolatedServices().getServices()) {
 			adjList.addNewVertex(service.getName());
 			for (Instance relatedNode : service.getInstances()) {
 				adjList.addNewVertex(relatedNode.getQualifiedName());
-				adjList.addNewEdge(service.getName(), relatedNode.getQualifiedName(), 0d);
+				adjList.addNewEdge(service.getName(), relatedNode.getQualifiedName());
 			}
 		}
 		for (ServiceRelation relation : this.result.getIsolatedServices().getRelations()) {
-			adjList.addNewEdge(relation.getServiceIdA(), relation.getServiceIdB(), 0d);
+			adjList.addNewEdge(relation.getServiceIdA(), relation.getServiceIdB());
 		}
 		return adjList;
 	}

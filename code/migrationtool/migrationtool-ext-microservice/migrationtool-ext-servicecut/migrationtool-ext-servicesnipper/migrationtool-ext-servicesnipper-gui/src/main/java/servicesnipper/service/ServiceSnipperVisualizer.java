@@ -2,8 +2,9 @@ package servicesnipper.service;
 
 import application.Appl;
 import application.StartUp;
-import graph.model.AdjacencyList;
+import graph.model.GraphModel;
 import graph.processing.GraphProcessingSteps;
+import model.Result;
 import service.gui.ResolverConfiguration;
 import service.gui.Visualizer;
 import servicesnipper.application.ServiceSnipperAppl;
@@ -29,9 +30,9 @@ public class ServiceSnipperVisualizer implements Visualizer {
 	}
 
 	@Override
-	public void visualizeGraph(AdjacencyList adjList) {
+	public void visualizeGraph(GraphModel model) {
 		try {
-			this.appl.visualize(Boolean.FALSE, adjList, null);
+			this.appl.visualize(model, null);
 		} catch (Exception e) {
 			this.appl.shutdown();
 			throw new RuntimeException(e);
@@ -39,9 +40,9 @@ public class ServiceSnipperVisualizer implements Visualizer {
 	}
 
 	@Override
-	public void visualizeCluster(AdjacencyList adjList) {
+	public void visualizeCluster(Result result, GraphModel model) {
 		try {
-			this.appl.visualize(Boolean.TRUE, adjList, null);
+			this.appl.visualize(result, model, null);
 		} catch (Exception e) {
 			this.appl.shutdown();
 			throw new RuntimeException(e);

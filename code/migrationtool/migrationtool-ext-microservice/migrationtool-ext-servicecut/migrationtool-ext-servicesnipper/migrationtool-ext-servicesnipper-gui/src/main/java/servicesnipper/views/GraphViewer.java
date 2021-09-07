@@ -4,11 +4,13 @@ import static org.graphstream.ui.view.util.InteractiveElement.EDGE;
 import static org.graphstream.ui.view.util.InteractiveElement.NODE;
 import static org.graphstream.ui.view.util.InteractiveElement.SPRITE;
 
+import java.text.DecimalFormat;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -19,10 +21,12 @@ import org.graphstream.ui.graphicGraph.GraphicElement;
 import org.graphstream.ui.javafx.FxGraphRenderer;
 import org.graphstream.ui.view.camera.Camera;
 
-import graph.model.AdjacencyList;
+import graph.model.GraphModel;
 import javafx.scene.input.MouseEvent;
 
 public class GraphViewer {
+
+	private static final DecimalFormat df = new DecimalFormat("#.##");
 
 	private Graph graph;
 	private GraphView view;
@@ -89,9 +93,9 @@ public class GraphViewer {
 		});
 	}
 
-	public void update(AdjacencyList adjList) {
+	public void update(GraphModel model) {
 		if (this.graph.getNodeCount() == 0) {
-			for (String node : adjList.getGraph().keySet()) {
+			for (String node : model.getGraph().keySet()) {
 				this.graph.addNode(node);
 				Node n = this.graph.getNode(node);
 				n.setAttribute("ui.label", node);
@@ -108,7 +112,7 @@ public class GraphViewer {
 				}
 			}
 		}
-		for (Entry<String, Map<String, Double>> node : adjList.getGraph().entrySet()) {
+		for (Entry<String, Map<String, Double>> node : model.getGraph().entrySet()) {
 			for (Entry<String, Double> edge : node.getValue().entrySet()) {
 				String id = node.getKey() + edge.getKey();
 				if (this.graph.getEdge(id) == null) {
@@ -116,7 +120,7 @@ public class GraphViewer {
 					this.graph.getEdge(id).setAttribute("layout.weight", 5);
 				}
 				if (edge.getValue() != 0) {
-					this.graph.getEdge(id).setAttribute("ui.label", "" + edge.getValue());
+					this.graph.getEdge(id).setAttribute("ui.label", "" + df.format(edge.getValue()));
 				}
 			}
 		}
@@ -126,6 +130,29 @@ public class GraphViewer {
 		this.graph.clear();
 		this.graph.setAttribute("ui.stylesheet", "url('file://" + this.view.getCssFile() + "')");
 		this.graph.setAttribute("layout.quality", 4);
+	}
+
+	public void showLabels(boolean visible) {
+		for (Node node : this.graph) {
+			node.setAttribute("ui.style", "text-visibility: 0.5;");
+			node.setAttribute("ui.style", "text-visibility-mode: " + (visible ? "normal;" : "under-zoom;"));
+		}
+		for (int i = 0; i < this.graph.getEdgeCount(); i++) {
+			Edge e = this.graph.getEdge(i);
+			e.setAttribute("ui.style", "text-visibility: 0.5;");
+			e.setAttribute("ui.style", "text-visibility-mode: " + (visible ? "normal;" : "under-zoom;"));
+		}
+	}
+
+	public void newColors() {
+		for (Entry<String, Float> e : contextColor.entrySet()) {
+			contextColor.put(e.getKey(), (float) Math.random());
+		}
+		for (Node node : this.graph) {
+			String text = (String) node.getAttribute("ui.label");
+			String context = text.substring(0, text.lastIndexOf("."));
+			node.setAttribute("ui.color", GraphViewer.contextColor.get(context));
+		}
 	}
 
 	public FxViewPanel getViewPanel() {

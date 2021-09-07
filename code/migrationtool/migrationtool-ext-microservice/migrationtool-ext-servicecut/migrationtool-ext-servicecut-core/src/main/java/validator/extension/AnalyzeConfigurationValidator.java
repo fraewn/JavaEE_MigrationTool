@@ -9,12 +9,13 @@ import analyzer.Analyzer;
 import analyzer.EngineOperations;
 import analyzer.SetOperations;
 import exceptions.MigrationToolArgumentException;
+import model.erm.RelationType;
+import operations.Validator;
 import rules.engine.RuleEvaluator;
 import utils.RuleKeys;
-import validator.Validator;
 
 /**
- * Validator of the file {@link DefintionDomain#FILE_NAME}
+ * Validator of the file {@link Analyzer#FILE_NAME}
  */
 public class AnalyzeConfigurationValidator implements Validator {
 
@@ -39,6 +40,15 @@ public class AnalyzeConfigurationValidator implements Validator {
 			} catch (Exception e) {
 				throw new MigrationToolArgumentException(
 						op + " is not a valid value; Possibilites " + Arrays.toString(SetOperations.values()));
+			}
+		}
+		String rulePriorities = cache.get(RuleKeys.RELATIONSHIP_PRIORITY);
+		for (String op : rulePriorities.split(";")) {
+			try {
+				RelationType.valueOf(op.toUpperCase());
+			} catch (Exception e) {
+				throw new MigrationToolArgumentException(
+						op + " is not a valid value; Possibilites " + Arrays.toString(RelationType.values()));
 			}
 		}
 		List<String> allStatements = new ArrayList<>();

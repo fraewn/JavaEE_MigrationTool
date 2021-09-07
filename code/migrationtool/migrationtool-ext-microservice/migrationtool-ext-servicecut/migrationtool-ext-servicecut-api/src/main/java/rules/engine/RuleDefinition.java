@@ -12,6 +12,7 @@ import parser.enums.DefinitionTypes;
 import parser.enums.ModifierTypes;
 import parser.enums.TargetTypes;
 import parser.visitors.AccessDeclarationVisitor;
+import parser.visitors.AnnotationGroupingVisitor;
 import parser.visitors.AnnotationVisitor;
 import parser.visitors.AssignVisitor;
 import parser.visitors.ComplexityVisitor;
@@ -19,6 +20,7 @@ import parser.visitors.InheritenceVisitor;
 import parser.visitors.LinesOfCodeVisitor;
 import parser.visitors.MethodArgumentsVisitor;
 import parser.visitors.MethodReturnValueVisitor;
+import parser.visitors.OccurrenceVisitor;
 import parser.visitors.TautologyVisitor;
 import parser.visitors.TypeFieldVisitor;
 import parser.visitors.UsedMethodVisitor;
@@ -179,6 +181,26 @@ public enum RuleDefinition {
 		@Override
 		public GenericVisitor<Boolean, ?> buildVisitor(Map<String, String> args) {
 			return new LinesOfCodeVisitor();
+		}
+	},
+	/**
+	 * Recommendation Visitor; Counts included instances of a method
+	 */
+	OCCURENCE() {
+		@Override
+		public GenericVisitor<Boolean, ?> buildVisitor(Map<String, String> args) {
+			return new OccurrenceVisitor();
+		}
+	},
+	/**
+	 * Recommendation Visitor; Groups by single member annotation
+	 */
+	ANNOTATION_GROUPING("name", "type") {
+		@Override
+		public GenericVisitor<Boolean, ?> buildVisitor(Map<String, String> args) {
+			String searchedAnnotation = args.get("name");
+			TargetTypes type = TargetTypes.valueOf(args.get("type"));
+			return new AnnotationGroupingVisitor(searchedAnnotation, type);
 		}
 	};
 

@@ -25,6 +25,10 @@
 			<groupId>thesis.hbrs</groupId>
 			<artifactId>migrationtool-ext-servicecut-api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+		</dependency>
 		<!-- TODO remove -->
 		<dependency>
 			<groupId>thesis.hbrs</groupId>

@@ -132,28 +132,6 @@
 										</AnchorPane>
 									</content>
 								</TitledPane>
-								<TitledPane
-									animated="true"
-									text="%graphconfig.config3.header">
-									<content>
-										<AnchorPane>
-											<children>
-												<VBox
-													AnchorPane.bottomAnchor="0.0"
-													AnchorPane.leftAnchor="0.0"
-													AnchorPane.rightAnchor="0.0"
-													AnchorPane.topAnchor="0.0">
-													<children>
-														<JFXToggleButton
-															fx:id="showLabels"
-															VBox.vgrow="ALWAYS"
-															text="%graphconfig.config3.showLabels" />
-													</children>
-												</VBox>
-											</children>
-										</AnchorPane>
-									</content>
-								</TitledPane>
 							</panes>
 						</Accordion>
 					</children>

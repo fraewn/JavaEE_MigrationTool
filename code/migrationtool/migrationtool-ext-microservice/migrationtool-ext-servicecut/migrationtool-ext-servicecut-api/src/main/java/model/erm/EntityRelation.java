@@ -66,6 +66,20 @@ public class EntityRelation implements Comparator<EntityRelation>, Comparable<En
 		this.type = type;
 	}
 
+	public boolean equalsIgnoreType(Object obj) {
+		if ((obj == null) || (obj.getClass() != this.getClass())) {
+			return false;
+		}
+		final EntityRelation other = (EntityRelation) obj;
+		if ((this.origin == null) ? (other.origin != null) : !this.origin.equals(other.origin)) {
+			return false;
+		}
+		if ((this.destination == null) ? (other.destination != null) : !this.destination.equals(other.destination)) {
+			return false;
+		}
+		return true;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if ((obj == null) || (obj.getClass() != this.getClass())) {

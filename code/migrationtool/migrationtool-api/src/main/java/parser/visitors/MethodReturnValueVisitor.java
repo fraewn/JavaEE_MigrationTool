@@ -1,6 +1,5 @@
 package parser.visitors;
 
-import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedTypeParameterDeclaration;
@@ -12,7 +11,7 @@ import parser.utils.TypeResolver;
 /**
  * Filter the AST-tree for a specific return type
  */
-public class MethodReturnValueVisitor extends GenericVisitorAdapter<Boolean, FieldDeclaration> {
+public class MethodReturnValueVisitor extends GenericVisitorAdapter<Boolean, Void> {
 
 	/** searched definition */
 	private String searchedEntity;
@@ -22,7 +21,7 @@ public class MethodReturnValueVisitor extends GenericVisitorAdapter<Boolean, Fie
 	}
 
 	@Override
-	public Boolean visit(MethodDeclaration n, FieldDeclaration arg) {
+	public Boolean visit(MethodDeclaration n, Void arg) {
 		ResolvedType type = n.resolve().getReturnType();
 		String typeOfReturn = TypeResolver.getFullyQualifiedName(type);
 		if (typeOfReturn == null) {

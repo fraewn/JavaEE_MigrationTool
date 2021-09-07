@@ -14,12 +14,12 @@ import java.util.Map.Entry;
 
 import exceptions.MigrationToolArgumentException;
 import exceptions.MigrationToolInitException;
+import operations.Validator;
 import recommender.MetricOperation;
 import recommender.Recommender;
 import recommender.processing.RecommenderProcessingSteps;
 import rules.engine.RuleEvaluator;
 import utils.StateMachine;
-import validator.Validator;
 
 /**
  * Validator of the file {@link Recommender#FILE_NAME}

@@ -13,7 +13,7 @@ import parser.enums.TargetTypes;
 /**
  * Filter the AST-tree for a specific annotation
  */
-public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, AnnotationExpr> {
+public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, Void> {
 
 	/** searched annotation, fully qualified name */
 	private String searchedAnnotation;
@@ -26,7 +26,7 @@ public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, Annotation
 	}
 
 	@Override
-	public Boolean visit(MethodDeclaration n, AnnotationExpr container) {
+	public Boolean visit(MethodDeclaration n, Void container) {
 		if (this.type.equals(TargetTypes.METHOD)) {
 			if (check(n)) {
 				return Boolean.TRUE;
@@ -36,7 +36,7 @@ public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, Annotation
 	}
 
 	@Override
-	public Boolean visit(ClassOrInterfaceDeclaration n, AnnotationExpr container) {
+	public Boolean visit(ClassOrInterfaceDeclaration n, Void container) {
 		if (this.type.equals(TargetTypes.TYPE)) {
 			if (check(n)) {
 				return Boolean.TRUE;
@@ -46,7 +46,7 @@ public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, Annotation
 	}
 
 	@Override
-	public Boolean visit(FieldDeclaration n, AnnotationExpr container) {
+	public Boolean visit(FieldDeclaration n, Void container) {
 		if (this.type.equals(TargetTypes.FIELD)) {
 			if (check(n)) {
 				return Boolean.TRUE;
@@ -56,7 +56,7 @@ public class AnnotationVisitor extends GenericVisitorAdapter<Boolean, Annotation
 	}
 
 	@Override
-	public Boolean visit(ConstructorDeclaration n, AnnotationExpr container) {
+	public Boolean visit(ConstructorDeclaration n, Void container) {
 		if (this.type.equals(TargetTypes.CONSTRUCTOR)) {
 			if (check(n)) {
 				return Boolean.TRUE;

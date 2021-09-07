@@ -4,6 +4,9 @@
 <?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXTreeView?>
 <?import com.jfoenix.controls.JFXTabPane?>
+<?import com.jfoenix.controls.JFXTreeTableView?>
+<?import com.jfoenix.controls.JFXTreeTableColumn?>
+<?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.Accordion?>
@@ -153,16 +156,56 @@
 											<panes>
 												<TitledPane
 													animated="true"
+													text="%graphconfig.config3.header">
+													<content>
+														<AnchorPane>
+															<children>
+																<VBox
+																	AnchorPane.bottomAnchor="0.0"
+																	AnchorPane.leftAnchor="0.0"
+																	AnchorPane.rightAnchor="0.0"
+																	AnchorPane.topAnchor="0.0">
+																	<children>
+																		<JFXToggleButton
+																			fx:id="showLabels"
+																			VBox.vgrow="ALWAYS"
+																			text="%graphconfig.config3.showLabels" />
+																		<AnchorPane>
+																			<children>
+																				<JFXButton
+																					fx:id="recalcColours"
+																					text="%graphvisual.recalcColours"
+																					buttonType="RAISED"
+																					AnchorPane.bottomAnchor="0.0"
+																					AnchorPane.leftAnchor="0.0"
+																					AnchorPane.rightAnchor="0.0"
+																					AnchorPane.topAnchor="0.0"
+																					ripplerFill="#0037ff"
+																					onAction="#executeRecalcColors"
+																					styleClass="jfx-button-raised, jfx-button-raised-small, jfx-button-raised-blue" />
+																			</children>
+																		</AnchorPane>
+																	</children>
+																</VBox>
+															</children>
+														</AnchorPane>
+													</content>
+												</TitledPane>
+												<TitledPane
+													animated="true"
 													text="%graphvisual.config1.header">
 													<content>
 														<AnchorPane>
 															<children>
-																<JFXTreeView
-																	fx:id="visualEntities"
+																<JFXTreeTableView
+																	fx:id="entityTable"
 																	AnchorPane.bottomAnchor="0.0"
 																	AnchorPane.leftAnchor="0.0"
 																	AnchorPane.rightAnchor="0.0"
-																	AnchorPane.topAnchor="0.0" />
+																	AnchorPane.topAnchor="0.0">
+																	<columns>
+																	</columns>
+																</JFXTreeTableView>
 															</children>
 														</AnchorPane>
 													</content>
@@ -173,12 +216,15 @@
 													<content>
 														<AnchorPane>
 															<children>
-																<JFXTreeView
-																	fx:id="visualServices"
+																<JFXTreeTableView
+																	fx:id="edgeTable"
 																	AnchorPane.bottomAnchor="0.0"
 																	AnchorPane.leftAnchor="0.0"
 																	AnchorPane.rightAnchor="0.0"
-																	AnchorPane.topAnchor="0.0" />
+																	AnchorPane.topAnchor="0.0">
+																	<columns>
+																	</columns>
+																</JFXTreeTableView>
 															</children>
 														</AnchorPane>
 													</content>
@@ -190,36 +236,58 @@
 														<AnchorPane>
 															<children>
 																<VBox
-																	spacing="10.0"
 																	AnchorPane.bottomAnchor="0.0"
 																	AnchorPane.leftAnchor="0.0"
 																	AnchorPane.rightAnchor="0.0"
 																	AnchorPane.topAnchor="0.0">
 																	<children>
-																		<AnchorPane>
+																		<AnchorPane VBox.vgrow="ALWAYS">
 																			<children>
-																				<Label
-																					text="%graphvisual.config3.language"
+																				<JFXTreeTableView
+																					fx:id="serviceEntityTable"
 																					AnchorPane.bottomAnchor="0.0"
 																					AnchorPane.leftAnchor="0.0"
 																					AnchorPane.rightAnchor="0.0"
-																					AnchorPane.topAnchor="0.0" />
+																					AnchorPane.topAnchor="0.0">
+																					<columns>
+																					</columns>
+																				</JFXTreeTableView>
 																			</children>
 																		</AnchorPane>
-																		<JFXListView fx:id="language" />
-																		<AnchorPane>
+																		<AnchorPane VBox.vgrow="ALWAYS">
 																			<children>
-																				<Label
-																					text="%graphvisual.config3.useCases"
+																				<JFXTreeTableView
+																					fx:id="serviceUseCaseTable"
 																					AnchorPane.bottomAnchor="0.0"
 																					AnchorPane.leftAnchor="0.0"
 																					AnchorPane.rightAnchor="0.0"
-																					AnchorPane.topAnchor="0.0" />
+																					AnchorPane.topAnchor="0.0">
+																					<columns>
+																					</columns>
+																				</JFXTreeTableView>
 																			</children>
 																		</AnchorPane>
-																		<JFXListView fx:id="useCases" />
 																	</children>
 																</VBox>
+															</children>
+														</AnchorPane>
+													</content>
+												</TitledPane>
+												<TitledPane
+													animated="true"
+													text="%graphvisual.config4.header">
+													<content>
+														<AnchorPane>
+															<children>
+																<JFXTreeTableView
+																	fx:id="serviceRelationTable"
+																	AnchorPane.bottomAnchor="0.0"
+																	AnchorPane.leftAnchor="0.0"
+																	AnchorPane.rightAnchor="0.0"
+																	AnchorPane.topAnchor="0.0">
+																	<columns>
+																	</columns>
+																</JFXTreeTableView>
 															</children>
 														</AnchorPane>
 													</content>
@@ -238,7 +306,7 @@
 									AnchorPane.rightAnchor="0.0"
 									AnchorPane.topAnchor="0.0">
 									<children>
-										<AnchorPane>
+										<AnchorPane fx:id="debugText">
 											<children>
 												<Label
 													alignment="CENTER"
@@ -249,23 +317,8 @@
 													AnchorPane.topAnchor="0.0" />
 											</children>
 										</AnchorPane>
-										<HBox>
+										<HBox fx:id="debugOptions">
 											<children>
-												<AnchorPane HBox.hgrow="ALWAYS">
-													<children>
-														<JFXButton
-															fx:id="debugPrevious"
-															text="%graphvisual.debug.previous"
-															buttonType="RAISED"
-															AnchorPane.bottomAnchor="0.0"
-															AnchorPane.leftAnchor="0.0"
-															AnchorPane.rightAnchor="0.0"
-															AnchorPane.topAnchor="0.0"
-															ripplerFill="#0037ff"
-															onAction="#executeDebugPreviousAction"
-															styleClass="jfx-button-raised, jfx-button-raised-small, jfx-button-raised-blue" />
-													</children>
-												</AnchorPane>
 												<Pane HBox.hgrow="ALWAYS" />
 												<AnchorPane HBox.hgrow="ALWAYS">
 													<children>

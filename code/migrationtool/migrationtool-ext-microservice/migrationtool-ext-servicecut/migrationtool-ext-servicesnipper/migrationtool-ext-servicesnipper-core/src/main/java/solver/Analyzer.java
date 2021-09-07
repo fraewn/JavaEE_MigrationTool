@@ -1,5 +1,8 @@
 package solver;
 
+import static model.artifacts.ArchitectureArtifact.USE_CASE;
+import static model.criteria.CouplingCriteria.SEMANTIC_PROXIMITY;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,11 +12,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import model.CouplingGroup;
-import model.Edge;
+import model.EdgeWrapper;
 import model.Graph;
-import model.Node;
 import model.Result;
-import model.artifacts.ArchitectureArtifact;
 import model.criteria.CouplingCriteria;
 import model.data.Instance;
 import model.data.UseCase;
@@ -22,11 +23,25 @@ import model.serviceDefintion.Direction;
 import model.serviceDefintion.Service;
 import model.serviceDefintion.ServiceRelation;
 
+/**
+ * Utils class to define the related use case and connections between clusters
+ */
 public class Analyzer {
 
+	/** Score value of the write attribute of an use case */
 	private static final double SCORE_WRITE = 1d;
+	/** Score value of the read attribute of an use case */
 	private static final double SCORE_READ = 0.25d;
 
+	/**
+	 * Defines for a each service the related use cases and connections to other
+	 * clusters
+	 *
+	 * @param res        current result object
+	 * @param graph      current graph
+	 * @param priorities priorities
+	 * @return filled result object
+	 */
 	public static Result analyseResult(Result res, Graph graph, Map<CouplingCriteria, Priorities> priorities) {
 		// Find Responsible useCases
 		findResponsibleServices(res, graph);
@@ -37,16 +52,17 @@ public class Analyzer {
 
 	private static void findResponsibleServices(Result res, Graph graph) {
 		List<CouplingGroup> useCases = graph.getRelatedGroups().stream()
-				.filter(x -> x.getArtifact().equals(ArchitectureArtifact.USE_CASE)).collect(Collectors.toList());
+				.filter(x -> x.getArtifact().equals(USE_CASE)).collect(Collectors.toList());
 		List<Service> services = res.getIsolatedServices().getServices();
 		for (CouplingGroup group : useCases) {
 			Double highestScore = 0d;
 			Service responsible = null;
 			for (Service service : services) {
-				long countRead = service.getInstances().stream().filter(x -> group.getOrigins().contains(new Node(x)))
+				long countRead = service.getInstances().stream()
+						.filter(x -> group.getOrigins().contains(x.getQualifiedName()))
 						.count();
 				long countWritten = service.getInstances().stream()
-						.filter(x -> group.getDestinations().contains(new Node(x))).count();
+						.filter(x -> group.getDestinations().contains(x.getQualifiedName())).count();
 				double score = (countRead * SCORE_READ) + (countWritten * SCORE_WRITE);
 				if (score > highestScore) {
 					highestScore = score;
@@ -56,7 +72,8 @@ public class Analyzer {
 			if (responsible == null) {
 				// Second check, there is no edge only one node
 				for (Service service : services) {
-					long count = service.getInstances().stream().filter(x -> group.getRelatedNodes().contains(x))
+					long count = service.getInstances().stream()
+							.filter(x -> group.getRelatedNodes().contains(x.getQualifiedName()))
 							.count();
 					double score = count;
 					if (score > highestScore) {
@@ -67,9 +84,9 @@ public class Analyzer {
 			}
 			Map<Service, List<UseCase>> map = res.getIsolatedServices().getRelatedUseCases();
 			UseCase useCase = new UseCase();
-			useCase.setInput(group.getOrigins().stream().map(Node::getInstance).collect(Collectors.toList()));
+			useCase.setInput(group.getOrigins().stream().map(Instance::new).collect(Collectors.toList()));
 			useCase.setPersistenceChanges(
-					group.getDestinations().stream().map(Node::getInstance).collect(Collectors.toList()));
+					group.getDestinations().stream().map(Instance::new).collect(Collectors.toList()));
 			useCase.setLatencyCritical(group.getCriteria().equals(CouplingCriteria.LATENCY));
 			useCase.setName(group.getGroupName());
 			if (map.containsKey(responsible)) {
@@ -144,14 +161,11 @@ public class Analyzer {
 		double score = 0d;
 		for (Instance instanceA : serviceA.getInstances()) {
 			for (Instance instanceB : serviceB.getInstances()) {
-				Edge searchedEdge = new Edge(new Node(instanceA), new Node(instanceB));
+				EdgeWrapper searchedEdge = new EdgeWrapper(instanceA.getQualifiedName(), instanceB.getQualifiedName());
 				if (graph.hasEdge(searchedEdge)) {
-					Map<CouplingCriteria, Double> scores = graph.getEdge(searchedEdge).getWeight().getWeight();
-					List<CouplingCriteria> list = Collections.singletonList(CouplingCriteria.SEMANTIC_PROXIMITY);
-					for (CouplingCriteria criteria : list) {
-						if (scores.containsKey(criteria)) {
-							score += scores.get(criteria) * priorities.get(criteria).getValue();
-						}
+					Double scoreSemanticProx = graph.getEdgeWeight(searchedEdge, SEMANTIC_PROXIMITY);
+					if (scoreSemanticProx != null) {
+						score += scoreSemanticProx * priorities.get(SEMANTIC_PROXIMITY).getValue();
 					}
 				}
 			}

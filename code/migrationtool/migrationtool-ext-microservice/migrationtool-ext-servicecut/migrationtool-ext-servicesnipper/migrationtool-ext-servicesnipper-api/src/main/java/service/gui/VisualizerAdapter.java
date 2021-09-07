@@ -1,8 +1,12 @@
 package service.gui;
 
-import graph.model.AdjacencyList;
+import graph.model.GraphModel;
 import graph.processing.GraphProcessingSteps;
+import model.Result;
 
+/**
+ * Dummy Implementation
+ */
 public class VisualizerAdapter implements Visualizer {
 
 	@Override
@@ -31,12 +35,12 @@ public class VisualizerAdapter implements Visualizer {
 	}
 
 	@Override
-	public void visualizeGraph(AdjacencyList adjList) {
+	public void visualizeGraph(GraphModel model) {
 
 	}
 
 	@Override
-	public void visualizeCluster(AdjacencyList adjList) {
+	public void visualizeCluster(Result result, GraphModel model) {
 
 	}
 
