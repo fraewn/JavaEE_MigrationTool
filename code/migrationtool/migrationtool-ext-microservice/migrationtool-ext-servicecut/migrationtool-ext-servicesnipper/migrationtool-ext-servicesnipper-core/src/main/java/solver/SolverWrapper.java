@@ -97,7 +97,7 @@ public abstract class SolverWrapper<N, E> implements Solver {
 			cut.getServices().add(s);
 		}
 		res.setIsolatedServices(cut);
-		return Analyzer.analyseResult(res, this.originGraph, this.priorities);
+		return families.isEmpty() ? res : Analyzer.analyseResult(res, this.originGraph, this.priorities);
 	}
 
 	private String uniqueId(int current, char start, int cycle) {

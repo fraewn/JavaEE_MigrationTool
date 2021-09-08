@@ -24,8 +24,14 @@ public class TypeResolver {
 			return type.asReferenceType().getQualifiedName();
 		} else if (type.isTypeVariable()) {
 			return type.asTypeVariable().qualifiedName();
+		} else if (type.isArray()) {
+			return type.asArrayType().describe();
+		} else if (type.isConstraint()) {
+			return type.asConstraintType().describe();
+		} else if (type.isUnionType()) {
+			return type.asUnionType().describe();
 		}
-		return null;
+		return type.describe();
 	}
 
 	/**

@@ -1,6 +1,6 @@
 {
-  "name" : "9655b075",
-  "generatedDate" : "07-09-2021 10:56:49",
+  "name" : "4273a369",
+  "generatedDate" : "08-09-2021 08:35:01",
   "entityDiagram" : {
     "entities" : [ {
       "name" : "beans.report.Company",
@@ -66,9 +66,13 @@
       "input" : "beans.batch.CleanReport.comment,beans.batch.CleanReport.company,beans.batch.CleanReport.batchId,beans.batch.CleanReport.title,beans.batch.CleanReport.id",
       "persistenceChanges" : ""
     }, {
+      "name" : "service.report.ReportServiceImpl.deleteReport",
+      "input" : "",
+      "persistenceChanges" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company"
+    }, {
       "name" : "service.batch.BatchServiceImpl.createBatch",
       "input" : "beans.report.Report.title,beans.report.Report.comment,beans.report.Report.company",
-      "persistenceChanges" : ""
+      "persistenceChanges" : "beans.batch.CleanReport.comment,beans.batch.CleanReport.company,beans.batch.CleanReport.batchId,beans.batch.CleanReport.title,beans.batch.CleanReport.id"
     }, {
       "name" : "service.user.UserMgmtServiceImpl.getAllUsers",
       "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName",
@@ -88,7 +92,7 @@
     }, {
       "name" : "service.report.ReportServiceImpl.createCompany",
       "input" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business",
-      "persistenceChanges" : ""
+      "persistenceChanges" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business"
     }, {
       "name" : "service.report.ReportServiceImpl.getAllCompanies",
       "input" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business",
@@ -96,7 +100,7 @@
     }, {
       "name" : "service.report.ReportServiceImpl.editReport",
       "input" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company",
-      "persistenceChanges" : ""
+      "persistenceChanges" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company"
     }, {
       "name" : "service.report.ReportServiceImpl.getReportById",
       "input" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company",
@@ -104,11 +108,11 @@
     }, {
       "name" : "service.report.ReportServiceImpl.createReport",
       "input" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company",
-      "persistenceChanges" : ""
+      "persistenceChanges" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company"
     }, {
       "name" : "service.report.ReportServiceImpl.editCompany",
       "input" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business",
-      "persistenceChanges" : ""
+      "persistenceChanges" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business"
     }, {
       "name" : "service.messages.AuditServiceImpl.getMessageById",
       "input" : "beans.messages.AuditMessage.id,beans.messages.AuditMessage.createDate,beans.messages.AuditMessage.msg",
@@ -142,13 +146,21 @@
       "input" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business",
       "persistenceChanges" : ""
     }, {
+      "name" : "service.report.ReportServiceImpl.deleteCompany",
+      "input" : "",
+      "persistenceChanges" : "beans.report.Company.foundation,beans.report.Company.id,beans.report.Company.name,beans.report.Company.location,beans.report.Company.business"
+    }, {
+      "name" : "service.batch.BatchServiceImpl.deleteBatch",
+      "input" : "",
+      "persistenceChanges" : "beans.batch.CleanReport.comment,beans.batch.CleanReport.company,beans.batch.CleanReport.batchId,beans.batch.CleanReport.title,beans.batch.CleanReport.id"
+    }, {
       "name" : "service.user.UserMgmtServiceImpl.createUser",
       "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName",
-      "persistenceChanges" : ""
+      "persistenceChanges" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName"
     }, {
       "name" : "service.report.ReportServiceImpl.addNewLike",
       "input" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company",
-      "persistenceChanges" : ""
+      "persistenceChanges" : "beans.report.Report.title,beans.report.Report.reporter,beans.report.Report.comment,beans.report.Report.createDate,beans.report.Report.rating,beans.report.Report.id,beans.report.Report.liker,beans.report.Report.likes,beans.report.Report.company"
     }, {
       "name" : "service.user.UserMgmtServiceImpl.getUserGroupOfUser",
       "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.UserGroup.permissions,beans.user.UserGroup.id,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.UserGroup.groupExtID,beans.user.User.firstName",
@@ -156,7 +168,7 @@
     }, {
       "name" : "service.user.UserMgmtServiceImpl.editUser",
       "input" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName",
-      "persistenceChanges" : ""
+      "persistenceChanges" : "beans.user.User.group,beans.user.User.userExtID,beans.user.User.mail,beans.user.User.salt,beans.user.User.id,beans.user.User.password,beans.user.User.lastName,beans.user.User.firstName"
     } ],
     "criteria" : { },
     "compatibilities" : { }
