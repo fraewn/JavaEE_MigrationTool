@@ -455,20 +455,26 @@ public class AnalyzerImpl implements Analyzer {
 					if (body != null) {
 						body.findAll(MethodCallExpr.class).forEach(x -> {
 							for (Case c : allCases) {
-								if (x.getNameAsString().equals(c.getUseCase())
-										&& x.resolve().getQualifiedName().equals(c.getId())) {
-									LOG.debug("Method: {} contains: {}", method.getNameAsString(), x.getNameAsString());
-									Case origin = new Case(e.getKey(), method.getNameAsString());
-									if (listRead.get(origin) != null) {
-										int before = listRead.get(origin).size();
-										listRead.get(origin).addAll(listRead.get(c));
-										flag.set(listRead.get(origin).size() != before);
+								try {
+									if (x.getNameAsString().equals(c.getUseCase())
+											&& x.resolve().getQualifiedName().equals(c.getId())) {
+										LOG.debug("Method: {} contains: {}", method.getNameAsString(),
+												x.getNameAsString());
+										Case origin = new Case(e.getKey(), method.getNameAsString());
+										if (listRead.get(origin) != null) {
+											int before = listRead.get(origin).size();
+											listRead.get(origin).addAll(listRead.get(c));
+											flag.set(listRead.get(origin).size() != before);
+										}
+										if (listWrite.get(origin) != null) {
+											int before = listRead.get(origin).size();
+											listWrite.get(origin).addAll(listWrite.get(c));
+											flag.set(listRead.get(origin).size() != before);
+										}
 									}
-									if (listWrite.get(origin) != null) {
-										int before = listRead.get(origin).size();
-										listWrite.get(origin).addAll(listWrite.get(c));
-										flag.set(listRead.get(origin).size() != before);
-									}
+								} catch (Exception e2) {
+									LOG.warn(e2.getMessage());
+									// dirty; should be explored why sometimes a method is missing
 								}
 							}
 						});
