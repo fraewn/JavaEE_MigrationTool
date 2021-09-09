@@ -15,10 +15,8 @@
 		</File>
 	</Appenders>
 	<Loggers>
-		<Root level="info">
-			<AppenderRef ref="ConsoleAppender" />
-		</Root>
 		<Root level="debug">
+			<AppenderRef ref="ConsoleAppender" />
 			<AppenderRef ref="MyFile" />
 		</Root>
 	</Loggers>
