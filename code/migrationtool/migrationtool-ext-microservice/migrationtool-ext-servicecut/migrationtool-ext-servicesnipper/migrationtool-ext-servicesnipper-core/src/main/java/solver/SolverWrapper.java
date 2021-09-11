@@ -101,6 +101,6 @@ public abstract class SolverWrapper<N, E> implements Solver {
 	}
 
 	private String uniqueId(int current, char start, int cycle) {
-		return "" + (current % cycle) + "-" + (start + (current / cycle));
+		return "" + (current % cycle) + "-" + start;
 	}
 }

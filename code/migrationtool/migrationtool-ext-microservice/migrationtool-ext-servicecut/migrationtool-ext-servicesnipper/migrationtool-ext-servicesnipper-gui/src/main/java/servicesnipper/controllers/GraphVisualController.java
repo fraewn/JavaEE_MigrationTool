@@ -90,7 +90,7 @@ public class GraphVisualController implements ChildController<GraphProcessingSte
 
 	@FXML
 	public void initialize() {
-		this.showLabels.setSelected(false);
+		this.showLabels.setSelected(true);
 		this.showLabels.setOnAction(event -> {
 			this.viewerGraph.showLabels(this.showLabels.isSelected());
 			this.viewerCluster.showLabels(this.showLabels.isSelected());
@@ -162,11 +162,9 @@ public class GraphVisualController implements ChildController<GraphProcessingSte
 				this.viewerCluster.reset();
 				reloadTableCluster((GraphModel) dto);
 				this.viewerCluster.update((GraphModel) dto);
-				this.viewerCluster.showLabels(this.showLabels.isSelected());
 			} else {
 				reloadTableGraph((GraphModel) dto);
 				this.viewerGraph.update((GraphModel) dto);
-				this.viewerGraph.showLabels(this.showLabels.isSelected());
 			}
 		}
 	}
