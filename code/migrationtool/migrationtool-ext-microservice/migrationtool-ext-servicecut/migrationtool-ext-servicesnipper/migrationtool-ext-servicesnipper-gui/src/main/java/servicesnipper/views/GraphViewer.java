@@ -129,17 +129,17 @@ public class GraphViewer {
 	public void reset() {
 		this.graph.clear();
 		this.graph.setAttribute("ui.stylesheet", "url('file://" + this.view.getCssFile() + "')");
-		this.graph.setAttribute("layout.quality", 4);
+		this.graph.setAttribute("layout.quality", 1);
 	}
 
 	public void showLabels(boolean visible) {
 		for (Node node : this.graph) {
-			node.setAttribute("ui.style", "text-visibility: 0.5;");
+			node.setAttribute("ui.style", "text-visibility: 0.3;");
 			node.setAttribute("ui.style", "text-visibility-mode: " + (visible ? "normal;" : "under-zoom;"));
 		}
 		for (int i = 0; i < this.graph.getEdgeCount(); i++) {
 			Edge e = this.graph.getEdge(i);
-			e.setAttribute("ui.style", "text-visibility: 0.5;");
+			e.setAttribute("ui.style", "text-visibility: 0.3;");
 			e.setAttribute("ui.style", "text-visibility-mode: " + (visible ? "normal;" : "under-zoom;"));
 		}
 	}
