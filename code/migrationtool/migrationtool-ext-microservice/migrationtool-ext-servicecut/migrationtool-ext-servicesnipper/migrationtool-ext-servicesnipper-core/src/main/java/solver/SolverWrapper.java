@@ -47,7 +47,7 @@ public abstract class SolverWrapper<N, E> implements Solver {
 			// calc weight
 			for (Entry<String, Double> edge : entry.getValue().entrySet()) {
 				double sum = edge.getValue();
-				if (sum >= 0) {
+				if ((sum >= 0) && !entry.getKey().equals(edge.getKey())) {
 					// positive edge
 					createEdge(entry.getKey(), edge.getKey(), sum);
 				} else {
