@@ -129,7 +129,7 @@ public class GraphViewer {
 	public void reset() {
 		this.graph.clear();
 		this.graph.setAttribute("ui.stylesheet", "url('file://" + this.view.getCssFile() + "')");
-		this.graph.setAttribute("layout.quality", 1);
+		this.graph.setAttribute("layout.quality", 4);
 	}
 
 	public void showLabels(boolean visible) {
