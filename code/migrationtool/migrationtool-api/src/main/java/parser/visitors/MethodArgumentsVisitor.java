@@ -41,9 +41,13 @@ public class MethodArgumentsVisitor extends GenericVisitorAdapter<Boolean, Void>
 	public Boolean visit(MethodCallExpr n, Void arg) {
 		if (this.pos.equals(ArgumentPosition.CALL_EXPRESSION)) {
 			for (Expression exp : n.getArguments()) {
-				String typeOfParam = TypeResolver.getFullyQualifiedName(exp.calculateResolvedType());
-				if (typeOfParam.equals(this.searchedEntity)) {
-					return Boolean.TRUE;
+				try {
+					String typeOfParam = TypeResolver.getFullyQualifiedName(exp.calculateResolvedType());
+					if (typeOfParam.equals(this.searchedEntity)) {
+						return Boolean.TRUE;
+					}
+				} catch (Exception e) {
+					// dirty; some expressions are not resolvable
 				}
 			}
 		}

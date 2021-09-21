@@ -196,7 +196,7 @@ public class GraphConfigController implements ChildController<GraphProcessingSte
 				this.resources.getString(keyPrefix + NUMBER_CLUSTERS),
 				this.resources.getString(keyPrefix + NUMBER_CLUSTERS + ".tooltip"));
 		this.algoConfig.getChildren().add(labelCluster);
-		JFXSlider slider = ComponentFactory.createSlider(5, 30, 3);
+		JFXSlider slider = ComponentFactory.createSlider(5, 60, 3);
 		slider.setMin(2);
 		slider.valueProperty().addListener((obs, oldval, newVal) -> {
 			slider.setValue(newVal.intValue());
