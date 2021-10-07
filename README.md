@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img src="http://www.jfoenix.com/img/logo-JFX.png">
+    <img src="documentation/logo.png">
 </h1>
 <p align="center">
 <sup>
